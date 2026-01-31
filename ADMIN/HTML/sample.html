@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Product Variation</title>
+
+<style>
+body {
+  font-family: 'Inter', sans-serif;
+  background: #fff;
+}
+
+.variation-wrapper {
+  width: 1000px;
+  margin: 40px auto;
+}
+
+/* TITLE */
+.variation-title {
+  font-size: 24px;
+  color: #7A7A7A;
+  margin-bottom: 25px;
+}
+
+/* INPUTS */
+.field-label {
+  font-size: 15px;
+  color: #7A7A7A;
+  display: block;
+  margin: 15px 0 6px;
+}
+
+.pill-input {
+  width: 918px;
+  height: 45px;
+  border-radius: 20px;
+  border: 1px solid #F4DDE6;
+  padding: 0 20px;
+  font-size: 15px;
+  box-shadow: 0 4px 4px rgba(0,0,0,.25);
+}
+
+/* ADD BUTTON */
+.add-btn {
+  width: 84px;
+  height: 27px;
+  background: #C94A7C;
+  border-radius: 30px;
+  border: 1px solid #F4DDE6;
+  margin: 20px 0 30px 250px;
+  cursor: pointer;
+}
+
+.variation-box {
+  width: 912px;
+  height: 287px;
+  background: #fff;
+  border: 1px solid #000;
+  box-sizing: border-box;
+  padding: 20px;
+}
+
+
+/* HEADER */
+.variation-header {
+  display: grid;
+  grid-template-columns: 
+    120px   /* COLOR */
+    1px     /* divider */
+    200px    /* SIZE */
+    60px   /* PRICE (₱ + input) */
+    250px    /* QTY */
+    150px;  /* SKU */
+  font-size: 10px;
+  color: #7A7A7A;
+  border-bottom: 1px solid #000;
+  padding-bottom: 8px;
+  text-align: center;        /* 🔥 THIS CENTERS TEXT */
+  align-items: center;
+}
+
+
+/* BODY */
+.variation-body {
+  display: grid;
+  grid-template-columns: 120px 1px auto;
+  margin-top: 15px;
+}
+
+/* DIVIDER */
+.divider {
+  background: #000;
+}
+
+
+/* LEFT COLUMN */
+.color-col {
+  text-align: center;
+}
+
+.color-name {
+  font-size: 12px;
+  color: #7A7A7A;
+  margin-bottom: 10px;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 120px 1px 86px 86px 86px 172px;
+  font-family: 'Inter';
+  font-size: 10px;
+  color: #7A7A7A;
+  border-bottom: 1px solid #000;
+  padding-bottom: 8px;
+  gap: 50px;
+}
+
+
+
+.row {
+  display: grid;
+  grid-template-columns: 86px 120px 86px 172px;
+  align-items: center;
+  gap: 40px;
+  margin-bottom: 20px;
+}
+
+.size-box,
+.price-box,
+.qty-box {
+  width: 86px;
+  height: 30px;
+  border: 1px solid #000;
+  border-radius: 5px;
+  font-family: 'Inter';
+  font-size: 15px;
+  text-align: center;
+  margin-left: 50px;
+}
+
+
+.sku-box {
+  width: 172px;
+  height: 30px;
+  border: 1px solid #000;
+  border-radius: 5px;
+  margin-left: 90px;
+}
+
+
+
+
+
+
+
+</style>
+</head>
+
+<body>
+
+<div class="variation-wrapper">
+
+  <h2 class="variation-title">Variation</h2>
+
+  <label class="field-label">COLOR</label>
+  <input class="pill-input" value="BLUE">
+
+  <label class="field-label">SIZE</label>
+  <input class="pill-input" value="SMALL, MEDIUM, LARGE">
+
+  <button class="add-btn">add</button>
+
+  <div class="variation-box">
+
+    <div class="variation-header">
+      <span>COLOR</span>
+      <span></span>
+      <span>SIZE</span>
+      <span>PRICE</span>
+      <span>QTY</span>
+      <span>SKU</span>
+    </div>
+
+    <div class="variation-body">
+
+      <!-- LEFT -->
+      <div class="color-col">
+        <div class="color-name">BLUE</div>
+        <div class="upload-box">UPLOAD<br>PHOTO</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- RIGHT -->
+      <div class="rows">
+        <div class="row">
+          <input class="size-box" value="SMALL">
+          <div class="price-wrap">
+            <input class="price-box" value="200">
+          </div>
+          <input class="qty-box" value="2">
+          <input class="sku-box">
+        </div>
+
+        <div class="row">
+          <input class="size-box" value="MEDIUM">
+          <div class="price-wrap">
+            <input class="price-box" value="200">
+          </div>
+          <input class="qty-box" value="22">
+          <input class="sku-box">
+        </div>
+
+        <div class="row">
+          <input class="size-box" value="LARGE">
+          <div class="price-wrap">
+            <input class="price-box" value="200">
+          </div>
+          <input class="qty-box" value="1">
+          <input class="sku-box">
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+function addVariation() {
+  const color = document.getElementById("colorInput").value.trim();
+  const sizes = document.getElementById("sizeInput").value.split(",");
+
+  if (!color || sizes.length === 0) {
+    alert("Please enter color and size");
+    return;
+  }
+
+  const table = document.getElementById("variationTable");
+
+  const group = document.createElement("div");
+  group.className = "color-group";
+
+  // LEFT SIDE (COLOR + PHOTO)
+  const left = document.createElement("div");
+  left.className = "color-left";
+  left.innerHTML = `
+    <div class="color-name">${color.toUpperCase()}</div>
+    <div class="upload-box">UPLOAD<br>PHOTO</div>
+  `;
+
+  // RIGHT SIDE (SIZES)
+  const right = document.createElement("div");
+  right.className = "color-right";
+
+  sizes.forEach(size => {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.innerHTML = `
+      <input value="${size.trim().toUpperCase()}" readonly>
+      <input placeholder="₱200">
+      <input placeholder="0">
+      <input placeholder="">
+    `;
+    right.appendChild(row);
+  });
+
+ const divider = document.createElement("div");
+divider.className = "vertical-divider";
+
+group.appendChild(left);
+group.appendChild(divider);
+group.appendChild(right);
+
+  table.appendChild(group);
+
+  // clear inputs
+  document.getElementById("colorInput").value = "";
+  document.getElementById("sizeInput").value = "";
+}
+</script>
+
+</body>
+</html>
