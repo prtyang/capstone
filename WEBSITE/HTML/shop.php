@@ -10,7 +10,6 @@ if (!empty($category)) {
   $categorySql = " AND p.category = '$safeCategory' ";
 }
 
-
 // SEARCH
 $search = $_GET['search'] ?? '';
 
@@ -46,7 +45,6 @@ $countResult = $conn->query($countSql);
 $totalRows = $countResult->fetch_assoc()['total'];
 $totalPages = ceil($totalRows / $limit);
 
-
 $sql = "
   SELECT 
     p.id,
@@ -68,6 +66,15 @@ $sql = "
   LIMIT $limit OFFSET $offset
 ";
 $result = $conn->query($sql);
+
+//FOOTER
+$settings = [];
+$res = $conn->query("SELECT setting_key, setting_value FROM site_settings");
+
+while ($row = $res->fetch_assoc()) {
+  $settings[$row['setting_key']] = $row['setting_value'];
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -91,13 +98,13 @@ $result = $conn->query($sql);
 
   <div class="header-right">
     <div class="icons">
-      <a href="cart.html" class="icon"><img src="../PICTURE/cart.png"></a>
-      <a href="wishlist.html" class="icon"><img src="../PICTURE/wishlist.png"></a>
+      <a href="wishlist.php" class="icon"><img src="../PICTURE/wishlist.png"></a>
+      <a href="cart.php" class="icon"><img src="../PICTURE/cart.png"></a>
       <a href="login.html" class="icon"><img src="../PICTURE/profile.jpg"></a>
     </div>
 
     <nav class="nav">
-      <a href="index.html">HOME</a>
+      <a href="index.php">HOME</a>
       <a href="home.php">SHOP</a>
       <a href="shop.php">PRODUCT</a>
       <a href="try-on.html">TRY-ON</a>
@@ -131,9 +138,13 @@ $result = $conn->query($sql);
 
       <select name="category" onchange="this.form.submit()">
         <option value="">ALL</option>
+
         <option value="BRA" <?php if ($category === 'BRA') echo 'selected'; ?>>BRA</option>
         <option value="PANTY" <?php if ($category === 'PANTY') echo 'selected'; ?>>PANTY</option>
         <option value="SLEEPWEAR" <?php if ($category === 'SLEEPWEAR') echo 'selected'; ?>>SLEEPWEAR</option>
+        <option value="SANDO" <?php if ($category === 'SANDO') echo 'selected'; ?>>SANDO</option>
+        <option value="PANTYLET" <?php if ($category === 'PANTYLET') echo 'selected'; ?>>PANTYLET</option>
+        <option value="PANTYSHORT" <?php if ($category === 'PANTYSHORT') echo 'selected'; ?>>PANTYSHORT</option>
       </select>
     </form>
   </div>
@@ -148,8 +159,8 @@ $result = $conn->query($sql);
 
   <a href="product-view.php?id=<?php echo $row['id']; ?>" class="card-link">
 
-    <div class="image-box"
-      style="background-image:url('../../uploads/<?php echo $row['image']; ?>');">
+    <div class="image-box">
+      <img src="../../uploads/<?php echo $row['image']; ?>" alt="">
     </div>
 
 <div class="product-info">
@@ -183,97 +194,106 @@ $result = $conn->query($sql);
   <span class="heart"
   onclick="event.stopPropagation(); event.preventDefault(); addToWishlist(this);">
   ♡
-</span>
-
-
-</div>
-
+  </span>
+    </div>
 <?php } ?>
-
 </section>
 
 <!--PAGINATION-->
 <?php if ($totalPages > 1) { ?>
-<div class="pagination">
+  <div class="pagination">
 
-<?php if ($page > 1) { ?>
-  <a href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&category=<?php echo urlencode($category); ?>">
-    Prev
-  </a>
+    <?php if ($page > 1) { ?>
+      <a href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&category=<?php echo urlencode($category); ?>">
+        Prev
+      </a>
+    <?php } ?>
+
+    <?php for ($i = 1; $i <= $totalPages; $i++) { ?>
+      <a
+        href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&category=<?php echo urlencode($category); ?>"
+        class="<?php echo $i == $page ? 'active' : ''; ?>"
+      >
+        <?php echo $i; ?>
+      </a>
+        <?php } ?>
+
+    <?php if ($page < $totalPages) { ?>
+      <a href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&category=<?php echo urlencode($category); ?>">
+        Next
+      </a>
+    <?php } ?>
+  </div>
 <?php } ?>
 
-<?php for ($i = 1; $i <= $totalPages; $i++) { ?>
-  <a
-    href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&category=<?php echo urlencode($category); ?>"
-    class="<?php echo $i == $page ? 'active' : ''; ?>"
-  >
-    <?php echo $i; ?>
-  </a>
-<?php } ?>
+<!-- FOOTER  -->
+<footer class="footer">
 
-<?php if ($page < $totalPages) { ?>
-  <a href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&category=<?php echo urlencode($category); ?>">
-    Next
-  </a>
-<?php } ?>
+  <div class="footer-container">
 
+    <!-- LEFT -->
+    <div class="footer-col brand">
+      <img src="../PICTURE/logo.png" alt="Forever Logo" class="footer-logo">
 
-</div>
-<?php } ?>
+      <div class="footer-socials">
+        <a href="https://web.facebook.com/intimateforeverph" target="_blank">
+          <img src="../PICTURE/FB.png">
+        </a>
+        <a href="https://www.instagram.com/intimateforeverph/" target="_blank">
+          <img src="../PICTURE/IG.png">
+        </a>
+        <a href="https://www.tiktok.com/@intimateforeverph" target="_blank">
+          <img src="../PICTURE/TIKTOK.png">
+        </a>
+        <a href="https://shopee.ph/forever_ph" target="_blank">
+          <img src="../PICTURE/SHOPEE.png">
+        </a>
+        <a href="https://www.lazada.com.ph/shop/intimateforever" target="_blank">
+          <img src="../PICTURE/LAZADA.webp">
+        </a>
+      </div>
+    </div>
 
+    <!-- SUPPORT -->
+    <div class="footer-col">
+      <h4>SUPPORT</h4>
+      <a href="#">Terms of Service</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Refund Policy</a>
+      <a href="#">About</a>
+    </div>
 
-<div class="divider-line"></div>
+    <!-- EXTRA LINK -->
+    <div class="footer-col">
+      <h4>EXTRA LINK</h4>
+      <a href="home.php">Product</a>
+      <a href="try-on.html">Try-on</a>
+      <a href="home.php">Shop</a>
+    </div>
 
-<!--  FOOTER  -->
-  <footer class="footer">
-    <h2>LET’S CONNECT!</h2>
+    <!-- CONTACT -->
+    <div class="footer-col">
+      <h4>CONTACT</h4>
 
-    <div class="socials">
-      <a href="https://web.facebook.com/intimateforeverph" target="_blank">
-        <img src="../PICTURE/FB.png" alt="Facebook">
-      </a>
+      <p><?= htmlspecialchars($settings['footer_phone'] ?? '') ?></p>
 
-      <a href="https://www.instagram.com/intimateforeverph/" target="_blank">
-        <img src="../PICTURE/IG.png" alt="Instagram">
-      </a>
+      <p><?= nl2br(htmlspecialchars($settings['footer_address'] ?? '')) ?></p>
 
-      <a href="https://www.tiktok.com/@intimateforeverph?lang=en" target="_blank">
-        <img src="../PICTURE/TIKTOK.png" alt="TikTok">
-      </a>
-
-      <a href="https://shopee.ph/forever_ph?categoryId=100017&entryPoint=ShopByPDP&itemId=12634684993&upstream=search" target="_blank">
-        <img src="../PICTURE/SHOPEE.png" alt="Shopee">
-      </a>
-
-      <a href="https://www.lazada.com.ph/shop/intimateforever?spm=a211g0.store_hp.top.share&dsource=share&laz_share_info=2386099838_0_7900_500672016194_2386101838_null&laz_token=2b79ba534c50bd531f3a3908bdbdd40f&exlaz=e_1utFWoJ%2B51jGip8qo24MCZFmNCmP6gU%2FnnWa525VocjCXvTKdNAtBbVs1%2B5q2wp%2BGS5d%2BCcBXmHn7bOPEPY8UzkCKkVzibKGD3WnASIas1Y%3D&sub_aff_id=social_share&sub_id2=2386099838&sub_id3=500672016194&sub_id6=CPI_EXLAZ"
-        target="_blank">
-        <img src="../PICTURE/LAZADA.webp" alt="Lazada">
+      <a href="mailto:<?= htmlspecialchars($settings['footer_email'] ?? '') ?>">
+          <?= htmlspecialchars($settings['footer_email'] ?? '') ?>
       </a>
     </div>
 
-    <p>
-      64 J.P Bautista Caloocan, Caloocan, Philippines<br>
-      0939 819 6120<br>
-      <a href="mailto:intimateforevergarments@gmail.com">
-        intimateforevergarments@gmail.com
-      </a>
-    </p>
 
-    <div class="footer-links">
-      <a href="#">Terms of Service</a>
-      <span>|</span>
-      <a href="#">Privacy Policy</a>
-      <span>|</span>
-      <a href="#">Refund Policy</a>
+  </div>
 
-    <p class="footer-copy">
-      © 2026 Capstone Project. All rights reserved.
-    </p>
-
+  <div class="footer-bottom">
+    © 2026 Capstone Project. All rights reserved.
+  </div>
 
 </footer>
 
 <script src="../JS/shop.js"></script>
-</div>
+
 </body>
 </html>

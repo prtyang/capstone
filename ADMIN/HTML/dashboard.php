@@ -10,25 +10,25 @@
 
 <div class="container">
 
-  <!-- SIDEBAR -->
+<!-- SIDEBAR -->
 
-   <aside class="sidebar">
+  <aside class="sidebar">
     <div class="logo">
       <img src="../PICTURE/logo.png">
     </div>
-   <nav class="menu">
+  <nav class="menu">
 
-  <a href="dashboard.html" onclick="goPage('dashboard.html')">
+  <a href="dashboard.php" class="active" onclick="goPage('dashboard.php')">
   <img src="../PICTURE/home logo.png" class="menu-icon">
   Dashboard
 </a>
 
-  <a href="product.php" onclick="goPage('product.html')">
+  <a href="product.php" onclick="goPage('product.php')">
     <img src="../PICTURE/product logo.png" class="menu-icon">
     Product
   </a>
 
-  <a href="order.html" onclick="goPage('order.html')">
+  <a href="order.php" onclick="goPage('order.php')">
     <img src="../PICTURE/ORDER LOGO.webp" class="menu-icon">
     Order
   </a>
@@ -43,11 +43,18 @@
     Marketing
   </a>
 
-  <a href="account.html" onclick="goPage('account.html')">
+  <a href="account.php" onclick="goPage('account.php')">
     <img src="../PICTURE/ACCOUNT LOGO.png" class="menu-icon">
     Account
   </a>
 </nav>
+
+    <div class="logout-bar">
+    <div class="logout-content">
+        <span class="logout-text">LOG OUT</span>
+    </div>
+    </div>
+    
     </aside>
 
   <!-- MAIN CONTENT -->

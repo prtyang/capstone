@@ -4,6 +4,26 @@ let variationState = {
   data: {}
 };
 
+function previewSizeChart(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const box = input.closest(".size-chart-upload");
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    box.style.backgroundImage = `url(${e.target.result})`;
+    box.style.backgroundSize = "contain";
+    box.style.backgroundPosition = "center";
+    box.style.backgroundRepeat = "no-repeat";
+
+    const span = box.querySelector("span");
+    if (span) span.style.display = "none";
+  };
+
+  reader.readAsDataURL(file);
+}
+
 /* IMAGE PREVIEW */
 function previewImage(input) {
   const file = input.files[0];
@@ -161,7 +181,7 @@ function renderVariationsFromState() {
 }
 
 
-/* ===== SHOPEE STYLE VARIATION GENERATOR ===== */
+/* VARIATION GENERATOR */
 document.addEventListener("DOMContentLoaded", () => {
 
   const colorInput = document.getElementById("variationColors");
@@ -243,15 +263,12 @@ Object.keys(variationState.data).forEach(color => {
   }
 });
 
-renderVariationsFromState();
+  // FILL COLOR & SIZE TEXTBOXES IN EDIT MODE
+document.getElementById("variationColors").value =
+  variationState.colors.join(", ");
 
-
-  // remove deleted colors
-  Object.keys(variationState.data).forEach(color => {
-    if (!variationState.colors.includes(color)) {
-      delete variationState.data[color];
-    }
-  });
+document.getElementById("variationSizes").value =
+  variationState.sizes.join(", ");
 
   renderVariationsFromState();
 });
@@ -289,6 +306,14 @@ document.addEventListener("DOMContentLoaded", () => {
       id: v.id
     };
   });
+
+  // AUTO-FILL COLOR & SIZE TEXTBOXES (EDIT MODE)
+document.getElementById("variationColors").value =
+  variationState.colors.join(", ");
+
+document.getElementById("variationSizes").value =
+  variationState.sizes.join(", ");
+
 
   renderVariationsFromState();
 });
@@ -354,3 +379,21 @@ function handleVariationImage(input, color) {
 
   reader.readAsDataURL(file);
 }
+
+/* AUTO-EXPAND TEXTAREA (DESCRIPTION) */
+function autoExpandTextarea(el) {
+  el.style.height = "auto";
+  el.style.height = el.scrollHeight + "px";
+}
+
+// Expand while typing
+document.addEventListener("input", function (e) {
+  if (e.target.classList.contains("auto-expand")) {
+    autoExpandTextarea(e.target);
+  }
+});
+
+// Expand on page load (EDIT MODE)
+window.addEventListener("load", function () {
+  document.querySelectorAll(".auto-expand").forEach(autoExpandTextarea);
+});

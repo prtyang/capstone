@@ -50,14 +50,13 @@ while ($row = $colorRes->fetch_assoc()) {
   $colors[] = $row['color'];
 }
 
-
 if ($priceRes && $priceRes->num_rows > 0) {
   $p = $priceRes->fetch_assoc();
   $minPrice = $p['min_price'];
   $maxPrice = $p['max_price'];
 }
 
-/* LOAD SIZES FROM VARIATIONS */
+/* SIZES VARIATIONS */
 $sizes = [];
 
 $sizeRes = $conn->query("
@@ -65,13 +64,43 @@ $sizeRes = $conn->query("
   FROM product_variations
   WHERE product_id = $id
   AND size <> ''
-  ORDER BY size ASC
+  ORDER BY
+    /* TEXT SIZES */
+    CASE UPPER(size)
+      WHEN 'XS' THEN 1
+      WHEN 'S' THEN 2
+      WHEN 'SMALL' THEN 2
+      WHEN 'M' THEN 3
+      WHEN 'MEDIUM' THEN 3
+      WHEN 'L' THEN 4
+      WHEN 'LARGE' THEN 4
+      WHEN 'XL' THEN 5
+      WHEN 'XXL' THEN 6
+      WHEN '2XL' THEN 6
+      WHEN '3XL' THEN 7
+      ELSE 100
+    END,
+
+    /* PURE NUMBERS (32,34,36) */
+    CASE 
+      WHEN size REGEXP '^[0-9]+$' THEN CAST(size AS UNSIGNED)
+      ELSE 999
+    END,
+
+    /* LETTER + NUMBER (A32, B34) */
+    CASE
+      WHEN size REGEXP '^[A-Za-z]+[0-9]+$'
+      THEN CAST(REGEXP_SUBSTR(size,'[0-9]+') AS UNSIGNED)
+      ELSE 9999
+    END,
+
+    /* FINAL FALLBACK */
+    size ASC
 ");
 
 while ($row = $sizeRes->fetch_assoc()) {
   $sizes[] = $row['size'];
 }
-
 
 /* LOAD REVIEWS */
 $reviews = [];
@@ -101,7 +130,6 @@ if ($totalReviews > 0) {
   $averageRating = round($sum / $totalReviews, 1);
 }
 
-
 /* LOAD ALL VARIATIONS */
 $variations = [];
 
@@ -111,12 +139,19 @@ $varRes = $conn->query("
   WHERE product_id = $id
 ");
 
-
 while ($row = $varRes->fetch_assoc()) {
   $variations[] = $row;
 }
 
+$cartIndex = isset($_GET['cartIndex']) ? (int)$_GET['cartIndex'] : -1;
 
+//FOOTER
+$settings = [];
+$res = $conn->query("SELECT setting_key, setting_value FROM site_settings");
+
+while ($row = $res->fetch_assoc()) {
+    $settings[$row['setting_key']] = $row['setting_value'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -142,12 +177,13 @@ while ($row = $varRes->fetch_assoc()) {
     <div class="header-right">
 
       <div class="icons">
-        <a href="cart.html" class="icon">
-          <img src="../PICTURE/cart.png" alt="Cart">
+
+        <a href="wishlist.php" class="icon">
+          <img src="../PICTURE/wishlist.png" alt="Wishlist">
         </a>
 
-        <a href="wishlist.html" class="icon">
-          <img src="../PICTURE/wishlist.png" alt="Wishlist">
+        <a href="cart.php" class="icon">
+          <img src="../PICTURE/cart.png" alt="Cart">
         </a>
 
         <a href="login.html" class="icon" id="userIcon">
@@ -156,7 +192,7 @@ while ($row = $varRes->fetch_assoc()) {
       </div>
 
       <nav class="nav">
-        <a href="index.html">HOME</a>
+        <a href="index.php">HOME</a>
         <a href="home.php">SHOP</a>
         <a href="shop.php">PRODUCT</a>
         <a href="try-on.html">TRY-ON</a>
@@ -208,11 +244,6 @@ while ($row = $varRes->fetch_assoc()) {
     <?php echo htmlspecialchars($product['name']); ?>
   </span>
 </div>
-
-<p class="description">
-  <?php echo htmlspecialchars($product['description']); ?>
-</p>
-
   <p class="price">
   ₱
   <?php
@@ -243,11 +274,13 @@ while ($row = $varRes->fetch_assoc()) {
     <?php } ?>
 
     <?php foreach ($colors as $c) { ?>
+    
       <span
         class="color"
-        title="<?php echo htmlspecialchars($c); ?>"
+        data-color="<?php echo htmlspecialchars($c); ?>"
         style="background: <?php echo htmlspecialchars($c); ?>;">
       </span>
+      
     <?php } ?>
   </div>
 </div>
@@ -287,14 +320,57 @@ while ($row = $varRes->fetch_assoc()) {
 
 <!-- BUTTONS -->
   <div class="actions">
-      <a href="#" class="btn outline">ADD TO BASKET</a>
-      <a href="#" class="btn solid">CHECKOUT</a>
+
+      <button type="button" class="btn outline" id="addToCartBtn">
+        ADD TO BASKET
+    </button>
+
+      <button type="button" class="btn solid" id="checkoutBtn">
+        CHECKOUT
+      </button>
+
     </div>
   </div>
 
   </section>
 
   <hr>
+
+  <!-- PRODUCT DETAILS -->
+  <section class="product-details">
+
+  <div class="details-text">
+    <p>
+      <strong><?php echo htmlspecialchars($product['name']); ?></strong>
+    </p>
+
+    <p>
+      Category:
+      <?php echo htmlspecialchars($product['category']); ?>
+    </p>
+
+    <p>
+      <?php echo nl2br(htmlspecialchars($product['description'])); ?>
+    </p>
+  </div>
+
+  <div class="size-chart">
+    <p class="size-title">Size Chart</p>
+
+    <?php if (!empty($product['size_chart'])) { ?>
+      <img
+        src="../../uploads/<?php echo $product['size_chart']; ?>"
+        alt="Size Chart"
+        class="size-chart-img"
+      >
+    <?php } else { ?>
+      <p style="font-size:14px;color:#888;">No size chart available</p>
+    <?php } ?>
+  </div>
+
+  <div class="details-divider"></div>
+
+</section>
 
 <!-- RATINGS -->
 <section class="ratings-section">
@@ -364,73 +440,88 @@ while ($row = $varRes->fetch_assoc()) {
     <?php } ?>
   </div>
 
-</div>
-
-<p><?php echo htmlspecialchars($r['comment']); ?></p>
-      </div>
-    </div>
   <?php } ?>
 </section>
+</div> 
+<!-- FOOTER  -->
+<footer class="footer">
 
-<!-- FOOTER -->
-<div class="footer-wrapper">
-  <div class="divider-line"></div>
+  <div class="footer-container">
 
-  <footer class="footer">
+    <!-- LEFT -->
+    <div class="footer-col brand">
+      <img src="../PICTURE/logo.png" alt="Forever Logo" class="footer-logo">
 
-    <h2>LET’S CONNECT!</h2>
-
-    <div class="socials">
-      <a href="https://web.facebook.com/intimateforeverph" target="_blank">
-        <img src="../PICTURE/FB.png" alt="Facebook">
-      </a>
-
-      <a href="https://www.instagram.com/intimateforeverph/" target="_blank">
-        <img src="../PICTURE/IG.png" alt="Instagram">
-      </a>
-
-      <a href="https://www.tiktok.com/@intimateforeverph?lang=en" target="_blank">
-        <img src="../PICTURE/TIKTOK.png" alt="TikTok">
-      </a>
-
-      <a href="https://shopee.ph/forever_ph?categoryId=100017&entryPoint=ShopByPDP&itemId=12634684993&upstream=search" target="_blank">
-        <img src="../PICTURE/SHOPEE.png" alt="Shopee">
-      </a>
-
-      <a href="https://www.lazada.com.ph/shop/intimateforever?spm=a211g0.store_hp.top.share&dsource=share&laz_share_info=2386099838_0_7900_500672016194_2386101838_null&laz_token=2b79ba534c50bd531f3a3908bdbdd40f&exlaz=e_1utFWoJ%2B51jGip8qo24MCZFmNCmP6gU%2FnnWa525VocjCXvTKdNAtBbVs1%2B5q2wp%2BGS5d%2BCcBXmHn7bOPEPY8UzkCKkVzibKGD3WnASIas1Y%3D&sub_aff_id=social_share&sub_id2=2386099838&sub_id3=500672016194&sub_id6=CPI_EXLAZ"
-        target="_blank">
-        <img src="../PICTURE/LAZADA.webp" alt="Lazada">
-      </a>
+      <div class="footer-socials">
+        <a href="https://web.facebook.com/intimateforeverph" target="_blank">
+          <img src="../PICTURE/FB.png">
+        </a>
+        <a href="https://www.instagram.com/intimateforeverph/" target="_blank">
+          <img src="../PICTURE/IG.png">
+        </a>
+        <a href="https://www.tiktok.com/@intimateforeverph" target="_blank">
+          <img src="../PICTURE/TIKTOK.png">
+        </a>
+        <a href="https://shopee.ph/forever_ph" target="_blank">
+          <img src="../PICTURE/SHOPEE.png">
+        </a>
+        <a href="https://www.lazada.com.ph/shop/intimateforever" target="_blank">
+          <img src="../PICTURE/LAZADA.webp">
+        </a>
+      </div>
     </div>
 
-    <p>
-      64 J.P Bautista Caloocan, Caloocan, Philippines<br>
-      0939 819 6120<br>
-      <a href="mailto:intimateforevergarments@gmail.com">
-        intimateforevergarments@gmail.com
-      </a>
-    </p>
-
-    <div class="footer-links">
+    <!-- SUPPORT -->
+    <div class="footer-col">
+      <h4>SUPPORT</h4>
       <a href="#">Terms of Service</a>
-      <span>|</span>
       <a href="#">Privacy Policy</a>
-      <span>|</span>
       <a href="#">Refund Policy</a>
+      <a href="#">About</a>
+    </div>
 
-    <p class="footer-copy">
-      © 2026 Capstone Project. All rights reserved.
-    </p>
+    <!-- EXTRA LINK -->
+    <div class="footer-col">
+      <h4>EXTRA LINK</h4>
+      <a href="home.php">Product</a>
+      <a href="try-on.html">Try-on</a>
+      <a href="home.php">Shop</a>
+    </div>
 
-  </footer>
+    <!-- CONTACT -->
+    <div class="footer-col">
+      <h4>CONTACT</h4>
+
+        <p><?= htmlspecialchars($settings['footer_phone'] ?? '') ?></p>
+
+        <p><?= nl2br(htmlspecialchars($settings['footer_address'] ?? '')) ?></p>
+
+        <a href="mailto:<?= htmlspecialchars($settings['footer_email'] ?? '') ?>">
+          <?= htmlspecialchars($settings['footer_email'] ?? '') ?>
+        </a>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    © 2026 Capstone Project. All rights reserved.
+  </div>
+
+</footer>
+
+<script>
+const productData = {
+  id: <?= $product['id']; ?>,
+  brand: <?= json_encode($product['brand']); ?>,
+  name: <?= json_encode($product['name']); ?>,
+  image: <?= json_encode($product['image']); ?>
+};
+
+const variations = <?= json_encode($variations); ?>;
+const cartEditIndex = <?= $cartIndex ?>;
+</script>
+
 
   <script src="../JS/product-view.js"></script>
-
-</div>
-</div> 
-<script>
-  const variations = <?php echo json_encode($variations); ?>;
-</script>
 
 </body>
 </html>

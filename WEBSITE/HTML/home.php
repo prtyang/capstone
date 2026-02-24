@@ -1,4 +1,59 @@
+<?php
+$conn = new mysqli("localhost", "root", "", "capstone");
+if ($conn->connect_error) {
+    die("Database connection failed");
+}
 
+$images = [];
+$result = $conn->query("SELECT image_key, image_path FROM site_images");
+
+while ($row = $result->fetch_assoc()) {
+    $images[$row['image_key']] = $row['image_path'];
+}
+
+//FOOTER
+$settings = [];
+$res = $conn->query("SELECT setting_key, setting_value FROM site_settings");
+
+while ($row = $res->fetch_assoc()) {
+    $settings[$row['setting_key']] = $row['setting_value'];
+}
+
+// FEATURED PRODUCTS 
+$featuredProducts = $conn->query("
+    SELECT 
+        p.id,
+        p.name,
+        p.brand,
+        p.image,
+        COALESCE(MIN(v.price), 0) AS min_price,
+        COALESCE(MAX(v.price), 0) AS max_price
+    FROM products p
+    LEFT JOIN product_variations v ON v.product_id = p.id
+    WHERE p.status = 'active'
+    GROUP BY p.id
+    ORDER BY p.id DESC
+    LIMIT 4
+");
+
+// NORMAL PRODUCTS 
+$homeProducts = $conn->query("
+    SELECT 
+        p.id,
+        p.name,
+        p.brand,
+        p.image,
+        COALESCE(MIN(v.price), 0) AS min_price,
+        COALESCE(MAX(v.price), 0) AS max_price
+    FROM products p
+    LEFT JOIN product_variations v ON v.product_id = p.id
+    WHERE p.status = 'active'
+    GROUP BY p.id
+    ORDER BY p.id DESC
+    LIMIT 4 OFFSET 4
+");
+
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -9,8 +64,8 @@
 </head>
 
 <body>
-
 <div class="page">
+
 
   <!-- HEADER -->
   <header class="header">
@@ -21,31 +76,27 @@
       </a>
     </div>
 
-    <!-- SEARCH BAR -->
-    <div class="search-wrapper">
-      <input type="text" placeholder="search...">
-      <span class="search-icon"></span>
-    </div>
 
     <!-- ICONS + NAV -->
     <div class="header-right">
 
       <div class="icons">
-        <a href="cart.html" class="icon">
-          <img src="../PICTURE/cart.png" class="logo" alt="cart Logo">
-        </a>
 
-        <a href="wishlist.html" class="icon">
+        <a href="wishlist.php" class="icon">
           <img src="../PICTURE/wishlist.png" class="logo" alt="WISHLIST Logo">
         </a>
 
+        <a href="cart.php" class="icon">
+          <img src="../PICTURE/cart.png" class="logo" alt="cart Logo">
+        </a>
+        
         <a href="login.html" class="icon" id="userIcon">
           <img src="../PICTURE/profile.jpg" class="logo" alt="profile logo">
         </a>
       </div>
 
       <nav class="nav">
-        <a href="index.html">HOME</a>
+        <a href="index.php">HOME</a>
         <a href="home.php">SHOP</a>
         <a href="shop.php">PRODUCT</a>
         <a href="try-on.html">TRY-ON</a>
@@ -54,238 +105,208 @@
     </div>
   </header>
 
-  <!--  HERO -->
-  <section class="hero">
-    <img src="../PICTURE/FRONT SHOP.jpg" alt="Shop Banner">
-  </section>
-
-  <!-- CATEGORY = -->
-  <section class="category-section">
-
-  <a href="shop.php?category=BRA" class="category-card">
-    <img src="../PICTURE/category-bra.jpg" alt="Bra">
-      <span>BRA</span>
-  </a>
-
-  <a href="shop.php?category=PANTY" class="category-card">
-    <img src="../PICTURE/category-panty.jpg" alt="Panty">
-      <span>PANTY</span>
-  </a>
-
-  <a href="shop.php?category=SLEEPWEAR" class="category-card">
-    <img src="../PICTURE/category-sleepwear.jpg" alt="Sleepwear">
-      <span>SLEEPWEAR</span>
-  </a>
-
-  </section>
-
-<div class="page">
-
-  <!-- FEATURED PRODUCT -->
-  <section class="product-section">
-    <h2 class="section-title">FEATURED PRODUCT</h2>
-
-    <div class="product-grid">
-
-      <!-- PRODUCT CARD -->
-      <a href="product-detail.html?id=1" class="product-link">
-  <div class="product-card">
-    <div class="image-box"></div>
-    <div class="product-info">
-      <h4>Product Name</h4>
-      <p>Short description</p>
-      <span class="price">₱999</span>
-    </div>
-  </div>
-</a>
-
-    <a href="product-detail.html?id=2" class="product-link">
-  <div class="product-card">
-    <div class="image-box"></div>
-    <div class="product-info">
-      <h4>Product Name</h4>
-      <p>Short description</p>
-      <span class="price">₱999</span>
-    </div>
-  </div>
-</a>
-
-    <a href="product-view.html?id=3" class="product-link">
-  <div class="product-card">
-    <div class="image-box"></div>
-    <div class="product-info">
-      <h4>Product Name</h4>
-      <p>Short description</p>
-      <span class="price">₱999</span>
-    </div>
-  </div>
-</a>
-
-    <a href="product-detail.html?id=4" class="product-link">
-  <div class="product-card">
-    <div class="image-box"></div>
-    <div class="product-info">
-      <h4>Product Name</h4>
-      <p>Short description</p>
-      <span class="price">₱999</span>
-    </div>
-  </div>
-</a>
-
-       <a href="product-detail.html?id=5" class="product-link">
-  <div class="product-card">
-    <div class="image-box"></div>
-    <div class="product-info">
-      <h4>Product Name</h4>
-      <p>Short description</p>
-      <span class="price">₱999</span>
-    </div>
-  </div>
-</a>
-
-    <a href="product-detail.html?id62" class="product-link">
-  <div class="product-card">
-    <div class="image-box"></div>
-    <div class="product-info">
-      <h4>Product Name</h4>
-      <p>Short description</p>
-      <span class="price">₱999</span>
-    </div>
-  </div>
-</a>
-
-    <a href="product-detail.html?id=7" class="product-link">
-  <div class="product-card">
-    <div class="image-box"></div>
-    <div class="product-info">
-      <h4>Product Name</h4>
-      <p>Short description</p>
-      <span class="price">₱999</span>
-    </div>
-  </div>
-</a>
-
-    <a href="product-detail.html?id=8" class="product-link">
-  <div class="product-card">
-    <div class="image-box"></div>
-    <div class="product-info">
-      <h4>Product Name</h4>
-      <p>Short description</p>
-      <span class="price">₱999</span>
-    </div>
-  </div>
-</a>
-  </section>
-
-  <!-- PRODUCT -->
-  <section class="product-section">
-    <h2 class="section-title">PRODUCT</h2>
-
-    <div class="product-grid four-only">
-
-    <a href="product-detail.html?id=1" class="product-link">
-  <div class="product-card">
-    <div class="image-box"></div>
-    <div class="product-info">
-      <h4>Product Name</h4>
-      <p>Short description</p>
-      <span class="price">₱999</span>
-    </div>
-  </div>
-</a>
-
-    <a href="product-detail.html?id=2" class="product-link">
-  <div class="product-card">
-    <div class="image-box"></div>
-    <div class="product-info">
-      <h4>Product Name</h4>
-      <p>Short description</p>
-      <span class="price">₱999</span>
-    </div>
-  </div>
-</a>
-
-    <a href="product-detail.html?id=3" class="product-link">
-  <div class="product-card">
-    <div class="image-box"></div>
-    <div class="product-info">
-      <h4>Product Name</h4>
-      <p>Short description</p>
-      <span class="price">₱999</span>
-    </div>
-  </div>
-</a>
-
-    <a href="product-detail.html?id=4" class="product-link">
-  <div class="product-card">
-    <div class="image-box"></div>
-    <div class="product-info">
-      <h4>Product Name</h4>
-      <p>Short description</p>
-      <span class="price">₱999</span>
-    </div>
-  </div>
-</a>
-
-    
-
-    <div class="more">MORE</div>
-
-  </section>
-
-  <div class="divider-line"></div>
-
-  <!--  FOOTER  -->
-  <footer class="footer">
-    <h2>LET’S CONNECT!</h2>
-
-    <div class="socials">
-      <a href="https://web.facebook.com/intimateforeverph" target="_blank">
-        <img src="../PICTURE/FB.png" alt="Facebook">
-      </a>
-
-      <a href="https://www.instagram.com/intimateforeverph/" target="_blank">
-        <img src="../PICTURE/IG.png" alt="Instagram">
-      </a>
-
-      <a href="https://www.tiktok.com/@intimateforeverph?lang=en" target="_blank">
-        <img src="../PICTURE/TIKTOK.png" alt="TikTok">
-      </a>
-
-      <a href="https://shopee.ph/forever_ph?categoryId=100017&entryPoint=ShopByPDP&itemId=12634684993&upstream=search" target="_blank">
-        <img src="../PICTURE/SHOPEE.png" alt="Shopee">
-      </a>
-
-      <a href="https://www.lazada.com.ph/shop/intimateforever?spm=a211g0.store_hp.top.share&dsource=share&laz_share_info=2386099838_0_7900_500672016194_2386101838_null&laz_token=2b79ba534c50bd531f3a3908bdbdd40f&exlaz=e_1utFWoJ%2B51jGip8qo24MCZFmNCmP6gU%2FnnWa525VocjCXvTKdNAtBbVs1%2B5q2wp%2BGS5d%2BCcBXmHn7bOPEPY8UzkCKkVzibKGD3WnASIas1Y%3D&sub_aff_id=social_share&sub_id2=2386099838&sub_id3=500672016194&sub_id6=CPI_EXLAZ"
-        target="_blank">
-        <img src="../PICTURE/LAZADA.webp" alt="Lazada">
-      </a>
-    </div>
-
-    <p>
-      64 J.P Bautista Caloocan, Caloocan, Philippines<br>
-      0939 819 6120<br>
-      <a href="mailto:intimateforevergarments@gmail.com">
-        intimateforevergarments@gmail.com
-      </a>
-    </p>
-
-    <div class="footer-links">
-      <a href="#">Terms of Service</a>
-      <span>|</span>
-      <a href="#">Privacy Policy</a>
-      <span>|</span>
-      <a href="#">Refund Policy</a>
-
-    <p class="footer-copy">
-      © 2026 Capstone Project. All rights reserved.
-    </p>
-
-  </footer>
-
+  <!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="index.php">HOME</a>
+  <span>/</span>
+  <strong>SHOP</strong>
 </div>
 
-<script src="../JS/shop.js"></script>
+  <!--  HERO -->
+  <section class="hero">
+    <?php if (!empty($images['shop_main'])): ?>
+      <img src="/CAPSTONE/<?= $images['shop_main'] ?>" alt="Shop Banner">
+    <?php endif; ?>
 
+  </section>
+
+
+  <!-- CATEGORY -->
+<section class="category-wrapper">
+
+  <h2 class="category-title">CATEGORY</h2>
+
+  <div class="category-section">
+
+    <a href="shop.php?category=UNDERGARMENTS" class="category-card">
+      <?php if (!empty($images['cat_1'])): ?>
+        <img src="/CAPSTONE/<?= $images['cat_1'] ?>" alt="Undergarments">
+      <?php endif; ?>
+      <span>UNDERGARMENTS</span>
+    </a>
+
+    <a href="shop.php?category=INNERWEAR" class="category-card">
+      <?php if (!empty($images['cat_2'])): ?>
+        <img src="/CAPSTONE/<?= $images['cat_2'] ?>" alt="Innerwear">
+      <?php endif; ?>
+      <span>INNERWEAR</span>
+    </a>
+
+    <a href="shop.php?category=SLEEPWEAR" class="category-card">
+      <?php if (!empty($images['cat_3'])): ?>
+        <img src="/CAPSTONE/<?= $images['cat_3'] ?>" alt="Sleepwear">
+      <?php endif; ?>
+      <span>SLEEPWEAR</span>
+    </a>
+
+  </div>
+
+</section>
+
+  <!-- FEATURED PRODUCT -->
+<section class="product-section">
+  <h2 class="section-title">FEATURED PRODUCT</h2>
+
+  <div class="product-grid">
+
+    <?php while ($product = $featuredProducts->fetch_assoc()) { ?>
+
+      <a href="product-view.php?id=<?php echo $product['id']; ?>" class="product-link">
+        <div class="product-card" data-id="<?php echo $product['id']; ?>">
+    
+        <div class="heart" data-id="<?php echo $product['id']; ?>">
+          ♡
+        </div>
+
+        <div class="image-box">
+          <img src="/CAPSTONE/uploads/<?php echo $product['image']; ?>" alt="">
+        </div>
+
+        <div class="product-info">
+          <h4><?php echo htmlspecialchars($product['brand']); ?></h4>
+          <p><?php echo htmlspecialchars($product['name']); ?></p>
+
+          <span class="price">
+            <?php
+              if ($product['min_price'] == $product['max_price']) {
+              echo "₱" . number_format($product['min_price'], 2);
+              } else {
+              echo "₱" . number_format($product['min_price'], 2) . 
+              " - ₱" . number_format($product['max_price'], 2);
+              }
+            ?>
+          </span>    
+        </div>
+      </div>
+      </a>
+    <?php } ?>
+  </div>
+</section>
+
+
+  <!-- PRODUCT -->
+<section class="product-section">
+  <h2 class="section-title">PRODUCT</h2>
+
+  <div class="product-grid">
+
+    <?php while ($product = $homeProducts->fetch_assoc()) { ?>
+
+      <div class="product-card" data-id="<?php echo $product['id']; ?>">
+
+        <a href="product-view.php?id=<?php echo $product['id']; ?>" class="product-link">
+
+        <div class="heart" data-id="<?php echo $product['id']; ?>">
+          ♥
+        </div>
+
+          <div class="image-box">
+            <img src="/CAPSTONE/uploads/<?php echo $product['image']; ?>" alt="">
+          </div>
+
+          <div class="product-info">
+            <h4><?php echo htmlspecialchars($product['brand']); ?></h4>
+            <p><?php echo htmlspecialchars($product['name']); ?></p>
+
+            <span class="price">
+              <?php
+                if ($product['min_price'] == $product['max_price']) {
+                echo "₱" . number_format($product['min_price'], 2);
+                } else {
+                echo "₱" . number_format($product['min_price'], 2) . 
+                " - ₱" . number_format($product['max_price'], 2);
+                }
+              ?>
+            </span>
+          </div>
+        </a>
+      </div>
+    <?php } ?>
+  </div>
+
+  <!-- MORE LINK -->
+  <div class="more-wrapper">
+    <a href="shop.php" class="more-link">MORE</a>
+  </div>
+
+</section>
+
+<!-- FOOTER  -->
+<footer class="footer">
+
+  <div class="footer-container">
+
+    <!-- LEFT -->
+    <div class="footer-col brand">
+      <img src="../PICTURE/logo.png" alt="Forever Logo" class="footer-logo">
+
+      <div class="footer-socials">
+        <a href="https://web.facebook.com/intimateforeverph" target="_blank">
+          <img src="../PICTURE/FB.png">
+        </a>
+        <a href="https://www.instagram.com/intimateforeverph/" target="_blank">
+          <img src="../PICTURE/IG.png">
+        </a>
+        <a href="https://www.tiktok.com/@intimateforeverph" target="_blank">
+          <img src="../PICTURE/TIKTOK.png">
+        </a>
+        <a href="https://shopee.ph/forever_ph" target="_blank">
+          <img src="../PICTURE/SHOPEE.png">
+        </a>
+        <a href="https://www.lazada.com.ph/shop/intimateforever" target="_blank">
+          <img src="../PICTURE/LAZADA.webp">
+        </a>
+      </div>
+    </div>
+
+    <!-- SUPPORT -->
+    <div class="footer-col">
+      <h4>SUPPORT</h4>
+      <a href="#">Terms of Service</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Refund Policy</a>
+      <a href="#">About</a>
+    </div>
+
+    <!-- EXTRA LINK -->
+    <div class="footer-col">
+      <h4>EXTRA LINK</h4>
+      <a href="home.php">Product</a>
+      <a href="try-on.html">Try-on</a>
+      <a href="home.php">Shop</a>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="footer-col">
+      <h4>CONTACT</h4>
+
+      <p><?= htmlspecialchars($settings['footer_phone'] ?? '') ?></p>
+
+      <p><?= nl2br(htmlspecialchars($settings['footer_address'] ?? '')) ?></p>
+
+      <a href="mailto:<?= htmlspecialchars($settings['footer_email'] ?? '') ?>">
+        <?= htmlspecialchars($settings['footer_email'] ?? '') ?>
+      </a>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    © 2026 Capstone Project. All rights reserved.
+  </div>
+
+</footer>
+
+</div>
+  <script src="../JS/home.js"></script>
 </body>
 </html>

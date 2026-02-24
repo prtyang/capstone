@@ -1,0 +1,1 @@
+{"firstName":"bea","lastName":"son","email":"lilbeemail88@gmail.com","phone":"11111","total":1260,"items":[{"product_name":"Intimate Forever Epf Black Dozen Full Panty Cotton Underwear In Embroidery Design with Piping Garter","price":1200,"qty":1,"size":"MEDIUM","color":"BLACK","image":"1770002184_p_0_epf1.webp"}]}

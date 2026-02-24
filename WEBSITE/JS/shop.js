@@ -5,13 +5,13 @@ function addToWishlist(heart) {
   let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
 
   if (heart.classList.contains("active")) {
-    // ❌ REMOVE from wishlist
+    //  REMOVE from wishlist
     heart.classList.remove("active");
     heart.innerHTML = "♡";
 
     wishlist = wishlist.filter(id => id !== productId);
   } else {
-    // ✅ ADD to wishlist
+    //  ADD to wishlist
     heart.classList.add("active");
     heart.innerHTML = "♥";
 

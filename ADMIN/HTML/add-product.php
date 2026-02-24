@@ -227,8 +227,6 @@ for ($i = 0; $i < 6; $i++) {
   }
 }
 
-
-
 /* SAVE VARIATIONS */
 if (isset($_POST['variation_price'])) {
 
@@ -277,7 +275,6 @@ if (isset($_POST['variation_price'])) {
     __DIR__ . "/../../uploads/" . $varImage
   );
 }
-
 
   /* UPDATE */
 if (!empty($varIds[$i])) {
@@ -403,7 +400,7 @@ else {
     <input type="file" name="product_images[]" accept="image/*" onchange="previewImage(this)">
 
     <span <?php if (!empty($productImages[0])) echo 'style="display:none"'; ?>>
-      Upload photo
+    Upload Main Image
     </span>
   </label>
 
@@ -420,7 +417,7 @@ else {
         <input type="file" name="product_images[]" accept="image/*" onchange="previewImage(this)">
 
         <span <?php if (!empty($productImages[1])) echo 'style="display:none"'; ?>>
-          Upload photo
+          Upload Image 2
         </span>
       </label>
 
@@ -433,7 +430,7 @@ else {
         <input type="file" name="product_images[]" accept="image/*" onchange="previewImage(this)">
 
         <span <?php if (!empty($productImages[2])) echo 'style="display:none"'; ?>>
-          Upload photo
+          Upload Image 3
         </span>
       </label>
 
@@ -450,7 +447,7 @@ else {
         <input type="file" name="product_images[]" accept="image/*" onchange="previewImage(this)">
 
         <span <?php if (!empty($productImages[3])) echo 'style="display:none"'; ?>>
-          Upload photo
+          Upload Image 4
         </span>
       </label>
 
@@ -463,7 +460,7 @@ else {
         <input type="file" name="product_images[]" accept="image/*" onchange="previewImage(this)">
 
         <span <?php if (!empty($productImages[4])) echo 'style="display:none"'; ?>>
-          Upload photo
+          Upload Image 5
         </span>
       </label>
 
@@ -476,7 +473,7 @@ else {
         <input type="file" name="product_images[]" accept="image/*" onchange="previewImage(this)">
 
         <span <?php if (!empty($productImages[5])) echo 'style="display:none"'; ?>>
-          Upload photo
+          Upload Image 6
         </span>
       </label>
     </div>
@@ -489,28 +486,36 @@ else {
     <h3>Product Info</h3>
 
     <div class="form-group">
-      <label>Product Name</label>
-      <input class="input required" name="product_name" value="<?php echo $product['name'] ?? ''; ?>">
-    </div>
-
-    <div class="form-group">
       <label>Brand Name</label>
       <input class="input required" name="brand" value="<?php echo $product['brand'] ?? ''; ?>">
     </div>
 
     <div class="form-group">
-      <label>Category</label>
-      <select class="input required" name="category">
-      <option value="">Select Category</option>
-      <option value="BRA" <?php if (($product['category'] ?? '') === 'BRA') echo 'selected'; ?>>BRA</option>
-      <option value="PANTY" <?php if (($product['category'] ?? '') === 'PANTY') echo 'selected'; ?>>PANTY</option>
-      <option value="SLEEPWEAR" <?php if (($product['category'] ?? '') === 'SLEEPWEAR') echo 'selected'; ?>>SLEEPWEAR</option>
-      </select>
+      <label>Product Name</label>
+      <input class="input required" name="product_name" value="<?php echo $product['name'] ?? ''; ?>">
     </div>
 
     <div class="form-group">
+      <label>Category</label>
+      <select class="input required" name="category">
+        <option value="">Select Category</option>
+
+        <option value="BRA" <?php if (($product['category'] ?? '') === 'BRA') echo 'selected'; ?>>BRA</option>
+        <option value="PANTY" <?php if (($product['category'] ?? '') === 'PANTY') echo 'selected'; ?>>PANTY</option>
+        <option value="PANTYLET" <?php if (($product['category'] ?? '') === 'PANTYLET') echo 'selected'; ?>>PANTYLET</option>
+        <option value="PANTY SHORT" <?php if (($product['category'] ?? '') === 'PANTY SHORT') echo 'selected'; ?>>PANTY SHORT</option>
+        <option value="SANDO" <?php if (($product['category'] ?? '') === 'SANDO') echo 'selected'; ?>>SANDO</option>
+        <option value="SLEEPWEAR" <?php if (($product['category'] ?? '') === 'SLEEPWEAR') echo 'selected'; ?>>SLEEPWEAR</option>
+      </select>
+    </div>
+
+
+    <div class="form-group">
       <label>Description</label>
-      <textarea class="textarea required" name="description"><?php echo $product['description'] ?? ''; ?></textarea>
+      <textarea
+        class="textarea required auto-expand"
+        name="description"
+        ><?php echo $product['description'] ?? ''; ?></textarea>
     </div>
 </div>
 
@@ -519,10 +524,10 @@ else {
   <h3>Variation</h3>
 
   <label class="field-label">COLOR</label>
-  <input id="variationColors" class="pill-input" placeholder="BLUE, RED">
+  <input id="variationColors" class="pill-input" placeholder="BLUE, RED...">
 
   <label class="field-label">SIZE</label>
-  <input id="variationSizes" class="pill-input" placeholder="SMALL, MEDIUM, LARGE">
+  <input id="variationSizes" class="pill-input" placeholder="SMALL, MEDIUM...">
 
   <button type="button" id="addVariationBtn" class="add-btn">ADD</button>
 
@@ -545,7 +550,12 @@ else {
     <?php
     } 
     ?>>
-    <input type="file" name="size_chart" accept="image/*" onchange="previewImage(this)">
+      <input
+        type="file"
+        name="size_chart"
+        accept="image/*"
+        onchange="previewSizeChart(this)"
+      >
     <span <?php if (!empty($product['size_chart'])) echo 'style="display:none"'; ?>>
       Upload photo
     </span>
@@ -554,7 +564,7 @@ else {
 
 <!-- SIZE -->
 <div class="card">
-  <p class="section-title">Size</p>
+  <p class="section-title">Size(cm)</p>
 
   <div class="size-row">
     <div class="size-item">
@@ -573,7 +583,7 @@ else {
     </div>
 
     <div class="size-item weight">
-      <label>Weight (kg)</label>
+      <label>Weight (g)</label>
       <input type="number" name="weight" value="<?php echo $product['weight'] ?? ''; ?>">
     </div>
   </div>

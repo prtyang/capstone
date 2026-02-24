@@ -15,7 +15,7 @@ body {
   align-items: stretch;   
 }
 
-
+/* SIDEBAR */
 .sidebar {
   width: 260px;
   background: #F3D6E1;
@@ -24,9 +24,12 @@ body {
 }
 
 .sidebar {
-  position: sticky;
+  position: fixed;
   top: 0;
-  height: auto;
+  left: 0;
+  width: 260px;
+  height: 100vh;
+  overflow: hidden; 
 }
 
 .logo {
@@ -56,6 +59,16 @@ body {
   text-decoration: none;
 }
 
+/* Active sidebar item (Account) */
+.menu a.active {
+  background: #C94A7C;  
+  color: #fff;
+}
+
+.menu a.active:hover {
+  background: #C94A7C;
+}
+
 .menu a:hover {
   background: #C94A7C;
   color: #fff;
@@ -71,6 +84,78 @@ body {
   padding: 30px;
 }
 
+.main,
+.content {
+  margin-left: 10px;       
+  height: 100vh;
+  overflow-y: auto;        
+  padding: 30px;
+}
+
+/* LOGOUT BAR */
+.sidebar {
+  position: relative;
+}
+
+.logout-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: #F1B6CC;
+  padding: 14px 20px;
+  cursor: pointer;
+}
+
+.logout-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #000;
+  font-weight: 600;
+  font-size: 24px;
+  margin-left: 30px;
+}
+
+.logout-bar:hover {
+  background: #eaa6c0;
+}
+
+/* FILTER SELECTS */
+.top-bar select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  height: 44px;
+  padding: 0 44px 0 20px;
+  border-radius: 999px;
+
+  border: 1.5px solid #E0E0E0;
+  background-color: #fff;
+
+  font-size: 14px;
+  color: #444;
+  cursor: pointer;
+  outline: none;
+
+  transition: all 0.2s ease;
+}
+
+/* hover */
+.top-bar select:hover {
+  border-color: #C94A7C;
+}
+
+/* focus */
+.top-bar select:focus {
+  border-color: #C94A7C;
+  box-shadow: 0 0 0 3px rgba(201, 74, 124, 0.12);
+}
+
+
+/*Top bar */
 .top-bar {
   display: flex;
   align-items: center;
@@ -81,7 +166,7 @@ body {
 .top-bar input {
   width: 320px;            
   padding: 12px 20px;
-  border-radius: 999px;       /* oval */
+  border-radius: 999px;   
   border: 1.5px solid #E0E0E0;
   background: #fff;
   font-size: 14px;
@@ -91,7 +176,6 @@ body {
 .top-bar input:focus {
   border-color: #C94A7C;
 }
-
 
 .top-actions {
   margin-left: auto;
@@ -170,6 +254,7 @@ body {
   color: #888;
   padding-bottom: 12px;
   border-bottom: 1px solid #eee;
+  margin-left: 40px;
 }
 
 .product-row {
@@ -185,7 +270,6 @@ body {
   background: #fff !important;   
 }
 
-
 /* PRODUCT INFO */
 .product-info {
   display: flex;
@@ -195,16 +279,14 @@ body {
 
 .product-img {
   width: 70px;
-  height: 70px;              /* 🔥 THIS FIXES IT */
-  min-height: 70px;          /* 🔥 SAFETY */
+  height: 70px;            
+  min-height: 70px;          
   background-color: #e0e0e0;
   background-size: cover;
   background-position: center;
   border-radius: 12px;
   flex-shrink: 0;
 }
-
-
 
 .product-info h4 {
   font-size: 14px;
@@ -233,6 +315,8 @@ body {
   
   cursor: pointer;
   pointer-events: auto;
+
+  margin-left: 40px;
 }
 
 .status-text.active {
@@ -244,7 +328,6 @@ body {
   border-color: #999;
   color: #999;
 }
-
 
 /* EDIT */
 .edit-action {
@@ -262,3 +345,55 @@ body {
   color: #C9135F;
 }
 
+/* STOCK WARNING STYLES*/
+.stock-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.stock-qty {
+  font-weight: 600;
+  color: #333;
+}
+
+.stock-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.stock-low {
+  background: rgba(229, 57, 53, 0.12);
+  color: #e53935;
+}
+
+.stock-medium {
+  background: rgba(249, 168, 37, 0.15);
+  color: #f9a825;
+}
+
+.stock-high {
+  background: rgba(46, 125, 50, 0.12);
+  color: #2e7d32;
+}
+
+/* MOVE HEADER TEXT: PRICE & STOCK */
+.product-header span:nth-child(3),
+.product-header span:nth-child(4) {
+  justify-self: start;     
+  padding-left: 10px;     
+  margin-left: 10px;
+}
+
+/* MOVE HEADER TEXT: STATUS & DELETE */
+.product-header span:nth-child(5),
+.product-header span:nth-child(6) {
+  justify-self: start;   
+  padding-left: 10px;      
+  margin-left: 40px;
+}

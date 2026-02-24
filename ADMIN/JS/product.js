@@ -64,23 +64,34 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   });
 
-  /* STATUS FILTER */
-  statusFilter.addEventListener("change", function () {
-    const value = this.value;
+/* STATUS FILTER */
+const statusFilter = document.getElementById("statusFilter");
+const stockFilter  = document.getElementById("stockFilter");
 
-    document.querySelectorAll(".product-row").forEach(row => {
-      const statusEl = row.querySelector(".status-text");
-      if (!statusEl) return;
+function applyFilters() {
+  const statusValue = statusFilter.value;
+  const stockValue  = stockFilter.value;
 
-      const status = statusEl.dataset.status;
+  document.querySelectorAll(".product-row").forEach(row => {
+    const rowStatus = row.dataset.status; // active / inactive
+    const rowStock  = row.dataset.stock;  // low / medium / high
 
-      if (value === "all" || status === value) {
-        row.style.display = "";
-      } else {
-        row.style.display = "none";
-      }
-    });
+    const statusMatch =
+      statusValue === "all" || rowStatus === statusValue;
+
+    const stockMatch =
+      stockValue === "all" || rowStock === stockValue;
+
+    if (statusMatch && stockMatch) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
   });
+}
+
+statusFilter.addEventListener("change", applyFilters);
+stockFilter.addEventListener("change", applyFilters);
 
   /* STATUS TOGGLE */
   document.addEventListener("click", function (e) {

@@ -1,4 +1,3 @@
-
 * {
   margin: 0;
   padding: 0;
@@ -7,7 +6,59 @@
 
 body {
   background: #111;
-  font-family: Inter, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont,"SF Pro Text", "SF Pro Display",system-ui, sans-serif;
+}
+
+.page {
+  width: auto;
+  margin: 0 auto;
+  background: #faebf1;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 60px;
+  background: #FFF9F9;
+}
+
+.logo {
+  width: 350px;
+  margin-top: 30px;
+  margin-left: -60px;
+}
+
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+} 
+
+/* NAV */
+.nav {
+  display: flex;
+  gap: 22px;
+  margin-bottom: -35px;
+  margin-left: 5px;
+}
+
+.hero img {
+  width: 100%;
+  display: block;
+}
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 20px; 
+}
+
+.nav a {
+  color: #c83282;
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  letter-spacing: 0.5px;
 }
 
 .nav a:hover {
@@ -18,47 +69,6 @@ body {
 .nav a:active {
   color: #FF006E;
   text-shadow: 0 0 18px rgba(255, 0, 110, 1);
-}
-
-.page {
-  width: 1500px;
-  margin: 0 auto;
-  background: #FFE8F1;
-}
-
-.header {
-  height: 150px;
-  padding: 0 100px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.logo-wrapper {
-  display: flex;
-  align-items: center;
-}
-
-.logo {
-  width: 500px; 
-}
-
-/* NAV AREA */
-.nav {
-  display: flex;
-  align-items: center;
-}
-
-.nav a {
-  margin-left: 60px;
-  color: #C9135F;
-  font-size: 26px;
-  text-decoration: none;
-}
-
-.hero img {
-  width: 100%;
-  display: block;
 }
 
 .live-strip {
@@ -99,7 +109,7 @@ body {
 }
 
 .text-box p {
-  font-family: "Ibarra Real Nova", serif;
+  font-family: -apple-system, BlinkMacSystemFont,"SF Pro Text", "SF Pro Display",system-ui, sans-serif;
   font-size: 48px;
   line-height: 60px;
   color: #C9135F;             
@@ -118,7 +128,7 @@ body {
 }
 
 .text-box p {
-  font-family: "Ibarra Real Nova", serif;
+  font-family: -apple-system, BlinkMacSystemFont,"SF Pro Text", "SF Pro Display",system-ui, sans-serif;
   font-size: 10px;
   line-height: 58px;
   color: #C9135F;
@@ -191,7 +201,7 @@ body {
 }
 
 .text p {
-  font-family: "Ibarra Real Nova", serif;
+  font-family: -apple-system, BlinkMacSystemFont,"SF Pro Text", "SF Pro Display",system-ui, sans-serif;
   font-size: 42px;
   line-height: 56px;
   color: #C9135F;
@@ -259,7 +269,6 @@ body {
 }
 
 .story-box p {
-  font-family: "Ibarra Real Nova", serif;
   font-size: 38px;
   line-height: 54px;
   color: #C9135F;
@@ -289,7 +298,6 @@ body {
 }
 
 .headline {
-  font-family: "Ibarra Real Nova", serif;
   font-size: 30px;
   color: #D11B6A;
   margin-top: -110px; 
@@ -445,6 +453,7 @@ body {
   width: 520px;                 
   border-radius: 16px;          
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  margin-top: 50px;
 }
 
 /* text */
@@ -465,59 +474,73 @@ body {
   border-radius: 30px;
   cursor: pointer;
   margin-left: 90px;
-
+  margin-top: 30px;
 }
 
 .try-now:hover {
   box-shadow: 0 0 18px rgba(233,30,99,0.7);
 }
 
-.divider-line {
-  margin-top: 40px;        
-  height: 1px;
-  width: 100%;
-  background: #E6C6D2;     
-}
-
 /* FOOTER */
 .footer {
-  text-align: center;
-  padding: 120px 40px;
+  background: #F8d1e0;
+  padding: 50px 100px 20px; 
+  font-family: Inter, sans-serif;
 }
 
-.footer h2 {
-  font-size: 42px;
-  margin-top: -70px;
+.footer-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: 30px;
+  align-items: start;
 }
 
-.socials {
+.footer-col h4 {
+  font-size: 18px;
+  margin-bottom: 18px;
+  color: #000;
+}
+
+.footer-col a,
+.footer-col p {
+  display: block;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 10px;
+  text-decoration: none;
+}
+
+.footer-col a:hover {
+  color: #E91E63;
+}
+
+/* BRAND */
+.footer-logo {
+  width: 260px;
+  margin-bottom: 20px;
+}
+
+.footer-socials {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;              
-  margin: 15px;
+  gap: 24px;
 }
 
-.socials img {
-  width: 60px;           
-  height: 50px;
-  object-fit: contain;   
+.footer-socials img {
+  width: 40px;
+  height: 38px;
+  object-fit: contain;
 }
 
-.footer-text {
-  font-size: 42px;
-  line-height: 42px;  
-  margin-top: 30px;   
+.footer-socials img:hover {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 10px rgba(233,30,99,0.7));
 }
 
-.footer-links {
-  margin-top: 30px;
-  font-size: 14px;
-}
-
-.footer-copy {
-  margin-bottom: -80px;
-  font-size: 14px;
+/* BOTTOM */
+.footer-bottom {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 13px;
   color: #777;
 }
 
@@ -530,3 +553,44 @@ body {
   filter: drop-shadow(0 0 25px rgba(255, 20, 147, 1));
   transform: scale(0.95);
 }
+.footer-container {
+  position: relative;
+}
+
+.footer-col {
+  position: relative;
+  padding-left: 40px;
+}
+
+.footer-col:first-child {
+  padding-left: 0;
+}
+
+/* Vertical divider */
+.footer-col:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 120px;
+  width: 1px;
+  background: #C9135F;
+}
+
+#backToTop {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #E91E63;
+  color: #fff;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  display: none;
+  z-index: 999;
+  box-shadow: 0 0 15px rgba(233,30,99,0.6);
+}
+

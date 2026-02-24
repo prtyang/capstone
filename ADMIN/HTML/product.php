@@ -1,5 +1,8 @@
 <?php
 include(__DIR__ . "/../../config/db.php");
+
+$currentPage = basename($_SERVER['PHP_SELF']);
+
 $result = $conn->query("
   SELECT 
     p.id,
@@ -17,7 +20,6 @@ $result = $conn->query("
   ORDER BY p.id DESC
 ");
 
-
 ?>
 
 <!DOCTYPE html>
@@ -34,23 +36,23 @@ $result = $conn->query("
 
   <!-- SIDEBAR -->
 
-   <aside class="sidebar">
+  <aside class="sidebar">
     <div class="logo">
       <img src="../PICTURE/logo.png">
     </div>
-   <nav class="menu">
+  <nav class="menu">
 
-  <a href="dashboard.html" onclick="goPage('dashboard.html')">
+  <a href="dashboard.php" onclick="goPage('dashboard.php')">
   <img src="../PICTURE/home logo.png" class="menu-icon">
   Dashboard
 </a>
 
-  <a href="product.php" onclick="goPage('product.html')">
+  <a href="product.php" class="active" onclick="goPage('product.php')">
     <img src="../PICTURE/product logo.png" class="menu-icon">
     Product
   </a>
 
-  <a href="order.html" onclick="goPage('order.html')">
+  <a href="order.php" onclick="goPage('order.php')">
     <img src="../PICTURE/ORDER LOGO.webp" class="menu-icon">
     Order
   </a>
@@ -65,12 +67,20 @@ $result = $conn->query("
     Marketing
   </a>
 
-  <a href="account.html" onclick="goPage('account.html')">
+  <a href="account.php" onclick="goPage('account.php')">
     <img src="../PICTURE/ACCOUNT LOGO.png" class="menu-icon">
     Account
   </a>
 </nav>
+
+    <div class="logout-bar">
+    <div class="logout-content">
+        <span class="logout-text">LOG OUT</span>
+    </div>
+    </div>
+    
     </aside>
+
 
   <!--FILTER -->
   <main class="main">
@@ -84,6 +94,14 @@ $result = $conn->query("
         <option value="active">Active</option>
         <option value="inactive">Inactive</option>
       </select>
+
+      <select id="stockFilter">
+        <option value="all">All Stock</option>
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
+
 
       <div class="top-actions">
         <button class="delete-all-btn" id="deleteSelectedBtn">
@@ -101,13 +119,31 @@ $result = $conn->query("
         <span></span>
         <span>Product Info</span>
         <span>Price</span>
-        <span>Qty</span>
+        <span>Stock</span>
         <span>Status</span>
         <span>Delete</span>
       </div>
 
-      <?php while ($row = $result->fetch_assoc()) { ?>
-      <div class="product-row">
+<?php while ($row = $result->fetch_assoc()) { ?>
+
+<?php
+$qty = (int)($row['total_qty'] ?? 0);
+
+if ($qty <= 10) {
+  $stockClass = 'stock-low';
+  $stockLabel = 'LOW';
+} elseif ($qty <= 30) {
+  $stockClass = 'stock-medium';
+  $stockLabel = 'MEDIUM';
+} else {
+  $stockClass = 'stock-high';
+  $stockLabel = 'HIGH';
+}
+?>
+
+<div class="product-row"
+  data-stock="<?php echo strtolower($stockLabel); ?>"
+  data-status="<?php echo $row['status']; ?>">
 
     <input type="checkbox"
       class="row-checkbox"
@@ -142,8 +178,31 @@ $result = $conn->query("
   ?>
 </div>
 
-    <div><?php echo $row['total_qty'] ?? 0; ?></div>
+<!--Stock-->
+<?php
+$qty = (int)($row['total_qty'] ?? 0);
 
+$stockClass = '';
+$stockLabel = '';
+
+if ($qty <= 10) {
+  $stockClass = 'stock-low';
+  $stockLabel = 'LOW';
+} elseif ($qty <= 30) {
+  $stockClass = 'stock-medium';
+  $stockLabel = 'MEDIUM';
+} else {
+  $stockClass = 'stock-high';
+  $stockLabel = 'HIGH';
+}
+?>
+
+<div class="stock-cell">
+  <span class="stock-qty"><?php echo $qty; ?></span>
+  <span class="stock-badge <?php echo $stockClass; ?>">
+    <?php echo $stockLabel; ?>
+  </span>
+</div>
 
     <!--STATUS-->
     <div class="status">
