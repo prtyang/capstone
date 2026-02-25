@@ -16,12 +16,12 @@ body {
 }
 
 .container {
-  display: flex;
-  min-height: 100vh;
-  align-items: stretch;   
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-/* ✅ FIXED SIDEBAR */
+/* FIXED SIDEBAR */
 .sidebar {
   width: 260px;
   background: #F3D6E1;
@@ -229,7 +229,7 @@ body {
   grid-template-columns: 55% 10% 12% 11% 12%;
   align-items: center;
 
-  text-align: center; /* center all by default */
+  text-align: center; 
 }
 
 .tabs a {
@@ -321,6 +321,11 @@ body {
   overflow: hidden;
 }
 
+img {
+  max-width: 100%;
+  height: auto;
+}
+
 .product .img {
   width: 60px;
   height: 60px;
@@ -341,7 +346,14 @@ body {
   text-overflow: ellipsis;
 }
 
-/* ✅ FIX ALIGNMENT (NO MARGINS) */
+.product-link {
+  display: flex;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* FIX ALIGNMENT  */
 .qty,
 .summary-total,
 .summary-status,
@@ -370,4 +382,102 @@ body {
 .summary-action a:hover {
   text-decoration: underline;
   color: #c2185b;
+}
+
+/* =========================
+ MOBILE RESPONSIVE FIX
+========================= */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .search-input {
+    width: 100%;
+  }
+
+  .date-range {
+    margin-left: 0;
+  }
+
+  .top-bar {
+    flex-wrap: wrap;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+
+  /* Sidebar becomes top bar */
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
+
+  .main {
+  margin-left: 260px;
+  width: calc(100% - 260px);
+  }
+
+  /* Stack menu horizontally */
+  .menu {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .menu a {
+    flex: 1;
+    justify-content: center;
+    margin-bottom: 0;
+  }
+
+  /* Hide logout (optional) */
+  .logout-bar {
+    display: none;
+  }
+
+  /* Top bar stacking */
+  .top-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .date-range {
+    width: 100%;
+  }
+
+  .export {
+    width: 100%;
+  }
+
+  /* TABLE → STACK STYLE */
+  .table-header {
+    display: none;
+  }
+
+  .order-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .product {
+    width: 100%;
+  }
+
+  .center,
+  .summary-total,
+  .summary-status,
+  .summary-action {
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  /* Make cards cleaner */
+  .order-card {
+    padding: 10px;
+  }
 }

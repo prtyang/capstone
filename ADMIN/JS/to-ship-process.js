@@ -9,16 +9,16 @@ function pickupOrder(id) {
     },
     body: JSON.stringify({
       id: id,
-      status: "Shipped"   // ✅ FINAL STATUS
+      status: "Shipped"  
     })
   })
   .then(res => res.json())
   .then(res => {
 
     if (res.success) {
-      alert("Order marked as Shipped ✅");
+      alert("Order marked as Shipped ");
 
-      // ✅ REDIRECT TO COMPLETED PAGE
+      // REDIRECT TO COMPLETED PAGE
       window.location.href = "to-ship-completed.php";
     }
 
@@ -27,4 +27,8 @@ function pickupOrder(id) {
     console.error(err);
     alert("Error updating order");
   });
+}
+
+function viewOrder(id) {
+  window.location.href = "order-view.php?id=" + id;
 }

@@ -237,3 +237,75 @@ input {
   }
 }
 
+/* 🔐 PIN FOOTER */
+.pin-footer {
+  position: fixed;
+  bottom: 0;
+  left: 260px; /* same as sidebar width */
+  right: 0;
+  background: #fff;
+  border-top: 2px solid #f48fb1;
+  padding: 15px;
+  box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+}
+
+.pin-footer h3 {
+  margin: 0 0 10px;
+  color: #c94a7c;
+}
+
+.pin-group {
+  margin-bottom: 10px;
+}
+
+.pin-group input {
+  width: 150px;
+  text-align: center;
+  font-size: 18px;
+  letter-spacing: 5px;
+}
+
+.pin-footer button {
+  background: #c94a7c;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#pinMessage {
+  margin-top: 8px;
+  font-size: 13px;
+  color: red;
+}
+
+.pin-wrapper {
+  position: relative;
+  width: 250px;
+}
+
+.pin-wrapper input {
+  width: 100%;
+  padding: 10px 40px 10px 10px;
+  border-radius: 8px;
+  border: 1px solid #f8bbd0;
+  font-size: 16px;
+}
+
+.toggle-eye {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* hover effect */
+.toggle-eye:hover svg {
+  stroke: #a83264;
+}
+

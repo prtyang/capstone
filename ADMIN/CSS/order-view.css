@@ -1,0 +1,440 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #fff6f9;
+}
+
+.section {
+  padding: 20px 0;
+  border-bottom: 1px solid #f3c6d3; 
+}
+
+.section p {
+  font-size: 13px;
+  color: #555;
+  margin-top: 5px;
+}
+
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
+.container {
+  display: flex;
+  min-height: 100vh;
+  align-items: stretch;   
+}
+
+/* FIXED SIDEBAR */
+.sidebar {
+  width: 260px;
+  background: #F3D6E1;
+  padding: 20px;
+  min-height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+}
+
+/* push content */
+.main {
+  margin-left: 260px;
+  padding: 20px;
+  max-width: calc(100% - 260px);
+}
+
+/* LOGO */
+.logo {
+  border-bottom: 1px solid rgba(201, 74, 124, 0.3);
+  margin-bottom: 20px;
+}
+
+.logo img {
+  width: 100%;
+}
+
+/* MENU */
+.menu {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  border-radius: 12px;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.menu a.active {
+  background: #C94A7C;  
+  color: #fff;
+}
+
+.menu a.active:hover {
+  background: #C94A7C;
+}
+
+.menu a:hover {
+  background: #C94A7C;
+  color: #fff;
+}
+
+.menu-icon {
+  width: 32px;
+  height: 32px;
+}
+
+/* LOGOUT BAR */
+.logout-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: #F1B6CC; 
+  padding: 14px 20px;
+  cursor: pointer;
+}
+
+.logout-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #000;
+  font-weight: 600;
+  font-size: 24px;
+  margin-left: 30px;
+}
+
+.logout-bar:hover {
+  background: #eaa6c0;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 10px 18px;
+  margin-bottom: 60px;
+  margin-left: 1100px;
+  background: #d489a2;
+  color: #000000;
+  border: none;
+  border-radius: 8px;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.back-btn:hover {
+  transform: translateY(-1px);
+}
+
+.back-btn:active {
+  transform: scale(0.98);
+}
+
+/* TOP BAR */
+.top-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.top-bar input[type="text"] {
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.search-input {
+  width: 500px;
+}
+
+.top-bar input[type="text"]:focus {
+  border-color: #e91e63;
+  box-shadow: 0 0 0 2px rgba(233, 30, 99, 0.15);
+}
+
+/* CALENDAR */
+.date-range {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0 10px;
+  height: 40px;
+  transition: all 0.25s ease;
+  margin-left: 400px;
+}
+
+.date-range:hover {
+  border-color: #e91e63;
+}
+
+.date-range:focus-within {
+  border-color: #e91e63;
+  box-shadow: 0 0 0 2px rgba(233, 30, 99, 0.15);
+}
+
+#calendarRange {
+  background: transparent; 
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+/* TO hIDE CALENDAR  */
+.date-range,
+.search-input,
+.export {
+  visibility: hidden;   
+}
+
+
+.section:last-child {
+  border-bottom: none;
+}
+
+h2 {
+  margin-bottom: 10px;
+}
+
+h3 {
+  margin-bottom: 10px;
+}
+
+/* ORDER HEADER */
+.order-header,
+.order-item {
+  display: grid;
+  grid-template-columns: 
+    2.5fr   /* product */
+    0.7fr   /* qty */
+    1fr     /* price */
+    1fr;    /* total */
+
+  align-items: center;
+}
+
+.order-item {
+  margin-bottom: 25px;   
+}
+
+.order-details {
+  width: 1200px;             
+  margin: 30px auto;         
+  background: #fff;          
+  padding: 25px;
+  border-radius: 8px;
+  border: 1px solid #f3c6d3;
+margin-top: -30px;
+}
+
+.order-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cancel-btn {
+  background: #e91e63;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.cancel-btn:hover {
+  background: #c2185b;
+}
+
+/* PRODUCT */
+.product {
+  display: flex;
+  gap: 10px;
+}
+
+.product .img {
+  width: 60px;
+  height: 60px;
+  background: #ccc;
+  gap: 300px;
+}
+
+.product small {
+  display: block;
+  color: #777;
+  font-size: 12px;
+}
+
+/* PRICE + TOTAL */
+.total {
+  text-align: right;
+  margin-right: 190px;
+}
+
+.price {
+  text-align: right;
+  margin-right: 160px;
+}
+
+/* SUMMARY */
+.summary {
+  width: 220px;
+  margin-left: 750px;
+  margin-top: 20px;
+  border-top: 1px solid #f3c6d3; 
+  padding-top: 10px;
+}
+.summary p {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0;
+  font-size: 18px;
+
+}
+
+.income {
+  border: 1px solid #e91e63;
+  padding: 10px;
+  font-weight: bolder;
+  background: #fff;
+  width: 230px;
+  margin-top: 30px;
+}
+
+/* BACKDROP */
+.pin-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(5px);
+  z-index: 999;
+}
+
+/* BOX */
+.pin-box {
+  background: #fff;
+  padding: 30px 25px;
+  border-radius: 16px;
+  width: 320px;
+  text-align: center;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  animation: popIn 0.25s ease;
+}
+
+/* TITLE */
+.pin-title {
+  margin-bottom: 5px;
+  color: #c94a7c;
+}
+
+.pin-sub {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 15px;
+}
+
+/* INPUT */
+.pin-input-wrapper input {
+  width: 100%;
+  padding: 12px;
+  font-size: 18px;
+  text-align: center;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  outline: none;
+  transition: 0.2s;
+}
+
+.pin-input-wrapper input:focus {
+  border-color: #c94a7c;
+  box-shadow: 0 0 0 3px rgba(201,74,124,0.15);
+}
+
+/* BUTTONS */
+.pin-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.btn.confirm {
+  background: #c94a7c;
+  color: white;
+}
+
+.btn.confirm:hover {
+  background: #a63a66;
+}
+
+.btn.cancel {
+  background: #eee;
+}
+
+.btn.cancel:hover {
+  background: #ddd;
+}
+
+/* MESSAGE */
+.pin-message {
+  margin-top: 10px;
+  font-size: 13px;
+  color: red;
+}
+
+/* ANIMATION */
+@keyframes popIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

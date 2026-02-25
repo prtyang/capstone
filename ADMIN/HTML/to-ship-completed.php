@@ -65,10 +65,10 @@
 <div class="tabs">
   <a href="order.php">All</a>
   <a href="order-to-ship.php" class="active">To Ship <small>200</small></a>
-  <a href="order-to-ship-shipping.php">Shipping <small>200</small></a>
-  <a href="order-to-ship-completed.php">Completed</a>
-  <a href="order-to-ship-cancel.php">Cancel</a>
-  <a href="order-to-ship-return/refund.php">Return/Refund</a>
+  <a href="order-shipping.php">Shipping <small>200</small></a>
+  <a href="order-completed.php">Completed</a>
+  <a href="order-cancel.php">Cancel</a>
+  <a href="order-return/refund.php">Return/Refund</a>
 </div>
 
 <!-- Search -->

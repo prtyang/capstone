@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Order Dashboard</title>
   <link rel="stylesheet" href="../CSS/order-to-ship.css">
 
@@ -65,7 +65,7 @@
 <div class="tabs">
   <a href="order.php">All</a>
   <a href="order-to-ship.php" class="active">To Ship <small>200</small></a>
-  <a href="order-to-ship-shipping.php">Shipping <small>200</small></a>
+  <a href="order-shipping.php">Shipping <small>200</small></a>
   <a href="order-to-ship-completed.php">Completed</a>
   <a href="order-to-ship-cancel.php">Cancel</a>
   <a href="order-to-ship-return/refund.php">Return/Refund</a>
@@ -111,7 +111,7 @@ $orders = $conn->query("
 while ($order = $orders->fetch_assoc()):
 ?>
 
-<div class="order-card">
+<div class="order-card" onclick="viewOrder(<?= $order['id'] ?>)">
 
   <!-- TOP -->
   <div class="order-top">

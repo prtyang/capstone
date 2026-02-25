@@ -26,7 +26,7 @@ $result = $conn->query("
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Products</title>
+  <title>Forever Admin  Products</title>
   <link rel="stylesheet" href="../CSS/product.css">
   <script src="../JS/product.js" defer></script>
 </head>
@@ -57,7 +57,7 @@ $result = $conn->query("
     Order
   </a>
 
-<a href="sales.html" onclick="goPage('sales.html')">
+  <a href="sales.php" onclick="goPage('sales.html')">
     <img src="../PICTURE/SALES LOGO.png" class="menu-icon">
     Sales
   </a>
@@ -227,5 +227,24 @@ if ($qty <= 10) {
     </div>
   </main>
 </div>
+
+<div id="pinModal" class="pin-modal">
+  <div class="pin-box">
+
+    <h3 class="pin-title"> Confirm Delete</h3>
+    <p class="pin-sub">Enter Action PIN</p>
+
+    <input type="password" id="actionPinInput" maxlength="4" placeholder="••••">
+
+    <div class="pin-actions">
+      <button onclick="confirmDeleteWithPin()" class="btn confirm">Confirm</button>
+      <button onclick="closePinModal()" class="btn cancel">Cancel</button>
+    </div>
+
+    <p id="pinError" class="pin-message"></p>
+
+  </div>
+</div>
+
 </body>
 </html>

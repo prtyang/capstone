@@ -4,8 +4,8 @@
 <html lang="en">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> Forever Admin Order </title>
-  <link rel="stylesheet" href="../CSS/order.css">
+  <title>Order Dashboard</title>
+  <link rel="stylesheet" href="../CSS/order-cancel.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
@@ -62,12 +62,11 @@
 
 <!-- Tabs -->
 <div class="tabs">
-  <a href="order.php"class="active">All</a>
-  <a href="order-to-ship.php">To Ship <small>200</small></a>
-  <a href="order-shipping.php">Shipping <small>200</small></a>
-  <a href="order-completed.php">Completed</a>
-  <a href="order-cancel.php">Cancel</a>
-  <a href="order-return/refund.php">Return/Refund</a>
+    <a href="order.php">All</a>
+    <a href="order-to-ship.php">To Ship <small>200</small></a>
+    <a href="order-shipping.php">Shipping <small>200</small></a>
+    <a href="order-cancel.php" class="active">Cancel</a>
+    <a href="order-to-ship-return/refund.php">Return/Refund</a>
 </div>
 
 <!-- Search -->
@@ -92,8 +91,11 @@
 </div>
 
 <?php
-$orders = $conn->query("SELECT * FROM orders ORDER BY id DESC");
-
+$orders = $conn->query("
+  SELECT * FROM orders 
+  WHERE action = 'Deleted by Seller'
+  ORDER BY id DESC
+");
 while ($order = $orders->fetch_assoc()):
 ?>
 
@@ -155,41 +157,28 @@ if ($items && $items->num_rows > 0) {
 
 </div>
     
-  <!-- QTY -->
-    <div class="qty center">
+    <!-- QTY -->
+      <div class="qty center">
         x<?= $item['qty'] ?>
       </div>              
       <?php if ($index === 0): ?>
         <div class="summary-total">₱<?= $total ?></div>
 
         <div class="summary-status">
-        <?php if ($order['status'] === 'Deleted by Seller'): ?>
-          <span style="color:red; font-weight:bold;">
-          Deleted by Seller
-          </span>
-        <?php else: ?>
-      <?= $order['status'] ?? 'To Ship' ?>
-      <?php endif; ?>
-    </div>
+         <?php if ($order['status'] === 'Deleted by Seller'): ?>
+  <span style="color:red; font-weight:bold;">
+    Deleted by Seller
+  </span>
+<?php else: ?>
+  <?= $order['status'] ?>
+<?php endif; ?>
+        </div>
 
         <div class="summary-action">
-        <?php if ($order['status'] == "To Ship"): ?>
-          <a href="#" onclick="shipOrder(<?= $order['id'] ?>)">
-          Arrange shipment
-          </a>
-
-        <?php elseif ($order['status'] == "Shipping"): ?>
-          <a href="#" onclick="pickupOrder(<?= $order['id'] ?>)">
-          Pick-up / Drop
-          </a>
-
-        <?php elseif ($order['status'] == "Shipped"): ?>
-          <a href="order-details.php?id=<?= $order['id'] ?>">
+          <a href="order-view.php?id=<?= $order['id'] ?>">
           Check Details
           </a>
-
-        <?php endif; ?>
-      </div>
+        </div>
 
       <?php else: ?>
         <div></div>
@@ -214,7 +203,7 @@ if ($items && $items->num_rows > 0) {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="../JS/order.js"></script>
+<script src="../JS/order-cancel.js"></script>
 
 <script>
 flatpickr("#calendarRange", {

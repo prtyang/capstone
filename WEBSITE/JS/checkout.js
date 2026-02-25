@@ -1,18 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
 
   /* =============================
-     1. LOAD PRODUCT IN SUMMARY
+        LOAD PRODUCT IN SUMMARY
   ============================== */
 const checkoutItems = JSON.parse(localStorage.getItem("checkoutItems"));
 
-// ✅ CHECK FIRST
+// CHECK FIRST
 if (!checkoutItems || checkoutItems.length === 0) {
   alert("No item selected.");
   window.location.href = "cart.php";
   return;
 }
 
-// ✅ THEN USE IT
 const totalItems = checkoutItems.reduce((sum, item) => {
   return sum + item.qty;
 }, 0);
@@ -21,7 +20,7 @@ const orderItemContainer = document.getElementById("orderItem");
 
 orderItemContainer.innerHTML = "";
 
-// ✅ REMOVE DUPLICATE subtotal
+// REMOVE DUPLICATE subtotal
 checkoutItems.forEach(item => {
 
   const itemTotal = item.price * item.qty;
@@ -48,7 +47,7 @@ checkoutItems.forEach(item => {
 });
 
   /* =============================
-     2. PRICE COMPUTATION
+          PRICE COMPUTATION
   ============================== */
   const itemCountEl = document.getElementById("itemCount");
   const subtotalEl = document.getElementById("subtotal");
@@ -77,7 +76,7 @@ checkoutItems.forEach(item => {
   updateTotal();
 
   /* =============================
-     3. DELIVERY METHOD
+        DELIVERY METHOD
   ============================== */
   document.querySelectorAll("input[name='delivery']").forEach(r => {
     r.addEventListener("change", () => {
@@ -87,7 +86,7 @@ checkoutItems.forEach(item => {
   });
 
   /* =============================
-     4. PAYMENT METHOD
+        PAYMENT METHOD
   ============================== */
   const paymentRadios = document.querySelectorAll("input[name='payment']");
   const cardFields = document.querySelector(".card-fields");
@@ -102,7 +101,7 @@ checkoutItems.forEach(item => {
   });
 
   /* =============================
-     5. SAVE CONTACT INFO
+        SAVE CONTACT INFO
   ============================== */
   const firstName = document.querySelector("input[placeholder='First Name']");
   const lastName = document.querySelector("input[placeholder='Last Name']");
@@ -140,7 +139,7 @@ checkoutItems.forEach(item => {
   });
 
   /* =============================
-     6. VALIDATIONS
+        VALIDATIONS
   ============================== */
   // phone numbers only
   phone.addEventListener("input", () => {
@@ -162,11 +161,11 @@ checkoutItems.forEach(item => {
     }
   });
 
-  const fullAddress = document.querySelector("input[placeholder='Full address']");
+  const fullAddress = document.getElementById("fullAddressInput");
   const addressCheck = document.querySelectorAll(".checkbox input")[1];
 
   /* =============================
-     🔥 6.5 LOCATION API + FILTER
+      LOCATION API + FILTE
   ============================== */
 
   let provinces = [];
@@ -181,7 +180,7 @@ checkoutItems.forEach(item => {
   const cityList = document.getElementById("cityList");
   const brgyList = document.getElementById("brgyList");
 
-// ✅ LOAD SAVED ADDRESS
+// LOAD SAVED ADDRESS
 const savedAddress = JSON.parse(localStorage.getItem("addressInfo"));
 
 if (savedAddress) {
@@ -349,8 +348,8 @@ addressCheck.addEventListener("change", () => {
     : localStorage.removeItem("addressInfo");
 });
 
- /* =============================
-   7. FINAL CHECKOUT
+/* =============================
+        FINAL CHECKOUT
 ============================= */
 const payBtn = document.getElementById("payBtn");
 
@@ -360,18 +359,26 @@ payBtn.addEventListener("click", () => {
     alert("Select payment method");
     return;
   }
+
 const data = {
   firstName: firstName.value,
   lastName: lastName.value,
   email: email.value,
   phone: phone.value,
 
-  // ✅ FIX TOTAL
+  province: provinceInput.value,
+  city: cityInput.value,
+  barangay: brgyInput.value,
+  postal_code: postal.value,
+  full_address: fullAddress.value,
+
+  payment_method: document.querySelector("input[name='payment']:checked")?.parentElement.textContent.trim(),
+  delivery_method: document.querySelector("input[name='delivery']:checked")?.parentElement.textContent.trim(),
+
   total: subtotal + baseDelivery + expressExtra,
 
-  // ✅ FIX ITEMS STRUCTURE (VERY IMPORTANT)
   items: checkoutItems.map(item => ({
-    product_name: item.name,   // 🔥 THIS FIXES EVERYTHING
+    product_name: item.name,
     price: Number(item.price),
     qty: Number(item.qty),
     size: item.size || '',
@@ -379,9 +386,10 @@ const data = {
     image: item.image || ''
   }))
 };
+
 console.log("FINAL DATA:", data);
 
- fetch("place-order.php", {
+fetch("place-order.php", {
   method: "POST",
   headers: {
     "Content-Type": "application/json"
@@ -389,16 +397,16 @@ console.log("FINAL DATA:", data);
   body: JSON.stringify(data)
 })
 
-.then(res => res.text()) // ✅ IMPORTANT
+.then(res => res.text()) 
 
 .then(res => {
   console.log("SERVER RESPONSE:", res);
   alert("Order sent!");
 
-  // ✅ GET CURRENT CART
+  // GET CURRENT CART
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-  // ✅ REMOVE CHECKED ITEMS (checkoutItems)
+  // REMOVE CHECKED ITEMS 
   cart = cart.filter(cartItem => {
     return !checkoutItems.some(item =>
       item.name === cartItem.name &&
@@ -407,13 +415,13 @@ console.log("FINAL DATA:", data);
     );
   });
 
-  // ✅ SAVE UPDATED CART
+  // SAVE UPDATED CART
   localStorage.setItem("cart", JSON.stringify(cart));
 
-  // ✅ CLEAR CHECKOUT ITEMS
+  // CLEAR CHECKOUT ITEMS
   localStorage.removeItem("checkoutItems");
 
-  // ✅ REDIRECT TO CART PAGE
+  // REDIRECT TO CART PAGE
   window.location.href = "cart.php";
 })
 
@@ -422,4 +430,25 @@ console.log("FINAL DATA:", data);
 });
 
 });
+
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const item = JSON.parse(localStorage.getItem("checkoutItem"));
+
+  console.log("Loaded item:", item); // DEBUG
+
+  if (!item) {
+    alert("No item selected.");
+    return;
+  }
+
+  // Example: display data (you can adjust this)
+  document.getElementById("productName").innerText = item.name;
+  document.getElementById("productPrice").innerText = "₱ " + item.price;
+  document.getElementById("productQty").innerText = item.qty;
+  document.getElementById("productImage").src = "../../uploads/" + item.image;
+
+});
+
 });

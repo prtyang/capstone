@@ -18,13 +18,8 @@ function filterOrders() {
   console.log("To:", to);
 }
 
-//////////////////////////////////////////////////////
-// ✅ ADD THIS PART BELOW (IMPORTANT 🔥)
-//////////////////////////////////////////////////////
-
 function shipOrder(id) {
 
-  // ✅ CONFIRM FIRST
   if (!confirm("Are you sure you want to arrange shipment?")) {
     return;
   }
@@ -43,9 +38,8 @@ function shipOrder(id) {
   .then(res => {
 
     if (res.success) {
-      alert("Order is now Shipping ✅");
+      alert("Order is now Shipping ");
 
-      // 🔥 reload page to update UI
       location.reload();
     } else {
       alert("Failed to update order");
@@ -60,12 +54,12 @@ function shipOrder(id) {
 
 function shipOrder(id) {
 
-  // ✅ CONFIRM FIRST
+  // CONFIRM FIRST
   if (!confirm("Are you sure you want to arrange shipment?")) {
     return;
   }
 
-  fetch("update-order-status.php", { // ⚠️ IMPORTANT (correct file)
+  fetch("update-order-status.php", { 
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -79,13 +73,13 @@ function shipOrder(id) {
   .then(res => {
 
     if (res.success) {
-      alert("Order is now Shipping ✅");
+      alert("Order is now Shipping");
 
-      // 🔥 REDIRECT HERE (THIS IS WHAT YOU WANT)
+      // REDIRECT HERE 
       window.location.href = "to-ship-process.php";
 
     } else {
-      alert("Failed to update order ❌");
+      alert("Failed to update order ");
     }
 
   })
@@ -93,4 +87,8 @@ function shipOrder(id) {
     console.error(err);
     alert("Error updating order");
   });
+}
+
+function viewOrder(id) {
+  window.location.href = "order-view.php?id=" + id;
 }

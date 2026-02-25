@@ -68,22 +68,22 @@
 <h2>Shipping Information</h2>
 
 <div class="custom-select">
-  <input id="provinceInput" placeholder="Select Province">
+  <input id="provinceInput" name="province" placeholder="Select Province">
   <div id="provinceList" class="dropdown"></div>
 </div>
 
 <div class="custom-select">
-  <input id="cityInput" placeholder="Select City" disabled>
+  <input id="cityInput" name="city" placeholder="Select City">
   <div id="cityList" class="dropdown"></div>
 </div>
 
 <div class="custom-select">
-  <input id="brgyInput" placeholder="Select Barangay" disabled>
+  <input id="brgyInput" name="barangay" placeholder="Select Barangay">
   <div id="brgyList" class="dropdown"></div>
 </div>
 
-<input id="postalInput" placeholder="Postal Code" maxlength="4">
-<input placeholder="Full address">
+<input id="postalInput" name="postal" placeholder="Postal Code">
+<input id="fullAddressInput" name="full_address" placeholder="Full address">
 
 <label class="checkbox">
   <input type="checkbox"> Save all information
@@ -127,12 +127,12 @@
 
 <div class="radio-group">
   <label class="radio-option">
-    <span>Standard Delivery</span>
+    <span>Standard Delivery  (4-7days)</span>
     <input type="radio" name="delivery">
   </label>
 
   <label class="radio-option">
-    <span>Express Delivery</span>
+    <span>Express Delivery (2 - 3days)</span>
     <input type="radio" name="delivery">
   </label>
 </div>

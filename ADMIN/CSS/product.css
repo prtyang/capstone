@@ -220,6 +220,63 @@ body {
   font-size: 12px;
 }
 
+.pin-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(5px);
+  z-index: 999;
+}
+
+.pin-box {
+  background: #fff;
+  padding: 25px;
+  border-radius: 15px;
+  width: 300px;
+  text-align: center;
+}
+
+.pin-box input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.pin-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.confirm {
+  background: #c94a7c;
+  color: white;
+}
+
+.cancel {
+  background: #ccc;
+}
+
+.pin-message {
+  margin-top: 10px;
+  color: red;
+}
+
 @media (max-width: 768px) {
   .delete-btn,
   .delete-all-btn {

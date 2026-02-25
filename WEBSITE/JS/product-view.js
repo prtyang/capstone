@@ -53,7 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const match = variations.find(v =>
-        v.color.toLowerCase() === selectedColor.toLowerCase() &&
+        v.color.trim().toLowerCase() === selectedColor.trim().toLowerCase()
+        &&
         v.size === size
       );
 
@@ -144,7 +145,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!selectedColor || !selectedSize) return;
 
     const match = variations.find(v =>
-      v.color.toLowerCase() === selectedColor.toLowerCase() &&
+      v.color.trim().toLowerCase() === selectedColor.trim().toLowerCase()
+      &&
       v.size === selectedSize
     );
 
@@ -179,7 +181,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!selectedSize) return alert("Please select size.");
 
     const match = variations.find(v =>
-      v.color.toLowerCase() === selectedColor.toLowerCase() &&
+      v.color.trim().toLowerCase() === selectedColor.trim().toLowerCase()
+      &&
       v.size === selectedSize
     );
 
@@ -228,38 +231,40 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ✅ CHECKOUT BUTTON */
   const checkoutBtn = document.getElementById("checkoutBtn");
 
-  checkoutBtn.addEventListener("click", () => {
+checkoutBtn.addEventListener("click", () => {
 
-    console.log("CHECKOUT CLICKED ✅");
+  console.log("CHECKOUT CLICKED ✅");
 
-    if (!selectedColor) return alert("Please select color.");
-    if (!selectedSize) return alert("Please select size.");
+  if (!selectedColor) return alert("Please select color.");
+  if (!selectedSize) return alert("Please select size.");
 
-    const match = variations.find(v =>
-      v.color.toLowerCase() === selectedColor.toLowerCase() &&
-      v.size === selectedSize
-    );
+  const match = variations.find(v =>
+    v.color.trim().toLowerCase() === selectedColor.trim().toLowerCase() &&
+    v.size === selectedSize
+  );
 
-    if (!match) return alert("Variation not found.");
-    if (match.qty <= 0) return alert("Out of stock.");
+  if (!match) return alert("Variation not found.");
+  if (match.qty <= 0) return alert("Out of stock.");
 
-    const qty = parseInt(qtyInput.value);
+  const qty = parseInt(qtyInput.value);
 
-    const checkoutItem = {
-      id: productData.id,
-      brand: productData.brand,
-      name: productData.name,
-      image: match.image || productData.image,
-      color: selectedColor,
-      size: selectedSize,
-      price: parseFloat(match.price),
-      qty: qty
-    };
+  const checkoutItem = {
+    id: productData.id,
+    brand: productData.brand,
+    name: productData.name,
+    image: match.image || productData.image,
+    color: selectedColor,
+    size: selectedSize,
+    price: parseFloat(match.price),
+    qty: qty
+  };
 
-    localStorage.setItem("checkoutItem", JSON.stringify(checkoutItem));
+  console.log("Saving checkout item:", checkoutItem); // DEBUG
 
-    window.location.href = "checkout.php";
-  });
+  localStorage.setItem("checkoutItem", JSON.stringify(checkoutItem));
+
+  window.location.href = "checkout.php";
+});
 
   updateSizeAvailability();
 

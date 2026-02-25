@@ -2,6 +2,19 @@
 $conn = new mysqli("localhost", "root", "", "capstone");
 if ($conn->connect_error) die("DB Error");
 
+// 🔐 GET CURRENT PIN FROM DATABASE
+$res = $conn->query("SELECT setting_value FROM site_settings WHERE setting_key='pin_action'");
+$row = $res->fetch_assoc();
+$currentPIN = $row['setting_value'] ?? '1234';
+
+// 🔐 GET ENTERED PIN FROM FORM
+$enteredPIN = $_POST['confirmPIN'] ?? '';
+
+// ❌ BLOCK UPDATE IF PIN IS WRONG
+if ($enteredPIN !== $currentPIN) {
+    die("Wrong PIN! Update blocked.");
+}
+
 function uploadImage($inputName, $folder, $key, $conn) {
     if (!empty($_FILES[$inputName]['name'])) {
 
@@ -48,6 +61,8 @@ saveSetting('shop_name', $_POST['shop_name'] ?? '', $conn);
 saveSetting('footer_phone', $_POST['footer_phone'] ?? '', $conn);
 saveSetting('footer_address', $_POST['footer_address'] ?? '', $conn);
 saveSetting('footer_email', $_POST['footer_email'] ?? '', $conn);
+// 🔄UPDATE PIN IF USER ENTERED NEW ONE
+saveSetting('pin_action', $_POST['pin_action'] ?? '', $conn);
 
 
 header("Location: account.php?success=1");

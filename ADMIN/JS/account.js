@@ -75,3 +75,39 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 });
+
+function toggleWithdrawPIN() {
+  const input = document.getElementById("pinWithdraw");
+
+  if (input.type === "password") {
+    input.type = "text";
+  } else {
+    input.type = "password";
+  }
+}
+
+function showPIN() {
+  document.getElementById("pinSection").style.display = "block";
+}
+
+function submitWithPIN() {
+  const pin = document.getElementById("confirmPIN").value;
+
+  if (pin === "") {
+    alert("Enter PIN");
+    return;
+  }
+
+  document.getElementById("accountForm").submit();
+}
+
+function togglePIN() {
+  const input = document.getElementById("pinAction");
+
+  if (input.type === "password") {
+    input.type = "text"; // 👁 show
+  } else {
+    input.type = "password"; // 🔒 hide
+  }
+}
+

@@ -1,3 +1,4 @@
+let deleteIds = []; // store IDs to delete
 document.addEventListener("DOMContentLoaded", () => {
 
   const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
@@ -22,47 +23,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* SINGLE DELETE */
-  document.querySelectorAll(".single-delete").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const row = btn.closest(".product-row");
-      const id = btn.dataset.id;
+/* SINGLE DELETE */
+document.querySelectorAll(".single-delete").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const id = btn.dataset.id;
 
-      if (!confirm("Delete this product?")) return;
-
-      fetch("../HTML/delete-product.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: [id] })
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) row.remove();
-        });
-    });
+    deleteIds = [id];
+    openPinModal();
   });
+});
 
-  /* DELETE SELECTED */
-  deleteSelectedBtn.addEventListener("click", () => {
-    const checked = document.querySelectorAll(".row-checkbox:checked");
-    if (checked.length === 0) {
-      alert("Select at least one product");
-      return;
-    }
+/* DELETE SELECTED */
+deleteSelectedBtn.addEventListener("click", () => {
+  const checked = document.querySelectorAll(".row-checkbox:checked");
 
-    const ids = [...checked].map(cb => cb.value);
+  if (checked.length === 0) {
+    alert("Select at least one product");
+    return;
+  }
 
-    fetch("../HTML/delete-product.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ids })
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          checked.forEach(cb => cb.closest(".product-row").remove());
-        }
-      });
-  });
+  deleteIds = [...checked].map(cb => cb.value);
+  openPinModal();
+});
 
 /* STATUS FILTER */
 const statusFilter = document.getElementById("statusFilter");
@@ -122,3 +104,73 @@ stockFilter.addEventListener("change", applyFilters);
   });
 
 });
+
+function openPinModal() {
+  document.getElementById("pinModal").style.display = "flex";
+}
+
+function closePinModal() {
+  document.getElementById("pinModal").style.display = "none";
+  document.getElementById("actionPinInput").value = "";
+  document.getElementById("pinError").innerText = "";
+}
+
+function confirmDeleteWithPin() {
+  const pin = document.getElementById("actionPinInput").value.trim();
+
+  fetch("../HTML/verify-action-pin.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: "pin=" + encodeURIComponent(pin)
+  })
+  .then(res => res.text())
+  .then(response => {
+
+    if (response.trim() === "success") {
+
+      // DELETE NOW
+      fetch("../HTML/delete-product.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: deleteIds })
+      })
+      .then(res => res.text())
+    .then(text => {
+      console.log("RAW RESPONSE:", text); // 🔥 DEBUG
+
+  const data = JSON.parse(text); // convert to JSON
+        if (data.success) {
+
+          // REMOVE ONLY DELETED ITEMS
+          deleteIds.forEach(id => {
+            if (!data.blocked.includes(id)) {
+              const row = document
+                .querySelector(`.single-delete[data-id="${id}"]`)
+                ?.closest(".product-row");
+
+              if (row) row.remove();
+            }
+          });
+
+          // ❌ SHOW ERROR IF BLOCKED
+          if (data.blocked.length > 0) {
+            document.getElementById("pinError").innerText =
+              "Cannot delete: product has existing orders";
+          } else {
+            document.getElementById("pinError").innerText = "";
+          }
+
+        }
+
+        closePinModal();
+
+      });
+
+    } else {
+      document.getElementById("pinError").innerText = "Incorrect PIN";
+    }
+
+  });
+}

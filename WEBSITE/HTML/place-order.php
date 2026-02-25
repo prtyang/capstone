@@ -18,16 +18,34 @@ if (!$data || !isset($data['items']) || count($data['items']) == 0) {
 $firstName = $data['firstName'] ?? '';
 $lastName  = $data['lastName'] ?? '';
 $email     = $data['email'] ?? '';
-$address   = $data['address'] ?? '';
 $phone     = $data['phone'] ?? '';
 $total     = $data['total'] ?? 0;
 
-// INSERT ORDER
+// ✅ ADDRESS DATA (CORRECT PLACE)
+$province = $data['province'] ?? '';
+$city = $data['city'] ?? '';
+$barangay = $data['barangay'] ?? '';
+$postal_code = $data['postal_code'] ?? '';
+$full_address = $data['full_address'] ?? '';
+$payment = $data['payment_method'] ?? '';
+$delivery = $data['delivery_method'] ?? '';
+
+// ✅ INSERT ORDER (CORRECT)
 $orderQuery = "
 INSERT INTO orders 
-(first_name, last_name, email, phone, total, status)
+(
+  first_name, last_name, email, phone,
+  province, city, barangay, postal_code, full_address,
+  payment_method, delivery_method,
+  total, status
+)
 VALUES 
-('$firstName', '$lastName', '$email', '$phone', '$total', 'To Ship')
+(
+  '$firstName', '$lastName', '$email', '$phone',
+  '$province', '$city', '$barangay', '$postal_code', '$full_address',
+  '$payment', '$delivery',
+  '$total', 'To Ship'
+)
 ";
 
 $result = $conn->query($orderQuery);
@@ -43,18 +61,14 @@ if (!$result) {
 // GET ORDER ID
 $order_id = $conn->insert_id;
 
-// 🔥 GENERATE CUSTOM ORDER CODE (MMDDYY + AUTO COUNT)
+// GENERATE ORDER CODE
 $month = date("m");
 $day   = date("d");
 $year  = date("y");
-
-// ✅ USE order_id as global counter (BEST)
 $countFormatted = str_pad($order_id, 2, "0", STR_PAD_LEFT);
-
-// FINAL FORMAT: 02242601
 $order_code = $month . $day . $year . $countFormatted;
 
-// SAVE TO DATABASE
+// SAVE ORDER CODE
 $conn->query("
     UPDATE orders 
     SET order_code = '$order_code' 
@@ -86,7 +100,7 @@ foreach ($data['items'] as $item) {
         )
     ");
 
-    // 🔥 DEDUCT STOCK (IMPORTANT)
+    // DEDUCT STOCK
     $conn->query("
         UPDATE product_variations 
         SET qty = qty - $qty

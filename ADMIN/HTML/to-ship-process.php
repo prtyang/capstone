@@ -1,16 +1,14 @@
 <?php 
 include "../../config/db.php";
 
-
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Order Dashboard</title>
   <link rel="stylesheet" href="../CSS/to-ship-process.css">
-
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
@@ -39,12 +37,12 @@ include "../../config/db.php";
       Order
     </a>
 
-    <a href="sales.html">
+    <a href="sales.php">
       <img src="../PICTURE/SALES LOGO.png" class="menu-icon">
       Sales
     </a>
 
-    <a href="marketing.html">
+    <a href="marketing.php">
       <img src="../PICTURE/MARKETING LOGO.png" class="menu-icon">
       Marketing
     </a>
@@ -69,10 +67,10 @@ include "../../config/db.php";
 <div class="tabs">
   <a href="order.php">All</a>
   <a href="order-to-ship.php" class="active">To Ship <small>200</small></a>
-  <a href="order-to-ship-shipping.php">Shipping <small>200</small></a>
-  <a href="order-to-ship-completed.php">Completed</a>
-  <a href="order-to-ship-cancel.php">Cancel</a>
-  <a href="order-to-ship-return/refund.php">Return/Refund</a>
+  <a href="order-shipping.php">Shipping <small>200</small></a>
+  <a href="order-completed.php">Completed</a>
+  <a href="order-cancel.php">Cancel</a>
+  <a href="order-return/refund.php">Return/Refund</a>
 </div>
 
 <!-- Search -->
