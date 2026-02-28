@@ -89,8 +89,12 @@ $homeProducts = $conn->query("
         <a href="cart.php" class="icon">
           <img src="../PICTURE/cart.png" class="logo" alt="cart Logo">
         </a>
+
+        <a href="Customer-service.php" class="icon" id="userIcon">
+          <img src="../PICTURE/Customer-services.png" class="logo" alt="customer-service logo">
+        </a>
         
-        <a href="login.html" class="icon" id="userIcon">
+        <a href="profile.php" class="icon" id="userIcon">
           <img src="../PICTURE/profile.jpg" class="logo" alt="profile logo">
         </a>
       </div>

@@ -1,4 +1,9 @@
-<?php include "../../config/db.php"; ?>
+<?php include "../../config/db.php"; 
+// COUNT ORDERS
+$toShipCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Ship'")->fetch_assoc()['total'];
+$shippingCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='Shipping'")->fetch_assoc()['total'];
+$toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Process'")->fetch_assoc()['total'];
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -63,11 +68,18 @@
 <!-- Tabs -->
 <div class="tabs">
   <a href="order.php">All</a>
-  <a href="order-to-ship.php">To Ship <small>200</small></a>
-  <a href="order-shipping.php"class="active">Shipping <small>200</small></a>
-  <a href="order-to-ship-completed.php">Completed</a>
-  <a href="order-to-ship-cancel.php">Cancel</a>
-  <a href="order-to-ship-return/refund.php">Return/Refund</a>
+
+  <a href="order-to-ship.php" >
+    To Ship <small><?= $toShipCount ?></small>
+  </a>
+
+  <a href="order-shipping.php" class="active">
+    Shipping <small><?= $shippingCount ?></small>
+  </a>
+
+  <a href="order-completed.php">Completed</a>
+  <a href="order-cancel.php">Cancel</a>
+  <a href="order-return/refund.php">Return/Refund</a>
 </div>
 
 <!-- Search -->
@@ -94,6 +106,7 @@
 <?php
 $orders = $conn->query("
   SELECT * FROM orders 
+  WHERE status = 'Shipping'
   ORDER BY id DESC
 ");
 

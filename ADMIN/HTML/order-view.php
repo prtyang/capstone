@@ -96,17 +96,22 @@ $items = $conn->query("SELECT * FROM order_items WHERE order_id = $order_id");
     <p><?= date("h:i A", strtotime($order['created_at'] ?? 'now')) ?></p>
   </div>
 
-  <?php if ($order['status'] !== 'Cancel'): ?>
-    <button class="cancel-btn" onclick="cancelOrder(<?= $order['id'] ?>)">
-      Cancel Order
-    </button>
-  <?php endif; ?>
+  <?php if ($order['status'] === 'Cancel'): ?>
+  <button class="cancel-btn" disabled style="background:gray; cursor:not-allowed;">
+    Cancelled
+  </button>
+<?php else: ?>
+  <button class="cancel-btn" onclick="cancelOrder(<?= $order['id'] ?>)">
+    Cancel Order
+  </button>
+<?php endif; ?>
 </div>
 
 <!-- BUYER INFO -->
 <div class="section">
   <h3><?= $order['first_name'] ?> <?= $order['last_name'] ?></h3>
   <p><?= $order['phone'] ?></p>
+
   <p>
   <?= $order['province'] ?? '' ?>,
   <?= $order['city'] ?? '' ?>,
@@ -135,7 +140,7 @@ $items = $conn->query("SELECT * FROM order_items WHERE order_id = $order_id");
     <span>Total</span>
   </div>
 
- <?php 
+<?php 
 $total = 0;
 
 while ($item = $items->fetch_assoc()):
@@ -165,7 +170,7 @@ while ($item = $items->fetch_assoc()):
 </div>
 
 <?php endwhile; ?>
- 
+
 <?php
 $deliveryFee = 2; 
 $coupon = 0; 

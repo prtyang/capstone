@@ -1,4 +1,12 @@
-<?php include "../../config/db.php"; ?>
+<?php
+include "../../config/db.php";
+// COUNT ORDERS
+$toShipCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Ship'")->fetch_assoc()['total'];
+$shippingCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='Shipping'")->fetch_assoc()['total'];
+$toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Process'")->fetch_assoc()['total'];
+
+
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -63,8 +71,15 @@
 <!-- Tabs -->
 <div class="tabs">
     <a href="order.php">All</a>
-    <a href="order-to-ship.php">To Ship <small>200</small></a>
-    <a href="order-shipping.php">Shipping <small>200</small></a>
+
+  <a href="order-to-ship.php">
+    To Ship <small><?= $toShipCount ?></small>
+  </a>
+
+  <a href="order-shipping.php">
+    Shipping <small><?= $shippingCount ?></small>
+  </a>
+    <a href="order-completed.php">Completed</a>
     <a href="order-cancel.php" class="active">Cancel</a>
     <a href="order-to-ship-return/refund.php">Return/Refund</a>
 </div>
@@ -93,9 +108,10 @@
 <?php
 $orders = $conn->query("
   SELECT * FROM orders 
-  WHERE action = 'Deleted by Seller'
+  WHERE status = 'Cancel'
   ORDER BY id DESC
 ");
+
 while ($order = $orders->fetch_assoc()):
 ?>
 
@@ -131,7 +147,6 @@ if ($items && $items->num_rows > 0) {
 
 <!-- ITEMS LOOP -->
 <?php if (count($rows) > 0): ?>
-
   <?php foreach ($rows as $index => $item): ?>
 
     <div class="order-row">
@@ -164,21 +179,24 @@ if ($items && $items->num_rows > 0) {
       <?php if ($index === 0): ?>
         <div class="summary-total">₱<?= $total ?></div>
 
-        <div class="summary-status">
-         <?php if ($order['status'] === 'Deleted by Seller'): ?>
-  <span style="color:red; font-weight:bold;">
-    Deleted by Seller
-  </span>
-<?php else: ?>
-  <?= $order['status'] ?>
-<?php endif; ?>
-        </div>
+    <div class="summary-status">
+      <span style="color:gray;">
+        <?= $order['status'] ?>
+      </span>
 
-        <div class="summary-action">
-          <a href="order-view.php?id=<?= $order['id'] ?>">
+      <?php if (!empty($order['action'])): ?>
+      <br>
+      <small style="">
+        <?= $order['action'] ?>
+      </small>
+      <?php endif; ?>
+    </div>
+
+      <div class="summary-action">
+        <a href="order-view.php?id=<?= $order['id'] ?>">
           Check Details
-          </a>
-        </div>
+        </a>
+      </div>
 
       <?php else: ?>
         <div></div>

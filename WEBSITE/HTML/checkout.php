@@ -27,6 +27,10 @@
       <a href="cart.php" class="icon">
         <img src="../PICTURE/cart.png">
       </a>
+
+      <a href="Customer-service.php" class="icon">
+        <img src="../PICTURE/Customer-services.png">
+      </a>
       
       <a href="login.html" class="icon">
         <img src="../PICTURE/profile.jpg">

@@ -1,0 +1,167 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f8f6f7;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px 40px;
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+
+.section {
+  margin-bottom: 30px;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload .remove {
+  color: red;
+  cursor: pointer;
+}
+
+.info .row {
+  border-bottom: 1px solid pink;
+  padding: 10px 0;
+}
+
+.info span {
+  display: inline-block;
+  width: 150px;
+  color: gray;
+}
+
+.tabs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #d8b7c3;
+  padding: 18px 40px;
+  font-size: 16px;
+  margin-left: 5px;
+  width: 1120px;
+}
+
+/* Each tab */
+.tab {
+  color: #222;
+  cursor: pointer;
+  position: relative;
+}
+
+/* ACTIVE TAB */
+.tab.active {
+  color: #ff2e63;
+  font-weight: 500;
+}
+
+.tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: -18px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: #ff2e63;
+}
+
+.order-card {
+  border: 1px solid #ff6b9c;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+/* HEADER */
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+
+}
+
+.orders {
+  width: 100%;
+  max-width: 1200px; 
+  margin: 20px auto;
+  padding: 0 10px; 
+  color: #737272;
+}
+
+.tag {
+  background: #f3dbe2;
+  padding: 8px 15px;
+  font-size: 14px;
+}
+
+.status {
+  font-weight: 500;
+}
+
+.pending {
+  color: #ff2e63;
+}
+
+.completed {
+  color: rgb(131, 131, 131);
+}
+
+/* PRODUCT ROW */
+.product-row {
+  display: grid;
+  grid-template-columns: 60px auto 50px 70px;
+  align-items: center;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.img {
+  width: 50px;
+  height: 50px;
+  background: #ccc;
+}
+
+.details .title {
+  margin: 0;
+}
+
+.details small {
+  color: gray;
+}
+
+/* ALIGN RIGHT */
+.qty {
+  text-align: center;
+}
+
+.price {
+  text-align: right;
+}
+
+/* TOTAL */
+.total-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  font-size: 18px;
+  margin-top: 10px;
+}

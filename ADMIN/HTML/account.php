@@ -57,7 +57,7 @@ $_SESSION['attempts'] = 0;
 $pinWithdraw = $_POST['pin_withdraw'] ?? '';
 $pinAction   = $_POST['pin_action'] ?? '';
 
-// ✅ SAVE WITHDRAW PIN
+// SAVE WITHDRAW PIN
 if ($pinWithdraw !== '') {
     $stmt1 = $conn->prepare("
         INSERT INTO site_settings (setting_key, setting_value)
@@ -68,7 +68,7 @@ if ($pinWithdraw !== '') {
     $stmt1->execute();
 }
 
-// ✅ SAVE ACTION PIN
+// SAVE ACTION PIN
 if ($pinAction !== '') {
     $stmt2 = $conn->prepare("
         INSERT INTO site_settings (setting_key, setting_value)
@@ -79,7 +79,7 @@ if ($pinAction !== '') {
     $stmt2->execute();
 }
 
-// ✅ UPDATE LOCAL VALUES (IMPORTANT)
+// UPDATE LOCAL VALUES (IMPORTANT)
 $settings['pin_withdraw'] = $pinWithdraw;
 $settings['pin_action']   = $pinAction;
 
@@ -330,8 +330,12 @@ $_SESSION['success'] = true;
 </main>
 </div>
 
-
 <script src="../JS/account.js"></script>
+
+<div class="chat-float">
+  <img src="../PICTURE/message.png" alt="Chat">
+  <span class="chat-badge">1</span>
+</div>
 
 </body>
 </html>

@@ -1,4 +1,9 @@
-<?php include "../../config/db.php"; ?>
+<?php include "../../config/db.php"; 
+// COUNT ORDERS
+$toShipCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Ship'")->fetch_assoc()['total'];
+$shippingCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='Shipping'")->fetch_assoc()['total'];
+$toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Process'")->fetch_assoc()['total'];
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -63,8 +68,15 @@
 <!-- Tabs -->
 <div class="tabs">
   <a href="order.php"class="active">All</a>
-  <a href="order-to-ship.php">To Ship <small>200</small></a>
-  <a href="order-shipping.php">Shipping <small>200</small></a>
+
+  <a href="order-to-ship.php" >
+    To Ship <small><?= $toShipCount ?></small>
+  </a>
+
+  <a href="order-shipping.php">
+    Shipping <small><?= $shippingCount ?></small>
+  </a>
+  
   <a href="order-completed.php">Completed</a>
   <a href="order-cancel.php">Cancel</a>
   <a href="order-return/refund.php">Return/Refund</a>
@@ -150,55 +162,67 @@ if ($items && $items->num_rows > 0) {
       <span>Size: <?= $item['size'] ?? '-' ?></span>
       <span>₱<?= $item['price'] ?></span>
     </div>
-
   </a>
-
-</div>
+  </div>
     
   <!-- QTY -->
-    <div class="qty center">
-        x<?= $item['qty'] ?>
-      </div>              
-      <?php if ($index === 0): ?>
-        <div class="summary-total">₱<?= $total ?></div>
+  <div class="qty center">
+      x<?= $item['qty'] ?>
+    </div>              
+    <?php if ($index === 0): ?>
 
-        <div class="summary-status">
-        <?php if ($order['status'] === 'Deleted by Seller'): ?>
-          <span style="color:red; font-weight:bold;">
-          Deleted by Seller
-          </span>
-        <?php else: ?>
-      <?= $order['status'] ?? 'To Ship' ?>
-      <?php endif; ?>
-    </div>
+    <!-- TOTAL -->
+    <div class="summary-total">₱<?= $total ?></div>
 
-        <div class="summary-action">
-        <?php if ($order['status'] == "To Ship"): ?>
-          <a href="#" onclick="shipOrder(<?= $order['id'] ?>)">
-          Arrange shipment
-          </a>
+    <!-- STATUS -->
+    <div class="summary-status">
+    <?php if ($order['status'] === 'Cancel'): ?>
+        <span style="color:gray; font-weight:">
+          Cancel
+        </span>
+      <?php if (!empty($order['action'])): ?>
+      <br>
+      <small style="color:gray;">
+      <?= $order['action'] ?>
+    </small>
+    <?php endif; ?>
+  <?php else: ?>
+  <?= $order['status'] ?? 'To Ship' ?>
+  <?php endif; ?>
+  </div>
 
-        <?php elseif ($order['status'] == "Shipping"): ?>
-          <a href="#" onclick="pickupOrder(<?= $order['id'] ?>)">
-          Pick-up / Drop
-          </a>
+  <!-- ACTION -->
+  <div class="summary-action">
 
-        <?php elseif ($order['status'] == "Shipped"): ?>
-          <a href="order-details.php?id=<?= $order['id'] ?>">
-          Check Details
-          </a>
+  <?php if ($order['status'] == "To Ship"): ?>
+  <a href="#" onclick="shipOrder(<?= $order['id'] ?>)">
+    Arrange shipment
+  </a>
 
-        <?php endif; ?>
-      </div>
+  <?php elseif ($order['status'] == "Shipping"): ?>
+  <a href="#" onclick="pickupOrder(<?= $order['id'] ?>)">
+    Pick-up / Drop
+  </a>
 
-      <?php else: ?>
-        <div></div>
-        <div></div>
-        <div></div>
-        <?php endif; ?>
-    </div>
+  <?php elseif ($order['status'] == "Shipped"): ?>
+  <a href="order-details.php?id=<?= $order['id'] ?>">
+    Check Details
+  </a>
+
+  <?php elseif ($order['status'] == "Cancel"): ?>
+    <a href="order-details.php?id=<?= $order['id'] ?>">
+    Check Details
+  </a>
+  <?php endif; ?>
+  </div>
+
+  <?php else: ?>
+    <div></div>
+    <div></div>
+    <div></div>
+    <?php endif; ?>
+  </div>
   <?php endforeach; ?>
-
   <?php else: ?>
 
   <div class="order-row">
@@ -222,6 +246,11 @@ flatpickr("#calendarRange", {
   dateFormat: "d/m/Y",
 });
 </script>
+
+<div class="chat-float">
+  <img src="../PICTURE/message.png" alt="Chat">
+  <span class="chat-badge">1</span>
+</div>
 
 </body>
 </html>

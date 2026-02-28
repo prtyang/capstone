@@ -1,20 +1,20 @@
 <?php
+header('Content-Type: application/json');
 include "../../config/db.php";
 
 $data = json_decode(file_get_contents("php://input"), true);
-$order_id = intval($data['id'] ?? 0);
 
-if ($order_id <= 0) {
-  echo json_encode(["success" => false, "message" => "Invalid ID"]);
+if (!$data || !isset($data['id'])) {
+  echo json_encode(["success" => false]);
   exit;
 }
 
-// ✅ CHANGE STATUS HERE
+$id = intval($data['id']);
+
 $conn->query("
   UPDATE orders 
-  SET status = 'Deleted by Seller'
-  WHERE id = $order_id
+  SET status = 'Cancel', action = 'Deleted by Seller' 
+  WHERE id = $id
 ");
 
 echo json_encode(["success" => true]);
-?>

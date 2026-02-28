@@ -246,5 +246,10 @@ if ($qty <= 10) {
   </div>
 </div>
 
+<div class="chat-float">
+  <img src="../PICTURE/message.png" alt="Chat">
+  <span class="chat-badge">1</span>
+</div>
+
 </body>
 </html>

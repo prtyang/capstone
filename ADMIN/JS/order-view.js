@@ -43,7 +43,7 @@ function confirmCancelWithPin() {
 
     if (response.trim() === "success") {
 
-      // ✅ CANCEL ORDER
+      // CANCEL ORDER
       fetch("cancel-order.php", {
         method: "POST",
         headers: {
@@ -56,13 +56,18 @@ function confirmCancelWithPin() {
       .then(res => res.json())
       .then(res => {
 
-        if (res.success) {
-          alert("Order cancelled successfully");
-          window.location.href = "order-cancel.php";
-        } else {
-          document.getElementById("pinError").innerText =
-            res.message || "Cancel failed";
-        }
+      if (res.success) {
+      alert("Order cancelled successfully");
+
+    // 🔥 Update button instead of redirect
+    const btn = document.querySelector(".cancel-btn");
+    if (btn) {
+      btn.innerText = "Cancelled";
+      btn.disabled = true;
+      btn.style.background = "gray";
+      btn.style.cursor = "not-allowed";
+    }
+  }
 
       });
 

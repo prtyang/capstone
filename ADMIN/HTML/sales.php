@@ -314,9 +314,12 @@ const dataSets = {
 };
 </script>
 
-
 <script src="../JS/sales.js"></script>
 
+<div class="chat-float">
+  <img src="../PICTURE/message.png" alt="Chat">
+  <span class="chat-badge">1</span>
+</div>
 
 </body>
 </html>

@@ -186,6 +186,11 @@ while ($row = $res->fetch_assoc()) {
           <img src="../PICTURE/cart.png" alt="Cart">
         </a>
 
+        <a href="Customer-service.php" class="icon">
+          <img src="../PICTURE/Customer-services.png">
+        </a>
+        
+
         <a href="login.html" class="icon" id="userIcon">
           <img src="../PICTURE/profile.jpg" alt="Profile">
         </a>
