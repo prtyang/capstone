@@ -5,6 +5,19 @@ $toShipCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='
 $shippingCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='Shipping'")->fetch_assoc()['total'];
 $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Process'")->fetch_assoc()['total'];
 ?>
+<?php
+$toShipCount = $conn->query("
+  SELECT COUNT(*) as total FROM orders WHERE status='To Ship'
+")->fetch_assoc()['total'];
+
+$shippingCount = $conn->query("
+  SELECT COUNT(*) as total FROM orders WHERE status='Shipped'
+")->fetch_assoc()['total'];
+
+$processCount = $conn->query("
+  SELECT COUNT(*) as total FROM orders WHERE status='Shipping'
+")->fetch_assoc()['total'];
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -66,6 +79,7 @@ $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE statu
 <!-- MAIN -->
 <main class="main">
 
+
 <!-- Tabs -->
 <div class="tabs">
   <a href="order.php">All</a>
@@ -98,9 +112,17 @@ $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE statu
 
 <!-- Table Header -->
 <div class="mini-tabs">
-  <a href="order-to-ship.php" class="tab">All 2</a>
-  <a href="to-ship-process.php"class="tab active" >To Process 2</a>
-  <a href="to-ship-completed.php" class="tab">Process 2</a>
+  <a href="order-to-ship.php" class="tab">
+    All <?= $toShipCount ?>
+  </a>
+
+  <a href="to-ship-process.php" class="tab active">
+    To Process <?= $processCount ?>
+  </a>
+
+  <a href="to-ship-completed.php" class="tab">
+    Process <?= $shippingCount ?>
+  </a>
 </div>
 
 <div class="table-header">

@@ -70,7 +70,7 @@ function pickupOrder(id) {
   .then(res => res.json())
   .then(res => {
     if (res.success) {
-      alert("Moved to Completed ✅");
+      alert("Moved to Completed ");
       location.reload();
     }
   });
@@ -111,7 +111,35 @@ function pickupOrder(id) {
   })
   .then(res => res.json())
   .then(() => {
-    alert("Order marked as Shipped ✅");
+    alert("Order marked as Shipped ");
     location.reload();
+  });
+}
+
+function completeOrder(id) {
+  if (!confirm("Mark this order as completed?")) return;
+
+  fetch("update-status.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      order_id: id,
+      status: "Completed" //
+    })
+  })
+  .then(res => res.json())
+  .then(res => {
+    if (res.success) {
+      alert("Order Completed ");
+      location.reload();
+    } else {
+      alert("Failed to update");
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Error occurred");
   });
 }

@@ -107,9 +107,9 @@ $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE statu
 <?php
 $orders = $conn->query("
   SELECT * FROM orders 
+  WHERE status = 'Completed'
   ORDER BY id DESC
 ");
-
 while ($order = $orders->fetch_assoc()):
 ?>
 

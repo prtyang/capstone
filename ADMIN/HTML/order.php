@@ -192,29 +192,41 @@ if ($items && $items->num_rows > 0) {
   </div>
 
   <!-- ACTION -->
-  <div class="summary-action">
+<div class="summary-action">
 
-  <?php if ($order['status'] == "To Ship"): ?>
+<?php if ($order['status'] == "To Ship"): ?>
+
   <a href="#" onclick="shipOrder(<?= $order['id'] ?>)">
     Arrange shipment
   </a>
 
-  <?php elseif ($order['status'] == "Shipping"): ?>
+<?php elseif ($order['status'] == "Shipping"): ?>
+
   <a href="#" onclick="pickupOrder(<?= $order['id'] ?>)">
     Pick-up / Drop
   </a>
 
-  <?php elseif ($order['status'] == "Shipped"): ?>
+<?php elseif ($order['status'] == "Shipped"): ?>
+
+  <a href="#" onclick="completeOrder(<?= $order['id'] ?>)">
+    Complete
+  </a>
+
+<?php elseif ($order['status'] == "Completed"): ?>
+
   <a href="order-details.php?id=<?= $order['id'] ?>">
     Check Details
   </a>
 
-  <?php elseif ($order['status'] == "Cancel"): ?>
-    <a href="order-details.php?id=<?= $order['id'] ?>">
+<?php elseif ($order['status'] == "Cancel"): ?>
+
+  <a href="order-details.php?id=<?= $order['id'] ?>">
     Check Details
   </a>
-  <?php endif; ?>
-  </div>
+
+<?php endif; ?>
+
+</div>
 
   <?php else: ?>
     <div></div>

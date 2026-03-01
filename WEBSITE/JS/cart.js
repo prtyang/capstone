@@ -26,7 +26,11 @@ document.addEventListener("DOMContentLoaded", function () {
             container.innerHTML += `
                 <div class="cart-item" data-index="${index}">
                     
-                    <input type="checkbox" class="select-item" data-index="${index}">
+            <input 
+                type="checkbox" 
+                class="select-item" 
+                data-item='${JSON.stringify(item)}'
+            >
 
                     <div class="product-image">
                         <img src="/CAPSTONE/uploads/${item.image}">
@@ -59,6 +63,11 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
         });
 
+        // RESET CHECKBOXES
+        setTimeout(() => {
+            document.querySelectorAll(".select-item").forEach(cb => cb.checked = false);
+        }, 0);
+
         const checkoutBtn = document.getElementById("checkoutBtn");
 
         if (cart.length === 0) {
@@ -71,12 +80,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         attachEvents();
 
-        // ✅ CHECKBOX EVENT
         document.querySelectorAll(".select-item").forEach(checkbox => {
             checkbox.addEventListener("change", updateGrandTotal);
         });
 
-        // CLICK ITEM → OPEN PRODUCT PAGE
         document.querySelectorAll(".cart-item").forEach(item => {
             item.addEventListener("click", function(e) {
 
@@ -93,7 +100,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function attachEvents() {
 
-        // DELETE ITEM
         document.querySelectorAll(".delete-item").forEach(btn => {
             btn.addEventListener("click", function () {
 
@@ -106,7 +112,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
 
-        // QTY CHANGE
         document.querySelectorAll(".qty-input").forEach(input => {
 
             input.addEventListener("change", async function () {
@@ -116,7 +121,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 const item = cart[index];
 
-                // FETCH LIVE STOCK
                 const res = await fetch("check-stock.php", {
                     method:"POST",
                     headers:{ "Content-Type":"application/json" },
@@ -154,75 +158,66 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ✅ ✅ CORRECT PLACE (OUTSIDE EVERYTHING)
+    // ✅ FIXED (NO selectedItems here)
     function updateGrandTotal() {
 
-    let total = 0;
-    let itemCount = 0; // ✅ NEW
+        let total = 0;
+        let itemCount = 0;
 
-    document.querySelectorAll(".cart-item").forEach(itemEl => {
+        document.querySelectorAll(".cart-item").forEach(itemEl => {
 
-        const checkbox = itemEl.querySelector(".select-item");
+            const checkbox = itemEl.querySelector(".select-item");
 
-        if (checkbox && checkbox.checked) {
+            if (checkbox && checkbox.checked) {
 
-            const index = parseInt(itemEl.dataset.index);
-            const item = cart[index];
+                const index = parseInt(itemEl.dataset.index);
+                const item = cart[index];
 
-            if (item) {
-                total += Number(item.price) * Number(item.qty);
-                itemCount += Number(item.qty); // ✅ COUNT ITEMS
+                if (item) {
+                    total += Number(item.price) * Number(item.qty);
+                    itemCount += Number(item.qty);
+                }
             }
+        });
+
+        grandTotalEl.innerText = total.toFixed(2);
+        itemCountEl.innerText = itemCount;
+
+        const checkoutBtn = document.getElementById("checkoutBtn");
+
+        if (total <= 0) {
+            checkoutBtn.disabled = true;
+            checkoutBtn.style.opacity = "0.5";
+        } else {
+            checkoutBtn.disabled = false;
+            checkoutBtn.style.opacity = "1";
         }
-
-    });
-
-    grandTotalEl.innerText = total.toFixed(2);
-
-    // ✅ SHOW ITEM COUNT
-    itemCountEl.innerText = itemCount;
-
-    const checkoutBtn = document.getElementById("checkoutBtn");
-
-    if (total <= 0) {
-        checkoutBtn.disabled = true;
-        checkoutBtn.style.opacity = "0.5";
-    } else {
-        checkoutBtn.disabled = false;
-        checkoutBtn.style.opacity = "1";
     }
-}
 
     const checkoutBtn = document.getElementById("checkoutBtn");
 
-checkoutBtn.addEventListener("click", function (e) {
+    checkoutBtn.addEventListener("click", function (e) {
 
-    let selectedItems = [];
+        let selectedItems = [];
+        document.querySelectorAll(".select-item:checked").forEach(cb => {
 
-    document.querySelectorAll(".cart-item").forEach(itemEl => {
-
-        const checkbox = itemEl.querySelector(".select-item");
-
-        if (checkbox && checkbox.checked) {
-
-            const index = parseInt(itemEl.dataset.index);
-            const item = cart[index];
+            const item = JSON.parse(cb.dataset.item); // 🔥 EXACT ITEM
 
             if (item) {
                 selectedItems.push(item);
             }
+        });
+
+        if (selectedItems.length === 0) {
+            e.preventDefault();
+            alert("Please select at least one item.");
+            return;
         }
+
+        localStorage.removeItem("checkoutItems");
+        localStorage.setItem("checkoutItems", JSON.stringify(selectedItems));
+
+        console.log("FINAL SELECTED:", selectedItems);
     });
-
-    // 🚨 IF NOTHING SELECTED
-    if (selectedItems.length === 0) {
-        e.preventDefault();
-        alert("Please select at least one item.");
-        return;
-    }
-
-    // ✅ SAVE TO LOCALSTORAGE
-    localStorage.setItem("checkoutItems", JSON.stringify(selectedItems));
-});
 
 });

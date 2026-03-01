@@ -105,8 +105,8 @@ while ($row = $sizeRes->fetch_assoc()) {
 /* LOAD REVIEWS */
 $reviews = [];
 $reviewRes = $conn->query("
-  SELECT user_name, rating, comment
-  FROM product_reviews
+SELECT user_name, user_image, rating, comment, image
+FROM product_reviews
   WHERE product_id = $id
   ORDER BY created_at DESC
 ");
@@ -191,7 +191,7 @@ while ($row = $res->fetch_assoc()) {
         </a>
         
 
-        <a href="login.html" class="icon" id="userIcon">
+        <a href="profile.php" class="icon" id="userIcon">
           <img src="../PICTURE/profile.jpg" alt="Profile">
         </a>
       </div>
@@ -259,15 +259,6 @@ while ($row = $res->fetch_assoc()) {
     }
   ?>
 </p>
-
-<!-- STAR RATING -->
-<?php foreach ($reviews as $r) { ?>
-  <div class="stars">
-    <?php for ($i = 1; $i <= 5; $i++) { ?>
-      <span class="<?php echo $i <= $r['rating'] ? 'active' : ''; ?>">★</span>
-    <?php } ?>
-  </div>
-<?php } ?>
 
 <!-- COLOR -->
 <div class="option">
@@ -432,18 +423,31 @@ while ($row = $res->fetch_assoc()) {
   <?php foreach ($reviews as $r) { ?>
 
 <div class="feedback">
-  <div class="avatar"></div>
 
-  <div class="review-content">
-    <strong><?php echo htmlspecialchars($r['user_name']); ?></strong>
-    <p><?php echo htmlspecialchars($r['comment']); ?></p>
-  </div>
-
-  <div class="review-stars">
-    <?php for ($i = 1; $i <= 5; $i++) { ?>
-      <span class="<?php echo $i <= $r['rating'] ? 'active' : ''; ?>">★</span>
+  <div class="avatar">
+    <?php if (!empty($r['user_image'])) { ?>
+      <img src="<?php echo $r['user_image']; ?>" alt="User">
+    <?php } else { ?>
+      <img src="../PICTURE/profile.jpg" alt="Default">
     <?php } ?>
   </div>
+
+  <div class="review-body">
+
+    <div class="name-row">
+      <strong><?php echo htmlspecialchars($r['user_name']); ?></strong>
+
+      <div class="review-stars">
+        <?php for ($i = 1; $i <= 5; $i++) { ?>
+          <span class="<?php echo $i <= $r['rating'] ? 'active' : ''; ?>">★</span>
+        <?php } ?>
+      </div>
+    </div>
+
+    <p><?php echo htmlspecialchars($r['comment']); ?></p>
+
+  </div>
+</div>
 
   <?php } ?>
 </section>

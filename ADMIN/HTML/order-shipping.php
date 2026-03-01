@@ -1,8 +1,11 @@
 <?php include "../../config/db.php"; 
 // COUNT ORDERS
 $toShipCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Ship'")->fetch_assoc()['total'];
-$shippingCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='Shipping'")->fetch_assoc()['total'];
-$toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Process'")->fetch_assoc()['total'];
+$shippingCount = $conn->query("
+  SELECT COUNT(*) as total 
+  FROM orders 
+  WHERE status='Shipped'
+")->fetch_assoc()['total'];$toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Process'")->fetch_assoc()['total'];
 ?>
 
 <!DOCTYPE html>
@@ -106,7 +109,7 @@ $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE statu
 <?php
 $orders = $conn->query("
   SELECT * FROM orders 
-  WHERE status = 'Shipping'
+  WHERE status = 'Shipped'
   ORDER BY id DESC
 ");
 

@@ -228,12 +228,12 @@ document.addEventListener("DOMContentLoaded", () => {
     alert("Added to cart!");
   });
 
-  /* ✅ CHECKOUT BUTTON */
+  /* CHECKOUT BUTTON */
   const checkoutBtn = document.getElementById("checkoutBtn");
 
 checkoutBtn.addEventListener("click", () => {
 
-  console.log("CHECKOUT CLICKED ✅");
+  console.log("CHECKOUT CLICKED ");
 
   if (!selectedColor) return alert("Please select color.");
   if (!selectedSize) return alert("Please select size.");
@@ -248,22 +248,36 @@ checkoutBtn.addEventListener("click", () => {
 
   const qty = parseInt(qtyInput.value);
 
-  const checkoutItem = {
-    id: productData.id,
-    brand: productData.brand,
-    name: productData.name,
-    image: match.image || productData.image,
-    color: selectedColor,
-    size: selectedSize,
-    price: parseFloat(match.price),
-    qty: qty
-  };
+const checkoutItem = {
+  id: productData.id,
+  name: productData.name,
+  image: match.image || productData.image,
+  color: selectedColor,
+  size: selectedSize,
+  price: parseFloat(match.price),
+  qty: qty
+};
 
-  console.log("Saving checkout item:", checkoutItem); // DEBUG
+// CLEAR OLD
+localStorage.removeItem("checkoutItems");
 
-  localStorage.setItem("checkoutItem", JSON.stringify(checkoutItem));
+// SAVE NEW
+localStorage.setItem("checkoutItems", JSON.stringify([{
+  id: productData.id,
+  product_name: productData.name, 
+  name: productData.name,        
+  image: match.image || productData.image,
+  color: selectedColor,
+  size: selectedSize,
+  price: Number(match.price),
+  qty: Number(qty)
+}]));
 
-  window.location.href = "checkout.php";
+console.log("Checkout saved:", checkoutItem);
+
+// GO TO CHECKOUT
+window.location.href = "checkout.php";
+
 });
 
   updateSizeAvailability();

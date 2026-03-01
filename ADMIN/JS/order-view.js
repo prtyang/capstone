@@ -29,6 +29,7 @@ function closePinModal() {
 }
 
 function confirmCancelWithPin() {
+
   const pin = document.getElementById("actionPinInput").value.trim();
 
   fetch("../HTML/verify-action-pin.php", {
@@ -44,7 +45,7 @@ function confirmCancelWithPin() {
     if (response.trim() === "success") {
 
       // CANCEL ORDER
-      fetch("cancel-order.php", {
+      fetch("../HTML/cancel-order.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -53,29 +54,37 @@ function confirmCancelWithPin() {
           id: currentOrderId
         })
       })
-      .then(res => res.json())
-      .then(res => {
+    .then(res => res.json())
+    .then(res => {
 
-      if (res.success) {
-      alert("Order cancelled successfully");
+      console.log("CANCEL RESULT:", res); 
 
-    // 🔥 Update button instead of redirect
-    const btn = document.querySelector(".cancel-btn");
-    if (btn) {
-      btn.innerText = "Cancelled";
-      btn.disabled = true;
-      btn.style.background = "gray";
-      btn.style.cursor = "not-allowed";
-    }
+    if (res.success) {
+  alert("Order cancelled successfully ");
+
+  //  UPDATE BUTTON
+  const btn = document.querySelector(".cancel-btn");
+  if (btn) {
+    btn.innerText = "Cancelled";
+    btn.disabled = true;
+    btn.style.background = "gray";
+    btn.style.cursor = "not-allowed";
   }
 
-      });
+  // UPDATE STATUS TEXT
+  const statusEl = document.querySelector(".summary-status, .status");
 
+  if (statusEl) {
+    statusEl.innerText = "Cancelled";
+    statusEl.style.color = "gray";
+    statusEl.style.fontWeight = "bold";
+  }
+}
+  });
       closePinModal();
-
     } else {
       document.getElementById("pinError").innerText = "Incorrect PIN";
     }
-
   });
 }
+

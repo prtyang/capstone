@@ -45,12 +45,12 @@ $items = $conn->query("SELECT * FROM order_items WHERE order_id = $order_id");
       Order
     </a>
 
-    <a href="sales.html">
+    <a href="sales.php">
       <img src="../PICTURE/SALES LOGO.png" class="menu-icon">
       Sales
     </a>
 
-    <a href="marketing.html">
+    <a href="marketing.php">
       <img src="../PICTURE/MARKETING LOGO.png" class="menu-icon">
       Marketing
     </a>
@@ -83,7 +83,6 @@ $items = $conn->query("SELECT * FROM order_items WHERE order_id = $order_id");
 
   <button class="export">EXPORT</button>
 </div>
-
 <button onclick="goBack()" class="back-btn"> Back</button>
 
 <div class="order-details">
@@ -96,14 +95,23 @@ $items = $conn->query("SELECT * FROM order_items WHERE order_id = $order_id");
     <p><?= date("h:i A", strtotime($order['created_at'] ?? 'now')) ?></p>
   </div>
 
-  <?php if ($order['status'] === 'Cancel'): ?>
-  <button class="cancel-btn" disabled style="background:gray; cursor:not-allowed;">
-    Cancelled
+<?php if (
+  $order['status'] === 'Cancel' || 
+  $order['status'] === 'Shipping' || 
+  $order['status'] === 'Completed'
+): ?>
+
+  <button class="cancel-btn" disabled 
+    style="background:gray; cursor:not-allowed;">
+    Completed
   </button>
+
 <?php else: ?>
+
   <button class="cancel-btn" onclick="cancelOrder(<?= $order['id'] ?>)">
     Cancel Order
   </button>
+
 <?php endif; ?>
 </div>
 
@@ -170,12 +178,11 @@ while ($item = $items->fetch_assoc()):
 </div>
 
 <?php endwhile; ?>
-
 <?php
-$deliveryFee = 2; 
-$coupon = 0; 
+$deliveryFee = !empty($order['delivery_fee']) ? $order['delivery_fee'] : 0;
+$coupon = !empty($order['coupon']) ? $order['coupon'] : 0;
 
-$totalIncome = $total - $deliveryFee - $coupon;
+$totalIncome = $total + $deliveryFee - $coupon;
 ?>
 <div class="summary">
 

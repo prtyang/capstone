@@ -1,11 +1,31 @@
 <?php
 include "../../config/db.php";
-
 // COUNT ORDERS
 $toShipCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Ship'")->fetch_assoc()['total'];
 $shippingCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='Shipping'")->fetch_assoc()['total'];
 $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Process'")->fetch_assoc()['total'];
 ?>
+
+<?php
+$allCount = $conn->query("
+  SELECT COUNT(*) as total 
+  FROM orders 
+  WHERE status='To Ship'
+")->fetch_assoc()['total'];
+
+$toProcessCount = $conn->query("
+  SELECT COUNT(*) as total 
+  FROM orders 
+  WHERE status='Arrange Shipment'
+")->fetch_assoc()['total'];
+
+$processCount = $conn->query("
+  SELECT COUNT(*) as total 
+  FROM orders 
+  WHERE status='Shipped'
+")->fetch_assoc()['total'];
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -79,9 +99,9 @@ $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE statu
     Shipping <small><?= $shippingCount ?></small>
   </a>
 
-  <a href="order-to-ship-completed.php">Completed</a>
-  <a href="order-to-cancel.php">Cancel</a>
-  <a href="order-to-ship-return/refund.php">Return/Refund</a>
+  <a href="order-completed.php">Completed</a>
+  <a href="order-cancel.php">Cancel</a>
+  <a href="order-return/refund.php">Return/Refund</a>
 </div>
 
 
@@ -100,9 +120,17 @@ $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE statu
 
 <!-- Table Header -->
 <div class="mini-tabs">
-  <a href="order-to-ship.php" class="tab active">All 2</a>
-  <a href="to-ship-process.php" class="tab">To Process 2</a>
-  <a href="to-ship-completed.php" class="tab">Process 2</a>
+  <a href="order-to-ship.php" class="tab active">
+    All <?= $toShipCount ?>
+  </a>
+
+  <a href="to-ship-process.php" class="tab ">
+    To Process <?= $processCount ?>
+  </a>
+  
+  <a href="to-ship-completed.php" class="tab">
+    Process <?= $shippingCount ?>
+  </a>
 </div>
 
 <div class="table-header">
@@ -114,14 +142,15 @@ $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE statu
 </div>
 
 <?php
-// 🔥 GET ONLY "TO SHIP" ORDERS
+
 $orders = $conn->query("
   SELECT * FROM orders 
-  WHERE status = 'To Ship'
+  WHERE status IN ('To Ship', 'Arrange Shipment')
   ORDER BY id DESC
 ");
 
-while ($order = $orders->fetch_assoc()):
+if ($orders && $orders->num_rows > 0):
+  while ($order = $orders->fetch_assoc()):
 ?>
 
 <div class="order-card" onclick="viewOrder(<?= $order['id'] ?>)">
@@ -216,9 +245,14 @@ if ($items && $items->num_rows > 0) {
     </div>
   </div>
 
-  <?php endif; ?>
+<?php endif; ?>
   </div> 
-<?php endwhile; ?>
+<?php 
+  endwhile;
+else:
+  echo "<p style='padding:20px;'>No orders found</p>";
+endif;
+?>
 
 <script src="../JS/order-to-ship.js"></script>
 </body>

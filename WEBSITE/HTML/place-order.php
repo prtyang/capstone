@@ -3,6 +3,8 @@ include "../../config/db.php";
 
 // GET JSON DATA
 $data = json_decode(file_get_contents("php://input"), true);
+
+// DEBUG (KEEP THIS)
 file_put_contents("debug.txt", json_encode($data));
 
 // VALIDATION
@@ -21,7 +23,7 @@ $email     = $data['email'] ?? '';
 $phone     = $data['phone'] ?? '';
 $total     = $data['total'] ?? 0;
 
-// ✅ ADDRESS DATA (CORRECT PLACE)
+// ADDRESS
 $province = $data['province'] ?? '';
 $city = $data['city'] ?? '';
 $barangay = $data['barangay'] ?? '';
@@ -30,7 +32,9 @@ $full_address = $data['full_address'] ?? '';
 $payment = $data['payment_method'] ?? '';
 $delivery = $data['delivery_method'] ?? '';
 
-// ✅ INSERT ORDER (CORRECT)
+// ==============================
+// INSERT ORDER
+// ==============================
 $orderQuery = "
 INSERT INTO orders 
 (
@@ -44,9 +48,8 @@ VALUES
   '$firstName', '$lastName', '$email', '$phone',
   '$province', '$city', '$barangay', '$postal_code', '$full_address',
   '$payment', '$delivery',
-  '$total', 'To Ship'
-)
-";
+    '$total', 'To Ship'
+)";
 
 $result = $conn->query($orderQuery);
 
@@ -60,8 +63,11 @@ if (!$result) {
 
 // GET ORDER ID
 $order_id = $conn->insert_id;
-
+// 🔥 REMOVE ANY OLD ITEMS (SAFETY FIX)
+$conn->query("DELETE FROM order_items WHERE order_id = '$order_id'");
+// ==============================
 // GENERATE ORDER CODE
+// ==============================
 $month = date("m");
 $day   = date("d");
 $year  = date("y");
@@ -75,44 +81,49 @@ $conn->query("
     WHERE id = '$order_id'
 ");
 
-// INSERT ITEMS
+// ==============================
+//  CLEAN ITEMS 
+// ==============================
 foreach ($data['items'] as $item) {
 
-    $name  = $item['product_name'] ?? '';
-    $qty   = $item['qty'] ?? 1;
-    $price = $item['price'] ?? 0;
-    $color = $item['color'] ?? '';
-    $size  = $item['size'] ?? '';
-    $image = $item['image'] ?? '';
+    $product_id = intval($item['id']); 
+    $name  = $conn->real_escape_string($item['product_name']);
+    $qty   = intval($item['qty']);
+    $price = floatval($item['price']);
+    $color = $conn->real_escape_string($item['color']);
+    $size  = $conn->real_escape_string($item['size']);
+    $image = $conn->real_escape_string($item['image']);
 
-    // INSERT ORDER ITEM
-    $conn->query("
-        INSERT INTO order_items 
-        (order_id, product_name, price, qty, color, size, image)
-        VALUES (
-            '$order_id',
-            '$name',
-            '$price',
-            '$qty',
-            '$color',
-            '$size',
-            '$image'
-        )
-    ");
+    // INSERT WITH PRODUCT ID
+    $insert = $conn->query("
+    INSERT INTO order_items 
+    (order_id, product_id, product_name, price, qty, color, size, image)
+    VALUES (
+        '$order_id',
+        '$product_id',
+        '$name',
+        '$price',
+        '$qty',
+        '$color',
+        '$size',
+        '$image'
+    )
+");
 
-    // DEDUCT STOCK
+    // DEDUCT STOCK (KEEP THIS)
     $conn->query("
         UPDATE product_variations 
         SET qty = qty - $qty
-        WHERE product_id = (
-            SELECT id FROM products WHERE name = '$name' LIMIT 1
-        )
+        WHERE product_id = '$product_id'
         AND color = '$color'
         AND size = '$size'
     ");
 }
 
+
+// ==============================
 // SUCCESS
+// ==============================
 echo json_encode([
     "status" => "success",
     "order_id" => $order_id

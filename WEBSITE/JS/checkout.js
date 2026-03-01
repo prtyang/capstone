@@ -3,7 +3,31 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =============================
         LOAD PRODUCT IN SUMMARY
   ============================== */
-const checkoutItems = JSON.parse(localStorage.getItem("checkoutItems"));
+let checkoutItems = JSON.parse(localStorage.getItem("checkoutItems")) || [];
+
+console.log("CHECKOUT ITEMS:", checkoutItems);
+//FORCE ARRAY
+if (!Array.isArray(checkoutItems)) {
+  checkoutItems = [checkoutItems];
+}
+
+// REMOVE INVALID ITEMS
+checkoutItems = checkoutItems.filter(item =>
+  item && (item.name || item.product_name) && item.price && item.qty
+);
+
+// REMOVE DUPLICATES (VERY IMPORTANT)
+const uniqueMap = new Map();
+
+checkoutItems.forEach(item => {
+  const key = (item.name || item.product_name) + "-" + item.size + "-" + item.color;
+  uniqueMap.set(key, item);
+});
+
+checkoutItems = Array.from(uniqueMap.values());
+
+// SAVE CLEAN VERSION BACK
+localStorage.setItem("checkoutItems", JSON.stringify(checkoutItems));
 
 // CHECK FIRST
 if (!checkoutItems || checkoutItems.length === 0) {
@@ -377,14 +401,15 @@ const data = {
 
   total: subtotal + baseDelivery + expressExtra,
 
-  items: checkoutItems.map(item => ({
-    product_name: item.name,
-    price: Number(item.price),
-    qty: Number(item.qty),
-    size: item.size || '',
-    color: item.color || '',
-    image: item.image || ''
-  }))
+items: checkoutItems.map(item => ({
+  id: item.id, 
+  product_name: item.name,
+  price: Number(item.price),
+  qty: Number(item.qty),
+  size: item.size || '',
+  color: item.color || '',
+  image: item.image || ''
+}))
 };
 
 console.log("FINAL DATA:", data);
@@ -417,9 +442,8 @@ fetch("place-order.php", {
 
   // SAVE UPDATED CART
   localStorage.setItem("cart", JSON.stringify(cart));
+  localStorage.removeItem("checkoutItems"); // 🔥 CLEAR AFTER ORDER
 
-  // CLEAR CHECKOUT ITEMS
-  localStorage.removeItem("checkoutItems");
 
   // REDIRECT TO CART PAGE
   window.location.href = "cart.php";
@@ -428,26 +452,6 @@ fetch("place-order.php", {
 .catch(err => {
   console.error("FETCH ERROR:", err);
 });
-
-});
-
-
-document.addEventListener("DOMContentLoaded", () => {
-
-  const item = JSON.parse(localStorage.getItem("checkoutItem"));
-
-  console.log("Loaded item:", item); // DEBUG
-
-  if (!item) {
-    alert("No item selected.");
-    return;
-  }
-
-  // Example: display data (you can adjust this)
-  document.getElementById("productName").innerText = item.name;
-  document.getElementById("productPrice").innerText = "₱ " + item.price;
-  document.getElementById("productQty").innerText = item.qty;
-  document.getElementById("productImage").src = "../../uploads/" + item.image;
 
 });
 
