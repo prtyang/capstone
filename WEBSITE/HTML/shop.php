@@ -6,8 +6,39 @@ $category = $_GET['category'] ?? '';
 $categorySql = '';
 
 if (!empty($category)) {
-  $safeCategory = $conn->real_escape_string($category);
-  $categorySql = " AND p.category = '$safeCategory' ";
+
+  $cat = strtoupper(trim($category));
+
+  // UNDERWEAR (catch ANY variation)
+  if (strpos($cat, 'UNDER') !== false) {
+    $categorySql = " 
+      AND (
+        TRIM(UPPER(p.category)) = 'BRA' 
+        OR TRIM(UPPER(p.category)) = 'PANTY'
+      )
+    ";
+  }
+
+  // INNERWEAR
+  elseif (strpos($cat, 'INNER') !== false) {
+    $categorySql = " 
+      AND TRIM(UPPER(p.category)) IN ('SANDO','PANTYLET','PANTYSHORT')
+    ";
+  }
+
+  // SLEEPWEAR
+  elseif (strpos($cat, 'SLEEP') !== false) {
+    $categorySql = " 
+      AND TRIM(UPPER(p.category)) = 'SLEEPWEAR'
+    ";
+  }
+
+  // DIRECT CATEGORY
+  else {
+    $categorySql = " 
+      AND TRIM(UPPER(p.category)) = '$cat'
+    ";
+  }
 }
 
 // SEARCH
@@ -46,25 +77,42 @@ $totalRows = $countResult->fetch_assoc()['total'];
 $totalPages = ceil($totalRows / $limit);
 
 $sql = "
-  SELECT 
-    p.id,
-    p.image,
-    p.status,
-    p.brand AS brand_name,
-    p.name  AS product_name,
-    p.description,
-    MIN(v.price) AS min_price,
-    MAX(v.price) AS max_price
-  FROM products p
-  LEFT JOIN product_variations v 
-    ON v.product_id = p.id
-  WHERE p.status = 'active'
-  $categorySql
-  $searchSql
-  GROUP BY p.id
-  ORDER BY p.id DESC
-  LIMIT $limit OFFSET $offset
+SELECT 
+p.id,
+p.image,
+p.status,
+p.brand AS brand_name,
+p.name AS product_name,
+p.description,
+
+MIN(v.price) AS min_price,
+MAX(v.price) AS max_price,
+
+pr.discount_type,
+pr.discount_value
+
+FROM products p
+
+LEFT JOIN product_variations v 
+ON v.product_id = p.id
+
+LEFT JOIN promotion_products pp
+ON pp.product_id = p.id
+
+LEFT JOIN promotions pr
+ON pr.id = pp.promotion_id
+AND pr.status = 'active'
+AND CURDATE() BETWEEN pr.start_date AND pr.end_date
+
+WHERE p.status = 'active'
+$categorySql
+$searchSql
+
+GROUP BY p.id
+ORDER BY p.id DESC
+LIMIT $limit OFFSET $offset
 ";
+
 $result = $conn->query($sql);
 
 //FOOTER
@@ -100,7 +148,6 @@ while ($row = $res->fetch_assoc()) {
     <div class="icons">
       <a href="wishlist.php" class="icon"><img src="../PICTURE/wishlist.png"></a>
       <a href="cart.php" class="icon"><img src="../PICTURE/cart.png"></a>
-      <a href="customer-services.php" class="icon"><img src="../PICTURE/Customer-services.png"></a>
       <a href="profile.php" class="icon"><img src="../PICTURE/profile.jpg"></a>
     </div>
 
@@ -137,16 +184,26 @@ while ($row = $res->fetch_assoc()) {
     <form method="GET" id="categoryForm">
       <input type="hidden" name="search" value="<?php echo htmlspecialchars($search); ?>">
 
-      <select name="category" onchange="this.form.submit()">
-        <option value="">ALL</option>
+<select name="category" onchange="this.form.submit()">
+  <option value="">ALL</option>
 
-        <option value="BRA" <?php if ($category === 'BRA') echo 'selected'; ?>>BRA</option>
-        <option value="PANTY" <?php if ($category === 'PANTY') echo 'selected'; ?>>PANTY</option>
-        <option value="SLEEPWEAR" <?php if ($category === 'SLEEPWEAR') echo 'selected'; ?>>SLEEPWEAR</option>
-        <option value="SANDO" <?php if ($category === 'SANDO') echo 'selected'; ?>>SANDO</option>
-        <option value="PANTYLET" <?php if ($category === 'PANTYLET') echo 'selected'; ?>>PANTYLET</option>
-        <option value="PANTYSHORT" <?php if ($category === 'PANTYSHORT') echo 'selected'; ?>>PANTYSHORT</option>
-      </select>
+  <optgroup label="UNDERWEAR">
+    <option value="UNDERWEAR" <?php if ($category === 'UNDERWEAR') echo 'selected'; ?>>ALL UNDERWEAR</option>
+    <option value="BRA" <?php if ($category === 'BRA') echo 'selected'; ?>>BRA</option>
+    <option value="PANTY" <?php if ($category === 'PANTY') echo 'selected'; ?>>PANTY</option>
+  </optgroup>
+
+  <optgroup label="INNERWEAR">
+    <option value="INNERWEAR" <?php if ($category === 'INNERWEAR') echo 'selected'; ?>>ALL INNERWEAR</option>
+    <option value="SANDO" <?php if ($category === 'SANDO') echo 'selected'; ?>>SANDO</option>
+    <option value="PANTYLET" <?php if ($category === 'PANTYLET') echo 'selected'; ?>>PANTYLET</option>
+    <option value="PANTYSHORT" <?php if ($category === 'PANTYSHORT') echo 'selected'; ?>>PANTYSHORT</option>
+  </optgroup>
+
+  <optgroup label="SLEEPWEAR">
+    <option value="SLEEPWEAR" <?php if ($category === 'SLEEPWEAR') echo 'selected'; ?>>SLEEPWEAR</option>
+  </optgroup>
+</select>
     </form>
   </div>
 </section> 
@@ -155,14 +212,46 @@ while ($row = $res->fetch_assoc()) {
 <section class="product-grid">
 
 <?php while ($row = $result->fetch_assoc()) { ?>
+<?php
+
+$price = $row['min_price'] ?? 0;
+$final_price = $price;
+$discount_percent = 0;
+
+if(!empty($row['discount_value']) && $price > 0){
+
+    if($row['discount_type'] == "percentage"){
+        $discount_percent = (int)$row['discount_value'];
+        $final_price = $price - ($price * $row['discount_value'] / 100);
+    }
+
+    elseif($row['discount_type'] == "fixed"){
+        $discount_percent = round(($row['discount_value'] / $price) * 100);
+        $final_price = $price - $row['discount_value'];
+    }
+
+}
+
+?>
 
 <div class="product-card" data-id="<?php echo $row['id']; ?>">
 
   <a href="product-view.php?id=<?php echo $row['id']; ?>" class="card-link">
 
-    <div class="image-box">
-      <img src="../../uploads/<?php echo $row['image']; ?>" alt="">
-    </div>
+<div class="image-box">
+
+  <?php if($final_price < $price){ ?>
+
+  <div class="sale-badge">
+  -<?= $discount_percent ?>%
+  </div>
+
+<?php } ?>
+
+<img src="../../uploads/<?php echo $row['image']; ?>" alt="">
+
+</div>
+
 
 <div class="product-info">
 <h4 class="brand">
@@ -173,19 +262,28 @@ while ($row = $res->fetch_assoc()) {
   <?php echo htmlspecialchars($row['product_name'] ?? ''); ?>
 </p>
 
+<div class="price-box">
 
-      <span class="price">
-  ₱
-  <?php
-    if ($row['min_price'] !== null) {
-      echo ($row['min_price'] == $row['max_price'])
-        ? number_format($row['min_price'], 2)
-        : number_format($row['min_price'], 2) . ' - ' . number_format($row['max_price'], 2);
-    } else {
-      echo number_format($row['price'], 2);
-    }
-  ?>
+<?php if($final_price < $price){ ?>
+
+<span class="old-price">
+₱<?= number_format($price,2); ?>
 </span>
+
+<span class="sale-price">
+₱<?= number_format($final_price,2); ?>
+</span>
+
+<?php } else { ?>
+
+<span class="normal-price">
+₱<?= number_format($price,2); ?>
+</span>
+
+<?php } ?>
+
+</div>
+
 
     </div>
 

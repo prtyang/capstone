@@ -1,8 +1,30 @@
-<?php include "../../config/db.php"; 
+<?php
+session_start();
+include "../../config/db.php";
+
+// PROTECT PAGE
+if(!isset($_SESSION['admin'])){
+    header("Location: login.php");
+    exit();
+}
+
 // COUNT ORDERS
 $toShipCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Ship'")->fetch_assoc()['total'];
-$shippingCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='Shipping'")->fetch_assoc()['total'];
-$toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Process'")->fetch_assoc()['total'];
+$shippingCount = $conn->query("
+  SELECT COUNT(*) as total 
+  FROM orders 
+  WHERE status='Shipped'
+")->fetch_assoc()['total'];$toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Process'")->fetch_assoc()['total'];
+?>
+
+<?php
+$toProcessCount = $conn->query("
+  SELECT COUNT(*) as total FROM orders WHERE status='To Ship'
+")->fetch_assoc()['total'];
+
+$processCount = $conn->query("
+  SELECT COUNT(*) as total FROM orders WHERE status='Shipping'
+")->fetch_assoc()['total'];
 ?>
 
 <!DOCTYPE html>
@@ -24,7 +46,7 @@ $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE statu
   </div>
 
   <nav class="menu">
-    <a href="dashboard.html">
+    <a href="dashboard.php">
       <img src="../PICTURE/home logo.png" class="menu-icon">
       Dashboard
     </a>
@@ -55,11 +77,12 @@ $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE statu
     </a>
   </nav>
 
-  <div class="logout-bar">
-    <div class="logout-content">
-      <span class="logout-text">LOG OUT</span>
-    </div>
-  </div>
+    <a href="logout.php" class="logout-bar">
+        <div class="logout-content">
+            <span class="logout-text">LOG OUT</span>
+        </div>
+    </a>
+
 </aside>
 
 <!-- MAIN -->
@@ -67,16 +90,16 @@ $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE statu
 
 <!-- Tabs -->
 <div class="tabs">
-  <a href="order.php"class="active">All</a>
-
-  <a href="order-to-ship.php" >
-    To Ship <small><?= $toShipCount ?></small>
+  <a href="order.php" class="active" >All</a>
+  
+  <a href="order-to-ship.php">
+    To Ship <small><?= $processCount + $toShipCount ?></small>
   </a>
 
-  <a href="order-shipping.php">
+  <a href="order-shipping.php" >
     Shipping <small><?= $shippingCount ?></small>
   </a>
-  
+
   <a href="order-completed.php">Completed</a>
   <a href="order-cancel.php">Cancel</a>
   <a href="order-return/refund.php">Return/Refund</a>
@@ -84,7 +107,16 @@ $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE statu
 
 <!-- Search -->
 <div class="top-bar">
-  <input type="text" class="search-input" placeholder="Order Id Search...">
+  <form method="GET" class="search-form">
+  <input 
+    type="text" 
+    name="search" 
+    class="search-input" 
+    placeholder="Order Id Search..."
+    value="<?= $_GET['search'] ?? '' ?>"
+  >
+  <button type="submit" style="display:none;">Search</button>
+</form>
 
   <div class="date-range">
     <span class="label">Calendar</span>
@@ -104,7 +136,23 @@ $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE statu
 </div>
 
 <?php
-$orders = $conn->query("SELECT * FROM orders ORDER BY id DESC");
+$search = $_GET['search'] ?? '';
+
+$sql = "SELECT orders.*, users.profile_img
+        FROM orders
+        LEFT JOIN users ON users.email = orders.email";
+
+// IF SEARCH EXISTS
+if(!empty($search)){
+    $search = $conn->real_escape_string($search);
+
+    $sql .= " WHERE orders.order_code LIKE '%$search%' 
+              OR orders.id LIKE '%$search%'";
+}
+
+$sql .= " ORDER BY orders.id DESC";
+
+$orders = $conn->query($sql);
 
 while ($order = $orders->fetch_assoc()):
 ?>
@@ -112,14 +160,14 @@ while ($order = $orders->fetch_assoc()):
 <!-- ORDER CARD -->
 <div class="order-card" data-status="<?= $order['status'] ?? 'To Ship' ?>">
 
-  <!-- TOP -->
-  <div class="order-top">
-    <div class="buyer">
-      <img src="../PICTURE/default-profile.png">
-      <span><?= $order['first_name'] ?> <?= $order['last_name'] ?></span>
-    </div>
+<!-- TOP -->
+<div class="order-top">
+  <div class="buyer">
 
-    <div class="order-id">
+<span><?= $order['first_name'] ?> <?= $order['last_name'] ?></span>
+
+</div>
+  <div class="order-id">
       Order Id: <?= $order['order_code'] ?? $order['id'] ?>
     </div>
   </div>
@@ -172,7 +220,7 @@ if ($items && $items->num_rows > 0) {
     <?php if ($index === 0): ?>
 
     <!-- TOTAL -->
-    <div class="summary-total">₱<?= $total ?></div>
+    <div class="summary-total">₱<?= number_format($order['total'],2) ?></div>
 
     <!-- STATUS -->
     <div class="summary-status">
@@ -194,7 +242,18 @@ if ($items && $items->num_rows > 0) {
   <!-- ACTION -->
 <div class="summary-action">
 
-<?php if ($order['status'] == "To Ship"): ?>
+<?php if (
+  $order['status'] == "Request Return" ||
+  $order['status'] == "Refund" ||
+  $order['status'] == "Waiting to Refund" ||
+  $order['status'] == "Refunded"
+): ?>
+
+  <a href="#" onclick='openReturnDetails(<?= json_encode($order) ?>)'>
+    Return Details
+  </a>
+
+<?php elseif ($order['status'] == "To Ship"): ?>
 
   <a href="#" onclick="shipOrder(<?= $order['id'] ?>)">
     Arrange shipment
@@ -255,14 +314,33 @@ if ($items && $items->num_rows > 0) {
 <script>
 flatpickr("#calendarRange", {
   mode: "range",
-  dateFormat: "d/m/Y",
+  dateFormat: "Y-m-d"
 });
 </script>
 
-<div class="chat-float">
-  <img src="../PICTURE/message.png" alt="Chat">
-  <span class="chat-badge">1</span>
+<div class="chat-body" id="chatMessages">
+<div class="support">Hello! How can I help you today? ✨</div>
 </div>
 
+<div class="chat-input">
+<input type="text" id="chatInput" placeholder="Type your message...">
+<button id="sendChat">Send</button>
+</div>
+
+</div>
+
+<div id="returnDetailsModal" class="modal">
+  <div class="modal-content">
+
+    <span onclick="closeReturnDetails()" style="cursor:pointer;">&times;</span>
+
+    <h3>Return Details</h3>
+
+    <p id="returnMessage"></p>
+
+    <div id="returnImages" class="refund-images"></div>
+
+  </div>
+</div>
 </body>
 </html>

@@ -1,8 +1,20 @@
 <?php
+session_start(); 
+
+//  LOGIN CHECK (ADD THIS)
+if(!isset($_SESSION['user_id'])){
+    echo json_encode([
+        "status" => "not_logged_in"
+    ]);
+    exit();
+}
+
 include "../../config/db.php";
+
 
 // GET JSON DATA
 $data = json_decode(file_get_contents("php://input"), true);
+$total = $data['total'] ?? 0;
 
 // DEBUG (KEEP THIS)
 file_put_contents("debug.txt", json_encode($data));
@@ -29,8 +41,13 @@ $city = $data['city'] ?? '';
 $barangay = $data['barangay'] ?? '';
 $postal_code = $data['postal_code'] ?? '';
 $full_address = $data['full_address'] ?? '';
+$delivery_fee = $data['delivery_fee'] ?? 0;
 $payment = $data['payment_method'] ?? '';
 $delivery = $data['delivery_method'] ?? '';
+
+$delivery_fee = $data['delivery_fee'] ?? 0;
+$coupon = $data['coupon'] ?? 0;
+$coupon_code = $data['coupon_code'] ?? '';
 
 // ==============================
 // INSERT ORDER
@@ -41,6 +58,7 @@ INSERT INTO orders
   first_name, last_name, email, phone,
   province, city, barangay, postal_code, full_address,
   payment_method, delivery_method,
+  delivery_fee, coupon, coupon_code,
   total, status
 )
 VALUES 
@@ -48,7 +66,8 @@ VALUES
   '$firstName', '$lastName', '$email', '$phone',
   '$province', '$city', '$barangay', '$postal_code', '$full_address',
   '$payment', '$delivery',
-    '$total', 'To Ship'
+  '$delivery_fee', '$coupon', '$coupon_code',
+  '$total', 'To Ship'
 )";
 
 $result = $conn->query($orderQuery);
@@ -63,11 +82,10 @@ if (!$result) {
 
 // GET ORDER ID
 $order_id = $conn->insert_id;
-// 🔥 REMOVE ANY OLD ITEMS (SAFETY FIX)
+// REMOVE ANY OLD ITEMS (SAFETY FIX)
 $conn->query("DELETE FROM order_items WHERE order_id = '$order_id'");
-// ==============================
+
 // GENERATE ORDER CODE
-// ==============================
 $month = date("m");
 $day   = date("d");
 $year  = date("y");
@@ -81,9 +99,7 @@ $conn->query("
     WHERE id = '$order_id'
 ");
 
-// ==============================
 //  CLEAN ITEMS 
-// ==============================
 foreach ($data['items'] as $item) {
 
     $product_id = intval($item['id']); 
@@ -121,9 +137,7 @@ foreach ($data['items'] as $item) {
 }
 
 
-// ==============================
 // SUCCESS
-// ==============================
 echo json_encode([
     "status" => "success",
     "order_id" => $order_id

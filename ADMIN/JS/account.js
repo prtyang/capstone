@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!box || !input) return;
 
-  // 🔥 ENSURE PHP IMAGE IS NOT LOST
+  // ENSURE PHP IMAGE IS NOT LOST
   const current = box.dataset.current;
   if (current && !box.querySelector("img")) {
     const img = document.createElement("img");
@@ -103,11 +103,53 @@ function submitWithPIN() {
 
 function togglePIN() {
   const input = document.getElementById("pinAction");
+  const openEye = document.getElementById("eyeOpenAdmin");
+  const closedEye = document.getElementById("eyeClosedAdmin");
 
   if (input.type === "password") {
     input.type = "text"; // 👁 show
   } else {
-    input.type = "password"; // 🔒 hide
+    input.type = "password"; // hide
   }
 }
 
+//
+function toggleAdminPassword() {
+  const input = document.getElementById("adminPassword");
+  const openEye = document.getElementById("eyeOpenAdmin");
+  const closedEye = document.getElementById("eyeClosedAdmin");
+
+  if (input.type === "password") {
+    input.type = "text";
+    openEye.style.display = "none";
+    closedEye.style.display = "block";
+  } else {
+    input.type = "password";
+    openEye.style.display = "block";
+    closedEye.style.display = "none";
+  }
+}
+
+function toggleInput(inputId, openEyeId, closedEyeId) {
+  const input = document.getElementById(inputId);
+  const openEye = document.getElementById(openEyeId);
+  const closedEye = document.getElementById(closedEyeId);
+
+  if (input.type === "password") {
+    input.type = "text";
+    openEye.style.display = "none";
+    closedEye.style.display = "block";
+  } else {
+    input.type = "password";
+    openEye.style.display = "block";
+    closedEye.style.display = "none";
+  }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("adminPassword");
+
+  if (input && input.value !== "") {
+    input.type = "text"; // 👁 force show after refresh
+  }
+});

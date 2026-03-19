@@ -21,36 +21,68 @@ while ($row = $res->fetch_assoc()) {
 
 // FEATURED PRODUCTS 
 $featuredProducts = $conn->query("
-    SELECT 
-        p.id,
-        p.name,
-        p.brand,
-        p.image,
-        COALESCE(MIN(v.price), 0) AS min_price,
-        COALESCE(MAX(v.price), 0) AS max_price
-    FROM products p
-    LEFT JOIN product_variations v ON v.product_id = p.id
-    WHERE p.status = 'active'
-    GROUP BY p.id
-    ORDER BY p.id DESC
-    LIMIT 4
+SELECT 
+p.id,
+p.name,
+p.brand,
+p.image,
+MIN(v.price) AS min_price,
+MAX(v.price) AS max_price,
+
+pr.discount_type,
+pr.discount_value
+
+FROM products p
+
+LEFT JOIN product_variations v
+ON v.product_id = p.id
+
+LEFT JOIN promotion_products pp
+ON pp.product_id = p.id
+
+LEFT JOIN promotions pr
+ON pr.id = pp.promotion_id
+AND pr.status='active'
+AND CURDATE() BETWEEN pr.start_date AND pr.end_date
+
+WHERE p.status='active'
+
+GROUP BY p.id
+ORDER BY p.id DESC
+LIMIT 4
 ");
 
 // NORMAL PRODUCTS 
 $homeProducts = $conn->query("
-    SELECT 
-        p.id,
-        p.name,
-        p.brand,
-        p.image,
-        COALESCE(MIN(v.price), 0) AS min_price,
-        COALESCE(MAX(v.price), 0) AS max_price
-    FROM products p
-    LEFT JOIN product_variations v ON v.product_id = p.id
-    WHERE p.status = 'active'
-    GROUP BY p.id
-    ORDER BY p.id DESC
-    LIMIT 4 OFFSET 4
+SELECT 
+p.id,
+p.name,
+p.brand,
+p.image,
+MIN(v.price) AS min_price,
+MAX(v.price) AS max_price,
+
+pr.discount_type,
+pr.discount_value
+
+FROM products p
+
+LEFT JOIN product_variations v
+ON v.product_id = p.id
+
+LEFT JOIN promotion_products pp
+ON pp.product_id = p.id
+
+LEFT JOIN promotions pr
+ON pr.id = pp.promotion_id
+AND pr.status='active'
+AND CURDATE() BETWEEN pr.start_date AND pr.end_date
+
+WHERE p.status='active'
+
+GROUP BY p.id
+ORDER BY p.id DESC
+LIMIT 4 OFFSET 4
 ");
 
 ?>
@@ -88,10 +120,6 @@ $homeProducts = $conn->query("
 
         <a href="cart.php" class="icon">
           <img src="../PICTURE/cart.png" class="logo" alt="cart Logo">
-        </a>
-
-        <a href="Customer-service.php" class="icon" id="userIcon">
-          <img src="../PICTURE/Customer-services.png" class="logo" alt="customer-service logo">
         </a>
         
         <a href="profile.php" class="icon" id="userIcon">
@@ -163,7 +191,27 @@ $homeProducts = $conn->query("
 
   <div class="product-grid">
 
-    <?php while ($product = $featuredProducts->fetch_assoc()) { ?>
+  <?php while ($product = $featuredProducts->fetch_assoc()) { ?>
+<?php
+
+$price = $product['min_price'] ?? 0;
+$final_price = $price;
+$discount_percent = 0;
+
+if(!empty($product['discount_value']) && $price > 0){
+
+    if($product['discount_type']=="percentage"){
+        $discount_percent = $product['discount_value'];
+        $final_price = $price - ($price * $product['discount_value']/100);
+    }
+
+    elseif($product['discount_type']=="fixed"){
+        $discount_percent = round(($product['discount_value']/$price)*100);
+        $final_price = $price - $product['discount_value'];
+    }
+
+}
+?>
 
       <a href="product-view.php?id=<?php echo $product['id']; ?>" class="product-link">
         <div class="product-card" data-id="<?php echo $product['id']; ?>">
@@ -172,26 +220,44 @@ $homeProducts = $conn->query("
           ♡
         </div>
 
-        <div class="image-box">
-          <img src="/CAPSTONE/uploads/<?php echo $product['image']; ?>" alt="">
-        </div>
+  <div class="image-box">
 
-        <div class="product-info">
-          <h4><?php echo htmlspecialchars($product['brand']); ?></h4>
-          <p><?php echo htmlspecialchars($product['name']); ?></p>
-
-          <span class="price">
-            <?php
-              if ($product['min_price'] == $product['max_price']) {
-              echo "₱" . number_format($product['min_price'], 2);
-              } else {
-              echo "₱" . number_format($product['min_price'], 2) . 
-              " - ₱" . number_format($product['max_price'], 2);
-              }
-            ?>
-          </span>    
-        </div>
+    <?php if($final_price < $price){ ?>
+      <div class="sale-badge">
+        -<?= $discount_percent ?>%
       </div>
+    <?php } ?>
+
+<img src="/CAPSTONE/uploads/<?php echo $product['image']; ?>" alt="">
+
+</div>
+
+<div class="product-info">
+  <h4><?php echo htmlspecialchars($product['brand']); ?></h4>
+  <p><?php echo htmlspecialchars($product['name']); ?></p>
+  <div class="price-box">
+
+  <?php if($final_price < $price){ ?>
+
+    <span class="old-price">
+      ₱<?= number_format($price,2); ?>
+    </span>
+
+    <span class="sale-price">
+      ₱<?= number_format($final_price,2); ?>
+    </span>
+
+  <?php } else { ?>
+
+  <span class="normal-price">
+    ₱<?= number_format($price,2); ?>
+  </span>
+
+<?php } ?>
+
+</div>
+  </div>
+    </div>
       </a>
     <?php } ?>
   </div>
@@ -205,35 +271,71 @@ $homeProducts = $conn->query("
   <div class="product-grid">
 
     <?php while ($product = $homeProducts->fetch_assoc()) { ?>
+    <?php
 
-      <div class="product-card" data-id="<?php echo $product['id']; ?>">
+$price = $product['min_price'] ?? 0;
+$final_price = $price;
+$discount_percent = 0;
 
-        <a href="product-view.php?id=<?php echo $product['id']; ?>" class="product-link">
+if(!empty($product['discount_value']) && $price > 0){
 
-        <div class="heart" data-id="<?php echo $product['id']; ?>">
-          ♥
+    if($product['discount_type']=="percentage"){
+        $discount_percent = $product['discount_value'];
+        $final_price = $price - ($price * $product['discount_value']/100);
+    }
+
+    elseif($product['discount_type']=="fixed"){
+        $discount_percent = round(($product['discount_value']/$price)*100);
+        $final_price = $price - $product['discount_value'];
+    }
+
+}
+?>
+
+<div class="product-card" data-id="<?php echo $product['id']; ?>">
+    <a href="product-view.php?id=<?php echo $product['id']; ?>" class="product-link">
+
+      <div class="heart" data-id="<?php echo $product['id']; ?>">
+        ♥
+      </div>
+
+    <div class="image-box">
+
+      <?php if($final_price < $price){ ?>
+        <div class="sale-badge">
+          -<?= $discount_percent ?>%
         </div>
+      <?php } ?>
 
-          <div class="image-box">
-            <img src="/CAPSTONE/uploads/<?php echo $product['image']; ?>" alt="">
-          </div>
+  <img src="/CAPSTONE/uploads/<?php echo $product['image']; ?>" alt="">
+</div>
 
-          <div class="product-info">
-            <h4><?php echo htmlspecialchars($product['brand']); ?></h4>
-            <p><?php echo htmlspecialchars($product['name']); ?></p>
+  <div class="product-info">
+      <h4><?php echo htmlspecialchars($product['brand']); ?></h4>
+      <p><?php echo htmlspecialchars($product['name']); ?></p>
 
-            <span class="price">
-              <?php
-                if ($product['min_price'] == $product['max_price']) {
-                echo "₱" . number_format($product['min_price'], 2);
-                } else {
-                echo "₱" . number_format($product['min_price'], 2) . 
-                " - ₱" . number_format($product['max_price'], 2);
-                }
-              ?>
-            </span>
-          </div>
-        </a>
+      <div class="price-box">
+
+      <?php if($final_price < $price){ ?>
+
+        <span class="old-price">
+          ₱<?= number_format($price,2); ?>
+        </span>
+
+        <span class="sale-price">
+          ₱<?= number_format($final_price,2); ?>
+        </span>
+
+      <?php } else { ?>
+
+    <span class="normal-price">
+      ₱<?= number_format($price,2); ?>
+    </span>
+<?php } ?>
+
+</div>
+  </div>
+    </a>
       </div>
     <?php } ?>
   </div>

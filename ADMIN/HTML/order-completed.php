@@ -1,8 +1,31 @@
-<?php include "../../config/db.php"; 
+<?php
+session_start();
+include "../../config/db.php";
+
+// PROTECT PAGE
+if(!isset($_SESSION['admin'])){
+    header("Location: login.php");
+    exit();
+}
+
 // COUNT ORDERS
 $toShipCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Ship'")->fetch_assoc()['total'];
 $shippingCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='Shipping'")->fetch_assoc()['total'];
 $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Process'")->fetch_assoc()['total'];
+?>
+
+<?php
+$toShipCount = $conn->query("
+  SELECT COUNT(*) as total FROM orders WHERE status='To Ship'
+")->fetch_assoc()['total'];
+
+$shippingCount = $conn->query("
+  SELECT COUNT(*) as total FROM orders WHERE status='Shipped'
+")->fetch_assoc()['total'];
+
+$processCount = $conn->query("
+  SELECT COUNT(*) as total FROM orders WHERE status='Shipping'
+")->fetch_assoc()['total'];
 ?>
 
 <!DOCTYPE html>
@@ -25,7 +48,7 @@ $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE statu
   </div>
 
   <nav class="menu">
-    <a href="dashboard.html">
+    <a href="dashboard.php">
       <img src="../PICTURE/home logo.png" class="menu-icon">
       Dashboard
     </a>
@@ -56,11 +79,12 @@ $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE statu
     </a>
   </nav>
 
-  <div class="logout-bar">
-    <div class="logout-content">
-      <span class="logout-text">LOG OUT</span>
-    </div>
-  </div>
+    <a href="logout.php" class="logout-bar">
+        <div class="logout-content">
+            <span class="logout-text">LOG OUT</span>
+        </div>
+    </a>
+    
 </aside>
 
 <!-- MAIN -->
@@ -70,22 +94,32 @@ $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE statu
 <div class="tabs">
   <a href="order.php">All</a>
 
-  <a href="order-to-ship.php">
-    To Ship <small><?= $toShipCount ?></small>
+  <a href="order-to-ship.php" >
+    To Ship <small><?= $processCount + $toShipCount ?></small>
   </a>
 
-  <a href="order-shipping.php">
+  <a href="order-shipping.php" >
     Shipping <small><?= $shippingCount ?></small>
   </a>
+
   
   <a href="order-completed.php"class="active">Completed</a>
   <a href="order-cancel.php">Cancel</a>
-  <a href="order-return/refund.php">Return/Refund</a>
+  <a href="return-refund.php">Return/Refund</a>
 </div>
 
 <!-- Search -->
 <div class="top-bar">
-  <input type="text" class="search-input" placeholder="Order Id Search...">
+  <form method="GET" class="search-form">
+  <input 
+    type="text" 
+    name="search" 
+    class="search-input" 
+    placeholder="Order Id Search..."
+    value="<?= $_GET['search'] ?? '' ?>"
+  >
+  <button type="submit" style="display:none;">Search</button>
+</form>
 
   <div class="date-range">
     <span class="label">Calendar</span>
@@ -105,11 +139,25 @@ $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE statu
 </div>
 
 <?php
-$orders = $conn->query("
-  SELECT * FROM orders 
-  WHERE status = 'Completed'
-  ORDER BY id DESC
-");
+$search = $_GET['search'] ?? '';
+
+$sql = "SELECT * FROM orders WHERE status = 'Completed'";
+
+if(!empty($search)){
+    $search = $conn->real_escape_string($search);
+
+    $sql .= " AND (
+        id LIKE '%$search%' 
+        OR order_code LIKE '%$search%'
+        OR first_name LIKE '%$search%'
+        OR last_name LIKE '%$search%'
+    )";
+}
+
+$sql .= " ORDER BY id DESC";
+
+$orders = $conn->query($sql);
+
 while ($order = $orders->fetch_assoc()):
 ?>
 
@@ -119,7 +167,6 @@ while ($order = $orders->fetch_assoc()):
   <!-- TOP -->
   <div class="order-top">
     <div class="buyer">
-      <img src="../PICTURE/default-profile.png">
       <span><?= $order['first_name'] ?> <?= $order['last_name'] ?></span>
     </div>
 
@@ -212,11 +259,10 @@ if ($items && $items->num_rows > 0) {
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="../JS/order-shipping.js"></script>
-
 <script>
 flatpickr("#calendarRange", {
   mode: "range",
-  dateFormat: "d/m/Y",
+  dateFormat: "Y-m-d",
 });
 </script>
 

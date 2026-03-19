@@ -1,4 +1,13 @@
-<?php include "../../config/db.php"; 
+<?php
+session_start();
+include "../../config/db.php";
+
+// PROTECT PAGE
+if(!isset($_SESSION['admin'])){
+    header("Location: login.php");
+    exit();
+}
+
 // COUNT ORDERS
 $toShipCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Ship'")->fetch_assoc()['total'];
 $shippingCount = $conn->query("
@@ -6,6 +15,16 @@ $shippingCount = $conn->query("
   FROM orders 
   WHERE status='Shipped'
 ")->fetch_assoc()['total'];$toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Process'")->fetch_assoc()['total'];
+?>
+
+<?php
+$toProcessCount = $conn->query("
+  SELECT COUNT(*) as total FROM orders WHERE status='To Ship'
+")->fetch_assoc()['total'];
+
+$processCount = $conn->query("
+  SELECT COUNT(*) as total FROM orders WHERE status='Shipping'
+")->fetch_assoc()['total'];
 ?>
 
 <!DOCTYPE html>
@@ -27,7 +46,7 @@ $shippingCount = $conn->query("
   </div>
 
   <nav class="menu">
-    <a href="dashboard.html">
+    <a href="dashboard.php">
       <img src="../PICTURE/home logo.png" class="menu-icon">
       Dashboard
     </a>
@@ -58,11 +77,12 @@ $shippingCount = $conn->query("
     </a>
   </nav>
 
-  <div class="logout-bar">
-    <div class="logout-content">
-      <span class="logout-text">LOG OUT</span>
-    </div>
-  </div>
+    <a href="logout.php" class="logout-bar">
+        <div class="logout-content">
+            <span class="logout-text">LOG OUT</span>
+        </div>
+    </a>
+
 </aside>
 
 <!-- MAIN -->
@@ -71,12 +91,12 @@ $shippingCount = $conn->query("
 <!-- Tabs -->
 <div class="tabs">
   <a href="order.php">All</a>
-
+  
   <a href="order-to-ship.php" >
-    To Ship <small><?= $toShipCount ?></small>
+    To Ship <small><?= $processCount + $toShipCount ?></small>
   </a>
 
-  <a href="order-shipping.php" class="active">
+  <a href="order-shipping.php"  class="active" >
     Shipping <small><?= $shippingCount ?></small>
   </a>
 
@@ -87,7 +107,16 @@ $shippingCount = $conn->query("
 
 <!-- Search -->
 <div class="top-bar">
-  <input type="text" class="search-input" placeholder="Order Id Search...">
+  <form method="GET" class="search-form">
+  <input 
+    type="text" 
+    name="search" 
+    class="search-input" 
+    placeholder="Order Id Search..."
+    value="<?= $_GET['search'] ?? '' ?>"
+  >
+  <button type="submit" style="display:none;">Search</button>
+</form>
 
   <div class="date-range">
     <span class="label">Calendar</span>
@@ -106,14 +135,27 @@ $shippingCount = $conn->query("
   <div>Action</div>
 </div>
 
+<div id="orderContainer">
+  
 <?php
-$orders = $conn->query("
-  SELECT * FROM orders 
-  WHERE status = 'Shipped'
-  ORDER BY id DESC
-");
+$search = $_GET['search'] ?? '';
 
-while ($order = $orders->fetch_assoc()):
+$sql = "SELECT * FROM orders WHERE status = 'Shipped'";
+
+//  SEARCH FILTER
+if(!empty($search)){
+    $search = $conn->real_escape_string($search);
+
+  $sql .= " AND id LIKE '%$search%'";
+}
+
+$sql .= " ORDER BY id DESC";
+
+$orders = $conn->query($sql);
+
+// CHECK RESULTS FIRST
+if ($orders && $orders->num_rows > 0):
+  while ($order = $orders->fetch_assoc()):
 ?>
 
 <!-- ORDER CARD -->
@@ -122,7 +164,6 @@ while ($order = $orders->fetch_assoc()):
   <!-- TOP -->
   <div class="order-top">
     <div class="buyer">
-      <img src="../PICTURE/default-profile.png">
       <span><?= $order['first_name'] ?> <?= $order['last_name'] ?></span>
     </div>
 
@@ -209,7 +250,13 @@ if ($items && $items->num_rows > 0) {
 
   <?php endif; ?>
   </div> 
-<?php endwhile; ?>
+<?php 
+  endwhile;
+else:
+  echo "<p style='padding:20px;'>No orders found</p>";
+endif;
+?>
+</div>
 </main>
 </div>
 
@@ -219,7 +266,7 @@ if ($items && $items->num_rows > 0) {
 <script>
 flatpickr("#calendarRange", {
   mode: "range",
-  dateFormat: "d/m/Y",
+  dateFormat: "Y-m-d",
 });
 </script>
 

@@ -32,7 +32,7 @@
         <img src="../PICTURE/Customer-services.png">
       </a>
       
-      <a href="login.html" class="icon">
+      <a href="profile.php" class="icon">
         <img src="../PICTURE/profile.jpg">
       </a>
     </div>
@@ -55,11 +55,11 @@
 <h2>Contact Information</h2>
 
 <div class="row">
-  <input placeholder="First Name">
-  <input placeholder="Last Name">
+  <input id="firstNameInput" placeholder="First Name" readonly>
+  <input id="lastNameInput" placeholder="Last Name" readonly>
 </div>
 
-<input type="email" placeholder="Email Address">
+<input type="email" id="checkoutEmail" placeholder="Email Address" readonly>
 <input type="tel" id="phoneInput" placeholder="Phone Number">
 
 <label class="checkbox">
@@ -99,20 +99,22 @@
 <h2>Payment Method</h2>
 
 <div class="radio-group">
+
   <label class="radio-option">
     <span>COD</span>
     <input type="radio" name="payment">
   </label>
 
-  <label class="radio-option">
-    <span>GCash</span>
-    <input type="radio" name="payment">
+  <label class="radio-option disabled-payment">
+    <span>GCash (Soon)</span>
+    <input type="radio" name="payment" disabled>
   </label>
 
-  <label class="radio-option">
-    <span>Card</span>
-    <input type="radio" name="payment">
+  <label class="radio-option disabled-payment">
+    <span>Card (Soon)</span>
+    <input type="radio" name="payment" disabled>
   </label>
+
 </div>
 
 <div class="card-fields">
@@ -149,6 +151,12 @@
 <div id="orderItem"></div>
 
 <input id="couponInput" placeholder="Coupon code">
+<button id="applyVoucher">Apply</button>
+
+<div class="summary-line">
+  <span>Discount</span>
+  <span id="discount">₱0</span>
+</div>
 
 <div class="summary-line">
   <span>Items</span>

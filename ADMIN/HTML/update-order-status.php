@@ -11,7 +11,7 @@ if (!isset($data['id'], $data['status'])) {
 $id = (int)$data['id'];
 $status = $data['status'];
 
-// ✅ UPDATE ORDERS (NOT PRODUCTS)
+//  UPDATE ORDERS (NOT PRODUCTS)
 $sql = "UPDATE orders SET status='$status' WHERE id=$id";
 
 if ($conn->query($sql)) {

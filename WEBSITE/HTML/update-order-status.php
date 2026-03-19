@@ -1,16 +1,17 @@
 <?php
-include("../../config/db.php");
+include "../../config/db.php";
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-$id = (int)$data['id'];
+$id = $data['id'];
 $status = $data['status'];
 
-$sql = "UPDATE orders SET status='$status' WHERE id=$id";
+$stmt = $conn->prepare("UPDATE orders SET status=? WHERE id=?");
+$stmt->bind_param("si", $status, $id);
 
-if ($conn->query($sql)) {
-  echo json_encode(["success" => true]);
+if($stmt->execute()){
+    echo json_encode(["success" => true]);
 } else {
-  echo json_encode(["success" => false]);
+    echo json_encode(["success" => false]);
 }
 ?>

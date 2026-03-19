@@ -296,6 +296,53 @@ body {
   font-weight: 600;
 }
 
+/* SALE BADGE (same as shop) */
+.sale-badge{
+  position:absolute;
+  top:10px;
+  left:10px;
+  background:#c9135f;
+  color:#fff;
+  font-size:12px;
+  font-weight:600;
+  padding:4px 8px;
+  border-radius:4px;
+  z-index:2;
+}
+
+/* IMAGE BOX */
+.image-box{
+  position:relative;
+}
+
+/* PRICE BOX */
+.price-box{
+  margin-top:6px;
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+/* OLD PRICE */
+.old-price{
+  font-size:14px;
+  color:#888;
+  text-decoration:line-through;
+}
+
+/* SALE PRICE */
+.sale-price{
+  font-size:16px;
+  font-weight:700;
+  color:#c9135f;
+}
+
+/* NORMAL PRICE */
+.normal-price{
+  font-size:16px;
+  font-weight:600;
+  color:#000;
+}
 
 /* MORE */
 .more-wrapper {

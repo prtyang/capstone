@@ -1,110 +1,76 @@
 let deleteIds = []; // store IDs to delete
+
 document.addEventListener("DOMContentLoaded", () => {
 
-  const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
+  /* =============================
+     DISPLAY ORDERS (WITH BUTTON)
+  ============================= */
+  const ordersContainer = document.getElementById("ordersContainer");
 
-/* SEARCH FILTER */
-  const searchInput = document.getElementById("searchInput");
+  const orders = [
+    { id: 101, status: "Completed" },
+    { id: 102, status: "Shipping" }
+  ];
 
-  searchInput.addEventListener("input", function () {
-    const keyword = this.value.toLowerCase();
+  orders.forEach(order => {
+    const card = document.createElement("div");
+    card.classList.add("order-card");
 
-    document.querySelectorAll(".product-row").forEach(row => {
-      const name = row.querySelector("h4")?.textContent.toLowerCase() || "";
-      const desc = row.querySelector("p")?.textContent.toLowerCase() || "";
+    card.innerHTML = `
+      <p><strong>Order #${order.id}</strong></p>
+      <p>Status: ${order.status}</p>
+    `;
 
-      if (name.includes(keyword) || desc.includes(keyword)) {
-        row.style.display = "";
-      } else {
-        row.style.display = "none";
-      }
-    });
-  });
+    if (order.status === "Completed") {
+      const btn = document.createElement("button");
+      btn.textContent = "Return / Refund";
+      btn.classList.add("return-btn");
 
+      btn.onclick = () => openReturnModal(order.id);
 
-  /* SINGLE DELETE */
-/* SINGLE DELETE */
-document.querySelectorAll(".single-delete").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const id = btn.dataset.id;
-
-    deleteIds = [id];
-    openPinModal();
-  });
-});
-
-/* DELETE SELECTED */
-deleteSelectedBtn.addEventListener("click", () => {
-  const checked = document.querySelectorAll(".row-checkbox:checked");
-
-  if (checked.length === 0) {
-    alert("Select at least one product");
-    return;
-  }
-
-  deleteIds = [...checked].map(cb => cb.value);
-  openPinModal();
-});
-
-/* STATUS FILTER */
-const statusFilter = document.getElementById("statusFilter");
-const stockFilter  = document.getElementById("stockFilter");
-
-function applyFilters() {
-  const statusValue = statusFilter.value;
-  const stockValue  = stockFilter.value;
-
-  document.querySelectorAll(".product-row").forEach(row => {
-    const rowStatus = row.dataset.status; // active / inactive
-    const rowStock  = row.dataset.stock;  // low / medium / high
-
-    const statusMatch =
-      statusValue === "all" || rowStatus === statusValue;
-
-    const stockMatch =
-      stockValue === "all" || rowStock === stockValue;
-
-    if (statusMatch && stockMatch) {
-      row.style.display = "";
-    } else {
-      row.style.display = "none";
+      card.appendChild(btn);
     }
-  });
-}
 
-statusFilter.addEventListener("change", applyFilters);
-stockFilter.addEventListener("change", applyFilters);
-
-  /* STATUS TOGGLE */
-  document.addEventListener("click", function (e) {
-    const el = e.target;
-
-    if (!el.classList.contains("status-text")) return;
-    if (!el.dataset.id || !el.dataset.status) return;
-
-    const id = el.dataset.id;
-    const current = el.dataset.status;
-    const next = current === "active" ? "inactive" : "active";
-
-    fetch("update-status.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: id, status: next })
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (!data.success) return;
-
-        el.dataset.status = next;
-        el.textContent = next.charAt(0).toUpperCase() + next.slice(1);
-
-        el.classList.remove("active", "inactive");
-        el.classList.add(next);
-      });
+    ordersContainer.appendChild(card);
   });
 
+}); // ✅ ONLY ONE closing
+
+
+/* =============================
+   STATUS TOGGLE (OUTSIDE)
+============================= */
+document.addEventListener("click", function (e) {
+  const el = e.target;
+
+  if (!el.classList.contains("status-text")) return;
+  if (!el.dataset.id || !el.dataset.status) return;
+
+  const id = el.dataset.id;
+  const current = el.dataset.status;
+  const next = current === "active" ? "inactive" : "active";
+
+  fetch("update-status.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: id, status: next })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (!data.success) return;
+
+      el.dataset.status = next;
+      el.textContent = next.charAt(0).toUpperCase() + next.slice(1);
+
+      el.classList.remove("active", "inactive");
+      el.classList.add(next);
+    });
 });
 
+
+/* =============================
+   PIN MODAL
+============================= */
 function openPinModal() {
   document.getElementById("pinModal").style.display = "flex";
 }
@@ -130,20 +96,17 @@ function confirmDeleteWithPin() {
 
     if (response.trim() === "success") {
 
-      // DELETE NOW
       fetch("../HTML/delete-product.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids: deleteIds })
       })
       .then(res => res.text())
-    .then(text => {
-      console.log("RAW RESPONSE:", text); // 🔥 DEBUG
+      .then(text => {
 
-  const data = JSON.parse(text); // convert to JSON
+        const data = JSON.parse(text);
+
         if (data.success) {
-
-          // REMOVE ONLY DELETED ITEMS
           deleteIds.forEach(id => {
             if (!data.blocked.includes(id)) {
               const row = document
@@ -154,23 +117,95 @@ function confirmDeleteWithPin() {
             }
           });
 
-          // ❌ SHOW ERROR IF BLOCKED
           if (data.blocked.length > 0) {
             document.getElementById("pinError").innerText =
               "Cannot delete: product has existing orders";
           } else {
             document.getElementById("pinError").innerText = "";
           }
-
         }
 
         closePinModal();
-
       });
 
     } else {
       document.getElementById("pinError").innerText = "Incorrect PIN";
     }
 
+  });
+}
+
+
+/* =============================
+   RETURN MODAL
+============================= */
+function openReturnModal(orderId) {
+  document.getElementById("returnModal").style.display = "flex";
+  document.getElementById("returnOrderId").value = orderId;
+}
+
+function closeReturnModal() {
+  document.getElementById("returnModal").style.display = "none";
+}
+
+
+/* =============================
+   IMAGE PREVIEW (SAFE)
+============================= */
+const fileInput = document.getElementById("returnFiles");
+const preview = document.getElementById("previewContainer");
+
+if (fileInput) {
+  fileInput.addEventListener("change", () => {
+    preview.innerHTML = "";
+
+    Array.from(fileInput.files).forEach(file => {
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const img = document.createElement("img");
+        img.src = e.target.result;
+        preview.appendChild(img);
+      };
+
+      reader.readAsDataURL(file);
+    });
+  });
+}
+
+
+// CLICK UPLOAD BOX
+const uploadBox = document.querySelector(".upload-box");
+if (uploadBox && fileInput) {
+  uploadBox.addEventListener("click", () => {
+    fileInput.click();
+  });
+}
+
+
+/* =============================
+   SUBMIT RETURN
+============================= */
+function submitReturn() {
+  let orderId = document.getElementById("returnOrderId").value;
+  let message = document.getElementById("returnMessage").value;
+  let files = document.getElementById("returnFiles").files;
+
+  let formData = new FormData();
+  formData.append("order_id", orderId);
+  formData.append("message", message);
+
+  for (let i = 0; i < files.length; i++) {
+    formData.append("media[]", files[i]);
+  }
+
+  fetch("submit_return.php", {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.text())
+  .then(data => {
+    alert("Return submitted!");
+    closeReturnModal();
   });
 }

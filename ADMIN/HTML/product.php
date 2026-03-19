@@ -1,23 +1,44 @@
 <?php
-include(__DIR__ . "/../../config/db.php");
+session_start();
+include "../../config/db.php";
+
+// PROTECT PAGE
+if(!isset($_SESSION['admin'])){
+    header("Location: login.php");
+    exit();
+}
 
 $currentPage = basename($_SERVER['PHP_SELF']);
 
 $result = $conn->query("
-  SELECT 
-    p.id,
-    p.image,
-    p.status,
-    p.brand AS brand_name,
-    p.name  AS product_name,
-    MIN(v.price) AS min_price,
-    MAX(v.price) AS max_price,
-    SUM(v.qty)   AS total_qty
-  FROM products p
-  LEFT JOIN product_variations v 
-    ON v.product_id = p.id
-  GROUP BY p.id
-  ORDER BY p.id DESC
+SELECT 
+p.id,
+p.image,
+p.status,
+p.brand AS brand_name,
+p.name AS product_name,
+
+MIN(v.price) AS min_price,
+MAX(v.price) AS max_price,
+SUM(v.qty) AS total_qty,
+
+pr.discount_type,
+pr.discount_value
+
+FROM products p
+
+LEFT JOIN product_variations v 
+ON v.product_id = p.id
+
+LEFT JOIN promotion_products pp
+ON pp.product_id = p.id
+
+LEFT JOIN promotions pr
+ON pr.id = pp.promotion_id
+AND pr.status = 'active'
+AND CURDATE() BETWEEN pr.start_date AND pr.end_date
+
+GROUP BY p.id
 ");
 
 ?>
@@ -62,7 +83,7 @@ $result = $conn->query("
     Sales
   </a>
 
-  <a href="marketing.html" onclick="goPage('marketing.html')">
+  <a href="marketing.php" onclick="goPage('marketing.html')">
     <img src="../PICTURE/MARKETING LOGO.png" class="menu-icon">
     Marketing
   </a>
@@ -73,11 +94,11 @@ $result = $conn->query("
   </a>
 </nav>
 
-    <div class="logout-bar">
-    <div class="logout-content">
-        <span class="logout-text">LOG OUT</span>
-    </div>
-    </div>
+    <a href="logout.php" class="logout-bar">
+        <div class="logout-content">
+            <span class="logout-text">LOG OUT</span>
+        </div>
+    </a>
     
     </aside>
 
@@ -244,11 +265,6 @@ if ($qty <= 10) {
     <p id="pinError" class="pin-message"></p>
 
   </div>
-</div>
-
-<div class="chat-float">
-  <img src="../PICTURE/message.png" alt="Chat">
-  <span class="chat-badge">1</span>
 </div>
 
 </body>

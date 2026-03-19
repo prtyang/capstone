@@ -13,9 +13,35 @@ function goBack() {
 
 let currentOrderId = null;
 
-function cancelOrder(orderId) {
-  currentOrderId = orderId;
-  openPinModal();
+function approveRefund(id, btn) {
+  if (!confirm("Approve this refund?")) return;
+
+  fetch("update-order-status.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      id: id,
+      status: "Waiting to Refund"
+    })
+  })
+  .then(res => res.json())
+  .then(res => {
+    if (res.success) {
+
+      // CHANGE BUTTON TO "REFUND NOW"
+      btn.innerText = "Refund Now";
+      btn.classList.remove("approve-btn");
+      btn.classList.add("refund-btn");
+
+      // change action
+      btn.onclick = function () {
+        processRefund(id, btn);
+      };
+
+    }
+  });
 }
 
 function openPinModal() {
@@ -28,62 +54,92 @@ function closePinModal() {
   document.getElementById("pinError").innerText = "";
 }
 
-function confirmCancelWithPin() {
+function cancelOrder(orderId) {
 
-  const pin = document.getElementById("actionPinInput").value.trim();
+    if (!confirm("Are you sure you want to cancel this order?")) return;
 
-  fetch("../HTML/verify-action-pin.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: "pin=" + encodeURIComponent(pin)
-  })
-  .then(res => res.text())
-  .then(response => {
-
-    if (response.trim() === "success") {
-
-      // CANCEL ORDER
-      fetch("../HTML/cancel-order.php", {
+    fetch("cancel-order.php", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+            "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          id: currentOrderId
+            order_id: orderId
         })
-      })
+    })
     .then(res => res.json())
-    .then(res => {
+    .then(data => {
 
-      console.log("CANCEL RESULT:", res); 
+        if (data.success) {
 
-    if (res.success) {
-  alert("Order cancelled successfully ");
+            // 🔥 CHANGE BUTTON UI
+            const btn = document.querySelector(".cancel-btn");
 
-  //  UPDATE BUTTON
-  const btn = document.querySelector(".cancel-btn");
-  if (btn) {
-    btn.innerText = "Cancelled";
-    btn.disabled = true;
-    btn.style.background = "gray";
-    btn.style.cursor = "not-allowed";
-  }
+            btn.innerText = "Cancelled";
+            btn.disabled = true;
+            btn.style.background = "gray";
+            btn.style.cursor = "not-allowed";
 
-  // UPDATE STATUS TEXT
-  const statusEl = document.querySelector(".summary-status, .status");
+            alert("Order cancelled successfully!");
 
-  if (statusEl) {
-    statusEl.innerText = "Cancelled";
-    statusEl.style.color = "gray";
-    statusEl.style.fontWeight = "bold";
-  }
+        } else {
+            alert("Failed to cancel order.");
+        }
+
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error cancelling order.");
+    });
 }
+
+//
+function approveRefund(id) {
+  if (!confirm("Approve this refund?")) return;
+
+  fetch("update-order-status.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      id: id,
+      status: "Waiting to Refund"
+    })
+  })
+  .then(res => res.json())
+  .then(res => {
+    if (res.success) {
+      alert("Refund approved");
+      location.reload();
+    }
   });
-      closePinModal();
-    } else {
-      document.getElementById("pinError").innerText = "Incorrect PIN";
+}
+
+function processRefund(id, btn) {
+  if (!confirm("Mark as refunded?")) return;
+
+  fetch("update-order-status.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      id: id,
+      status: "Refunded"
+    })
+  })
+  .then(res => res.json())
+  .then(res => {
+    if (res.success) {
+
+      // CHANGE BUTTON TO FINAL STATE
+      btn.innerText = "Refunded";
+      btn.classList.remove("refund-btn");
+      btn.classList.add("disabled-btn");
+
+      btn.disabled = true;
+
     }
   });
 }

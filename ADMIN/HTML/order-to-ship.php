@@ -1,29 +1,20 @@
 <?php
+session_start();
 include "../../config/db.php";
+
+// PROTECT PAGE
+if(!isset($_SESSION['admin'])){
+    header("Location: login.php");
+    exit();
+}
+
 // COUNT ORDERS
 $toShipCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Ship'")->fetch_assoc()['total'];
 $shippingCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='Shipping'")->fetch_assoc()['total'];
 $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Process'")->fetch_assoc()['total'];
-?>
 
-<?php
-$allCount = $conn->query("
-  SELECT COUNT(*) as total 
-  FROM orders 
-  WHERE status='To Ship'
-")->fetch_assoc()['total'];
-
-$toProcessCount = $conn->query("
-  SELECT COUNT(*) as total 
-  FROM orders 
-  WHERE status='Arrange Shipment'
-")->fetch_assoc()['total'];
-
-$processCount = $conn->query("
-  SELECT COUNT(*) as total 
-  FROM orders 
-  WHERE status='Shipped'
-")->fetch_assoc()['total'];
+/* FIX VARIABLE CONFLICT */
+$processCount = $shippingCount; // used in your UI
 ?>
 
 <!DOCTYPE html>
@@ -32,7 +23,6 @@ $processCount = $conn->query("
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Order Dashboard</title>
   <link rel="stylesheet" href="../CSS/order-to-ship.css">
-
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
@@ -46,7 +36,7 @@ $processCount = $conn->query("
   </div>
 
   <nav class="menu">
-    <a href="dashboard.html">
+    <a href="dashboard.php">
       <img src="../PICTURE/home logo.png" class="menu-icon">
       Dashboard
     </a>
@@ -61,12 +51,12 @@ $processCount = $conn->query("
       Order
     </a>
 
-    <a href="sales.html">
+    <a href="sales.php">
       <img src="../PICTURE/SALES LOGO.png" class="menu-icon">
       Sales
     </a>
 
-    <a href="marketing.html">
+    <a href="marketing.php">
       <img src="../PICTURE/MARKETING LOGO.png" class="menu-icon">
       Marketing
     </a>
@@ -77,11 +67,12 @@ $processCount = $conn->query("
     </a>
   </nav>
 
-  <div class="logout-bar">
-    <div class="logout-content">
-      <span class="logout-text">LOG OUT</span>
-    </div>
-  </div>
+    <a href="logout.php" class="logout-bar">
+        <div class="logout-content">
+            <span class="logout-text">LOG OUT</span>
+        </div>
+    </a>
+
 </aside>
 
 <!-- MAIN -->
@@ -91,8 +82,8 @@ $processCount = $conn->query("
 <div class="tabs">
   <a href="order.php">All</a>
   
-  <a href="order-to-ship.php"  class="active" >
-    To Ship <small><?= $toShipCount ?></small>
+  <a href="order-to-ship.php" class="active">
+    To Ship <small><?= $processCount + $toShipCount ?></small>
   </a>
 
   <a href="order-shipping.php">
@@ -101,35 +92,25 @@ $processCount = $conn->query("
 
   <a href="order-completed.php">Completed</a>
   <a href="order-cancel.php">Cancel</a>
-  <a href="order-return/refund.php">Return/Refund</a>
+  <a href="return-refund.php">Return/Refund</a>
 </div>
 
-
-<!-- Search -->
 <div class="top-bar">
-  <input type="text" class="search-input" placeholder="Order Id Search...">
-
-  <div class="date-range">
-    <span class="label">Calendar</span>
-    
-    <input type="text" id="calendarRange" placeholder="Select date range">
-  </div>
-
-  <button class="export">EXPORT</button>
+  <!-- EMPTY TOP BAR (keeps spacing/layout intact) -->
 </div>
 
 <!-- Table Header -->
 <div class="mini-tabs">
   <a href="order-to-ship.php" class="tab active">
-    All <?= $toShipCount ?>
+    All <?= $processCount + $toShipCount ?>
   </a>
 
-  <a href="to-ship-process.php" class="tab ">
-    To Process <?= $processCount ?>
+  <a href="to-ship-process.php" class="tab">
+    To process <?= $toShipCount ?>
   </a>
-  
+
   <a href="to-ship-completed.php" class="tab">
-    Process <?= $shippingCount ?>
+    Process <?= $processCount ?>
   </a>
 </div>
 
@@ -142,10 +123,9 @@ $processCount = $conn->query("
 </div>
 
 <?php
-
 $orders = $conn->query("
   SELECT * FROM orders 
-  WHERE status IN ('To Ship', 'Arrange Shipment')
+  WHERE status IN ('To Ship', 'Shipping')
   ORDER BY id DESC
 ");
 
@@ -155,21 +135,18 @@ if ($orders && $orders->num_rows > 0):
 
 <div class="order-card" onclick="viewOrder(<?= $order['id'] ?>)">
 
-  <!-- TOP -->
-  <div class="order-top">
-    <div class="buyer">
-      <img src="../PICTURE/default-profile.png">
-      <span><?= $order['first_name'] ?> <?= $order['last_name'] ?></span>
-    </div>
-
-    <div class="order-id">
-      Order Id: <?= $order['order_code'] ?? $order['id'] ?>
-    </div>
+<!-- TOP -->
+<div class="order-top">
+  <div class="buyer">
+    <span><?= $order['first_name'] ?> <?= $order['last_name'] ?></span>
   </div>
 
-<?php
+  <div class="order-id">
+    Order Id: <?= $order['order_code'] ?? $order['id'] ?>
+  </div>
+</div>
 
-// GET ITEMS
+<?php
 $items = $conn->query("SELECT * FROM order_items WHERE order_id = '".$order['id']."'");
 
 $total = 0;
@@ -185,7 +162,6 @@ if ($items && $items->num_rows > 0) {
 
 <!-- ITEMS LOOP -->
 <?php if (count($rows) > 0): ?>
-
   <?php foreach ($rows as $index => $item): ?>
 
     <div class="order-row">
@@ -198,18 +174,20 @@ if ($items && $items->num_rows > 0) {
               style="width:100%; height:100%; object-fit:cover;">
           <?php endif; ?>
         </div>
+
         <div>
           <strong><?= $item['product_name'] ?></strong>
           <span>Color: <?= $item['color'] ?? '-' ?></span>
           <span>Size: <?= $item['size'] ?? '-' ?></span>
           <span>₱<?= $item['price'] ?></span>
         </div>
-    </div>
-    
-    <!-- QTY -->
+      </div>
+
+      <!-- QTY -->
       <div class="qty center">
         x<?= $item['qty'] ?>
-      </div>              
+      </div>
+
       <?php if ($index === 0): ?>
         <div class="summary-total">₱<?= $total ?></div>
 
@@ -218,26 +196,34 @@ if ($items && $items->num_rows > 0) {
         </div>
 
         <div class="summary-action">
-          <?php if (($order['status'] ?? 'To Ship') == "To Ship"): ?>
-            <a href="#" onclick="shipOrder(<?= $order['id'] ?>)">
+
+          <?php if ($order['status'] == "To Ship"): ?>
+            <a href="#" onclick="event.stopPropagation(); shipOrder(<?= $order['id'] ?>)">
               Arrange shipment
             </a>
-          <?php else: ?>
-          <a href="order-details.php?id=<?= $order['id'] ?>">
-            Check Details
-          </a>
-        <?php endif; ?>
-      </div>
 
+          <?php elseif ($order['status'] == "Shipping"): ?>
+            <a href="#" onclick="event.stopPropagation(); pickupOrder(<?= $order['id'] ?>)">
+              Pick-up / Drop
+            </a>
+
+          <?php else: ?>
+            <a href="order-details.php?id=<?= $order['id'] ?>">
+              Check Details
+            </a>
+          <?php endif; ?>
+
+        </div>
       <?php else: ?>
         <div></div>
         <div></div>
         <div></div>
-        <?php endif; ?>
-    </div>
-  <?php endforeach; ?>
+      <?php endif; ?>
 
-  <?php else: ?>
+    </div>
+
+  <?php endforeach; ?>
+<?php else: ?>
 
   <div class="order-row">
     <div class="product">
@@ -246,7 +232,9 @@ if ($items && $items->num_rows > 0) {
   </div>
 
 <?php endif; ?>
-  </div> 
+
+</div>
+
 <?php 
   endwhile;
 else:

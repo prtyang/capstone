@@ -1,20 +1,23 @@
 <?php
+session_start();
 include "../../config/db.php";
+
+// PROTECT PAGE
+if(!isset($_SESSION['admin'])){
+    header("Location: login.php");
+    exit();
+}
 
 // GET WITHDRAW PIN FROM DATABASE
 $getPin = $conn->query("SELECT setting_value FROM site_settings WHERE setting_key='pin_withdraw'");
 $row = $getPin->fetch_assoc();
 
 $withdrawPIN = $row['setting_value'] ?? '0000';
-/* =======================
-   DEFAULT MONTH
-======================= */
+/* DEFAULT MONTH */
 $type = isset($_GET['type']) ? $_GET['type'] : 'monthly';
 $selectedMonth = isset($_GET['month']) ? $_GET['month'] : date('m');
 
-/* =======================
-   WEEKLY DATA
-======================= */
+/* WEEKLY DATA */
 $daysInMonth = date("t", strtotime(date("Y") . "-" . $selectedMonth . "-01"));
 
 $weekLabels = [
@@ -67,9 +70,7 @@ for ($i = 0; $i < 5; $i++) {
   }
 }
 
-/* =======================
-   MONTHLY DATA
-======================= */
+/*  MONTHLY DATA */
 $monthLabels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 $monthData = array_fill(0, 12, 0);
 
@@ -141,7 +142,7 @@ while ($row = $orders->fetch_assoc()) {
   </div>
 
   <nav class="menu">
-    <a href="dashboard.html">
+    <a href="dashboard.php">
       <img src="../PICTURE/home logo.png" class="menu-icon">
       Dashboard
     </a>
@@ -172,11 +173,12 @@ while ($row = $orders->fetch_assoc()) {
     </a>
   </nav>
 
-  <div class="logout-bar">
-    <div class="logout-content">
-      <span class="logout-text">LOG OUT</span>
-    </div>
-  </div>
+    <a href="logout.php" class="logout-bar">
+        <div class="logout-content">
+            <span class="logout-text">LOG OUT</span>
+        </div>
+    </a>
+
 </aside>
 
 <!-- MAIN -->
@@ -205,10 +207,10 @@ while ($row = $orders->fetch_assoc()) {
 
 </div>
 
-    <!-- TOP GRAPH -->
-    <div class="top-section">
+  <!-- TOP GRAPH -->
+  <div class="top-section">
 
-     <div class="card big">
+    <div class="card big">
   <p class="label">Sales Overview</p>
 
   <div class="graph-wrapper">
@@ -315,11 +317,6 @@ const dataSets = {
 </script>
 
 <script src="../JS/sales.js"></script>
-
-<div class="chat-float">
-  <img src="../PICTURE/message.png" alt="Chat">
-  <span class="chat-badge">1</span>
-</div>
 
 </body>
 </html>

@@ -68,42 +68,56 @@ $items = $conn->query("SELECT * FROM order_items WHERE order_id = $order_id");
   </div>
 </aside>
 
-<!-- MAIN -->
 <main class="main">
-
-<!-- Search -->
-<div class="top-bar">
-  <input type="text" class="search-input" placeholder="Order Id Search...">
-
-  <div class="date-range">
-    <span class="label">Calendar</span>
-    
-    <input type="text" id="calendarRange" placeholder="Select date range">
-  </div>
-
-  <button class="export">EXPORT</button>
-</div>
-<button onclick="goBack()" class="back-btn"> Back</button>
-
-<div class="order-details">
 
 <!-- ORDER HEADER -->
 <div class="section order-header-flex">
-  <div>
-    <h2>Order ID <?= $order['order_code'] ?? $order['id'] ?></h2>
+<?php $status = $order['status']; ?>
+
+<div>
+  <h2>Order ID <?= $order['order_code'] ?? $order['id'] ?></h2>
     <p><?= date("F d, Y", strtotime($order['created_at'] ?? 'now')) ?></p>
     <p><?= date("h:i A", strtotime($order['created_at'] ?? 'now')) ?></p>
   </div>
 
-<?php if (
-  $order['status'] === 'Cancel' || 
-  $order['status'] === 'Shipping' || 
-  $order['status'] === 'Completed'
-): ?>
+<?php
+$status = $order['status'];
+?>
 
-  <button class="cancel-btn" disabled 
-    style="background:gray; cursor:not-allowed;">
+<?php if ($status === 'Request Return'): ?>
+
+  <button class="approve-btn" onclick="approveRefund(<?= $order['id'] ?>)">
+    Approve Refund
+  </button>
+
+<?php elseif ($status === 'Waiting to Refund'): ?>
+
+  <button class="refund-btn" onclick="processRefund(<?= $order['id'] ?>)">
+    Process Refund
+  </button>
+
+<?php elseif ($status === 'Refunded'): ?>
+
+  <button class="disabled-btn" disabled>
+    Refunded
+  </button>
+
+<?php elseif ($status === 'Completed'): ?>
+
+  <button class="disabled-btn" disabled>
     Completed
+  </button>
+
+<?php elseif ($status === 'Shipping' || $status === 'Shipped'): ?>
+
+  <button class="disabled-btn" disabled>
+    In Delivery
+  </button>
+
+<?php elseif ($status === 'Cancel'): ?>
+
+  <button class="disabled-btn" disabled>
+    Cancelled
   </button>
 
 <?php else: ?>
@@ -178,33 +192,108 @@ while ($item = $items->fetch_assoc()):
 </div>
 
 <?php endwhile; ?>
+
 <?php
-$deliveryFee = !empty($order['delivery_fee']) ? $order['delivery_fee'] : 0;
-$coupon = !empty($order['coupon']) ? $order['coupon'] : 0;
+$deliveryFee = isset($order['delivery_fee']) ? $order['delivery_fee'] : 0;
+$coupon = isset($order['coupon']) ? $order['coupon'] : 0;
+$couponCode = isset($order['coupon_code']) ? $order['coupon_code'] : '';
 
 $totalIncome = $total + $deliveryFee - $coupon;
 ?>
+
 <div class="summary">
 
   <p class="total">
-  <span>Total</span>
-  <span>₱<?= number_format($total, 2) ?></span>
+    <span>Subtotal</span>
+    <span>₱<?= number_format($total, 2) ?></span>
+  </p>
 
   <p>
-    <span>Delivery Fee</span> 
+    <span>Delivery Fee</span>
     <span>₱<?= number_format($deliveryFee, 2) ?></span>
   </p>
 
   <p>
-    <span>Coupon Code</span> 
-    <span>₱<?= number_format($coupon, 2) ?></span>
+    <span>Coupon</span>
+    <span>
+      <?= $couponCode ? $couponCode : 'None' ?>
+      (-₱<?= number_format($coupon, 2) ?>)
+    </span>
   </p>
 
   <p class="income">
-    <span>Total Income</span>
+    <span>Total Payment</span>
     <span>₱<?= number_format($totalIncome, 2) ?></span>
   </p>
+
 </div>
+
+<!-- REFUND SECTION -->
+<?php 
+$status = strtolower($order['status']);
+
+if (
+  $status === 'request return' ||
+  $status === 'waiting to refund' ||
+  $status === 'refunded' ||
+  $status === 'refund'
+): 
+?>
+
+<div class="refund-section">
+
+  <h4>Refund Status: <?= $status ?></h4>
+
+  <p>Created Return/Refund Date</p>
+  <p><?= date("F d, Y", strtotime($order['created_at'])) ?></p>
+
+  <p>Created Return/Refund Time</p>
+  <p><?= date("h:i A", strtotime($order['created_at'])) ?></p>
+
+  <h4>Message</h4>
+  <textarea class="refund-message" readonly><?= $order['refund_message'] ?? 'No message provided' ?></textarea>
+
+  <h4>Supporting Image / Video</h4>
+  <div class="refund-media">
+    <?php
+    $images = json_decode($order['refund_images'] ?? '[]', true);
+    if (!empty($images)):
+      foreach ($images as $img):
+    ?>
+        <div class="media-box">
+          <img src="../../uploads/<?= $img ?>" />
+        </div>
+    <?php endforeach; else: ?>
+        <div class="media-box"></div>
+        <div class="media-box"></div>
+        <div class="media-box"></div>
+    <?php endif; ?>
+  </div>
+
+  <div class="refund-actions">
+
+    <?php if ($status === 'Request Return'): ?>
+
+      <button onclick="approveRefund(<?= $order['id'] ?>)" class="approve-btn">
+        Approve
+      </button>
+
+    <?php elseif ($status === 'Waiting to Refund'): ?>
+      <button onclick="processRefund(<?= $order['id'] ?>)" class="refund-btn">
+        Refund
+      </button>
+
+    <?php elseif ($status === 'Refunded'): ?>
+      <button class="done-btn" disabled>
+        Refunded
+      </button>
+    <?php endif; ?>
+
+  </div>
+
+</div>
+
+<?php endif; ?>
 
   </div>
 

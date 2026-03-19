@@ -11,6 +11,24 @@ if (!$result || $result->num_rows === 0) {
 }
 
 $product = $result->fetch_assoc();
+/* GET ACTIVE PROMOTION FOR THIS PRODUCT */
+
+$promo = null;
+
+$promoRes = $conn->query("
+SELECT pr.discount_type, pr.discount_value
+FROM promotions pr
+JOIN promotion_products pp 
+ON pp.promotion_id = pr.id
+WHERE pp.product_id = $id
+AND pr.status = 'active'
+AND CURDATE() BETWEEN pr.start_date AND pr.end_date
+LIMIT 1
+");
+
+if($promoRes && $promoRes->num_rows > 0){
+    $promo = $promoRes->fetch_assoc();
+}
 
 /* GALLERY IMAGES */
 $images = [];
@@ -51,9 +69,26 @@ while ($row = $colorRes->fetch_assoc()) {
 }
 
 if ($priceRes && $priceRes->num_rows > 0) {
-  $p = $priceRes->fetch_assoc();
-  $minPrice = $p['min_price'];
-  $maxPrice = $p['max_price'];
+
+$p = $priceRes->fetch_assoc();
+
+$minPrice = $p['min_price'];
+$maxPrice = $p['max_price'];
+
+if($promo){
+
+    if($promo['discount_type'] == "percentage"){
+        $minPrice = $minPrice - ($minPrice * $promo['discount_value']/100);
+        $maxPrice = $maxPrice - ($maxPrice * $promo['discount_value']/100);
+    }
+
+    if($promo['discount_type'] == "fixed"){
+        $minPrice = $minPrice - $promo['discount_value'];
+        $maxPrice = $maxPrice - $promo['discount_value'];
+    }
+
+}
+
 }
 
 /* SIZES VARIATIONS */
@@ -140,6 +175,21 @@ $varRes = $conn->query("
 ");
 
 while ($row = $varRes->fetch_assoc()) {
+
+  /* APPLY PROMOTION TO EACH VARIATION PRICE */
+
+  if($promo){
+
+    if($promo['discount_type'] == "percentage"){
+      $row['price'] = $row['price'] - ($row['price'] * $promo['discount_value'] / 100);
+    }
+
+    if($promo['discount_type'] == "fixed"){
+      $row['price'] = $row['price'] - $promo['discount_value'];
+    }
+
+  }
+
   $variations[] = $row;
 }
 
@@ -184,12 +234,7 @@ while ($row = $res->fetch_assoc()) {
 
         <a href="cart.php" class="icon">
           <img src="../PICTURE/cart.png" alt="Cart">
-        </a>
-
-        <a href="Customer-service.php" class="icon">
-          <img src="../PICTURE/Customer-services.png">
-        </a>
-        
+        </a> 
 
         <a href="profile.php" class="icon" id="userIcon">
           <img src="../PICTURE/profile.jpg" alt="Profile">
@@ -249,16 +294,41 @@ while ($row = $res->fetch_assoc()) {
     <?php echo htmlspecialchars($product['name']); ?>
   </span>
 </div>
-  <p class="price">
-  ₱
-  <?php
-    if ($minPrice !== null && $maxPrice !== null) {
-      echo ($minPrice == $maxPrice)
-        ? number_format($minPrice, 2)
-        : number_format($minPrice, 2) . ' - ' . number_format($maxPrice, 2);
-    }
-  ?>
-</p>
+<?php
+
+$originalMin = $p['min_price'];
+$originalMax = $p['max_price'];
+
+?>
+
+<div class="price-box">
+
+<?php if($promo){ ?>
+
+<span class="old-price">
+₱<?= number_format($originalMin,2); ?>
+<?php if($originalMin != $originalMax){ ?>
+- ₱<?= number_format($originalMax,2); ?>
+<?php } ?>
+</span>
+
+<span class="sale-price">
+₱<?= number_format($minPrice,2); ?>
+<?php if($minPrice != $maxPrice){ ?>
+ - ₱<?= number_format($maxPrice,2); ?>
+<?php } ?>
+</span>
+
+<?php } else { ?>
+
+<span class="normal-price">
+₱<?= number_format($minPrice,2); ?>
+</span>
+
+<?php } ?>
+
+</div>
+
 
 <!-- COLOR -->
 <div class="option">
@@ -517,6 +587,17 @@ while ($row = $res->fetch_assoc()) {
 
 </footer>
 
+<div class="tryon-ar" onclick="goToTryOn()">
+  <div class="ring"></div>
+  <div class="ring delay"></div>
+
+  <div class="core camera-core">
+  <div class="lens"></div>
+  <div class="flash"></div>
+    <p>TRY ON</p>
+  </div>
+
+
 <script>
 const productData = {
   id: <?= $product['id']; ?>,
@@ -526,6 +607,8 @@ const productData = {
 };
 
 const variations = <?= json_encode($variations); ?>;
+const hasPromo = <?= $promo ? 'true' : 'false' ?>;
+
 const cartEditIndex = <?= $cartIndex ?>;
 </script>
 

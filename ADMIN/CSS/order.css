@@ -110,6 +110,11 @@ body {
   margin-left: 30px;
 }
 
+.logout-bar {
+  text-decoration: none;   
+  color: inherit;         
+}
+
 .logout-bar:hover {
   background: #eaa6c0;
 }
@@ -166,7 +171,7 @@ body {
 }
 
 .search-input {
-  width: 500px;
+  width: 700px;
 }
 
 .top-bar input[type="text"]:focus {
@@ -183,7 +188,7 @@ body {
   padding: 0 10px;
   height: 40px;
   transition: all 0.25s ease;
-  margin-left: 400px;
+  margin-left: 150px;
 }
 
 .date-range:hover {
@@ -288,9 +293,11 @@ body {
 }
 
 .buyer img {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
+  width: 40px;        
+  height: 40px;
+  border-radius: 50%; 
+  object-fit: cover;  
+  display: block;
 }
 
 .order-id {
@@ -546,6 +553,31 @@ img {
   }
 }
 
-.chat-float {
-  animation: pulse 2s infinite;
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 350px;
+}
+
+.refund-images {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.refund-images img,
+.refund-images video {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
 }

@@ -118,6 +118,11 @@ body {
   margin-left: 30px;
 }
 
+.logout-bar {
+  text-decoration: none;   
+  color: inherit;         
+}
+
 .logout-bar:hover {
   background: #eaa6c0;
 }
@@ -193,8 +198,29 @@ body {
   border-radius: 999px;
   border: 1.5px solid #C94A7C;
 
-  background: #fff;
-  color: #C94A7C;
+  background: #C94A7C;
+  color: #f8f8f8;
+
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: all 0.2s ease;
+}
+
+.add-btn {
+  height: 42px;
+  padding: 0 22px;
+
+  border-radius: 999px;
+  border: 1.5px solid #C94A7C;
+
+  background: #a60741;
+  color: #f0f0f0;
 
   font-size: 14px;
   font-weight: 500;
@@ -205,6 +231,10 @@ body {
   justify-content: center;
 
   transition: all 0.2s ease;
+}
+
+a {
+  text-decoration: none;
 }
 
 .add-btn:hover,
@@ -455,70 +485,8 @@ body {
   margin-left: 40px;
 }
 
-.chat-float {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
 
-  width: 75px;
-  height: 75px;
 
-  background: linear-gradient(135deg, #9c1643, #e7759f);
-  border-radius: 50%;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
-  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-  cursor: pointer;
-  z-index: 1000;
 
-  transition: all 0.3s ease;
-}
-
-/* icon inside */
-.chat-float img {
-  width: 38px;
-  height: 38px;
-}
-
-/* hover effect */
-.chat-float:hover {
-  transform: scale(1.1);
-  box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-}
-
-/* notification badge */
-.chat-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-
-  background: #e15f84;
-  color: #fff;
-
-  font-size: 12px;
-  font-weight: bold;
-
-  padding: 3px 7px;
-  border-radius: 50%;
-
-  border: 2px solid #fff;
-}
-
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(238, 45, 109, 0.6);
-  }
-  70% {
-    box-shadow: 0 0 0 15px rgba(238, 77, 45, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(238, 77, 45, 0);
-  }
-}
-
-.chat-float {
-  animation: pulse 2s infinite;
-}

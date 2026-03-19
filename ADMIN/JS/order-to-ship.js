@@ -19,10 +19,7 @@ function filterOrders() {
 }
 
 function shipOrder(id) {
-
-  if (!confirm("Are you sure you want to arrange shipment?")) {
-    return;
-  }
+  if (!confirm("Are you sure you want to arrange shipment?")) return;
 
   fetch("update-order-status.php", {
     method: "POST",
@@ -36,58 +33,37 @@ function shipOrder(id) {
   })
   .then(res => res.json())
   .then(res => {
-
     if (res.success) {
-      alert("Order is now Shipping ");
-
+      alert("Order is now Shipping");
       location.reload();
-    } else {
-      alert("Failed to update order");
     }
-
-  })
-  .catch(err => {
-    console.error(err);
-    alert("Error updating order");
   });
 }
 
-function shipOrder(id) {
+function pickupOrder(id) {
+  if (!confirm("Are you sure rider picked this order?")) return;
 
-  // CONFIRM FIRST
-  if (!confirm("Are you sure you want to arrange shipment?")) {
-    return;
-  }
-
-  fetch("update-order-status.php", { 
+  fetch("update-order-status.php", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
       id: id,
-      status: "Shipping"
+      status: "Shipped" // THIS IS THE KEY
     })
   })
   .then(res => res.json())
   .then(res => {
-
     if (res.success) {
-      alert("Order is now Shipping");
-
-      // REDIRECT HERE 
-      window.location.href = "to-ship-process.php";
-
-    } else {
-      alert("Failed to update order ");
+      alert("Order moved to Shipping");
+      
+      // REDIRECT TO SHIPPING PAGE
+      window.location.href = "order-shipping.php";
     }
-
-  })
-  .catch(err => {
-    console.error(err);
-    alert("Error updating order");
   });
 }
+
 
 function viewOrder(id) {
   window.location.href = "order-view.php?id=" + id;

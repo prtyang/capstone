@@ -1,7 +1,9 @@
 <?php
-session_start(); // ✅ ADD THIS
+session_start(); 
 $conn = new mysqli("localhost", "root", "", "capstone");
 if ($conn->connect_error) die("DB Error");
+
+$admin = $conn->query("SELECT * FROM admins LIMIT 1")->fetch_assoc();
 
 $images = [];
 $result = $conn->query("SELECT image_key, image_path FROM site_images");
@@ -22,7 +24,7 @@ $currentPIN = $settings['pin_action'] ?? '0000';
 $oldWithdrawPin = $_SESSION['oldWithdrawPin'] ?? '';
 $oldPinInput = $_SESSION['oldPinInput'] ?? '';
 
-// 🚫 CHECK LOCK (24 HOURS)
+// CHECK LOCK (24 HOURS)
 if (isset($_SESSION['lock_time'])) {
     $diff = time() - $_SESSION['lock_time'];
 
@@ -52,6 +54,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // CORRECT PIN
 $_SESSION['attempts'] = 0;
+
+// UPDATE ADMIN EMAIL + PASSWORD
+$newEmail = $_POST['admin_email'] ?? '';
+$newPassword = $_POST['admin_password'] ?? '';
+
+if ($newEmail !== '') {
+
+    if ($newPassword !== '') {
+        $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
+
+        $stmt = $conn->prepare("UPDATE admins SET email=?, password=? LIMIT 1");
+        $stmt->bind_param("ss", $newEmail, $hashed);
+        $stmt->execute();
+
+    } else {
+        $stmt = $conn->prepare("UPDATE admins SET email=? LIMIT 1");
+        $stmt->bind_param("s", $newEmail);
+        $stmt->execute();
+    }
+}
 
  // SAVE PIN TO DATABASE 
 $pinWithdraw = $_POST['pin_withdraw'] ?? '';
@@ -91,7 +113,18 @@ $_SESSION['oldPinInput'] = $_POST['pin_action'] ?? '';
 $_SESSION['oldWithdrawPin'] = $pinWithdraw;
 
 $_SESSION['success'] = true;
+
+//  KEEP PASSWORD IN SESSION ALWAYS
+if (!empty($_POST['admin_password'])) {
+    $_SESSION['temp_password'] = $_POST['admin_password'];
 }
+}
+}
+
+//LOGOUT
+if(!isset($_SESSION['admin'])){
+    header("Location: login.php");
+    exit();
 }
 
 ?>
@@ -114,43 +147,43 @@ $_SESSION['success'] = true;
         </div>
 
     <nav class="menu">
-    <a href="dashboard.html" onclick="goPage('dashboard.html')">
+    <a href="dashboard.php">
         <img src="../PICTURE/home logo.png" class="menu-icon">
         Dashboard
     </a>
 
-    <a href="product.php" onclick="goPage('product.php')">
+    <a href="product.php">
         <img src="../PICTURE/product logo.png" class="menu-icon">
         Product
     </a>
 
-    <a href="order.php" onclick="goPage('order.php')">
+    <a href="order.php">
         <img src="../PICTURE/ORDER LOGO.webp" class="menu-icon">
         Order
     </a>
 
-    <a href="sales.php" onclick="goPage('sales.html')">
+    <a href="sales.php" >
         <img src="../PICTURE/SALES LOGO.png" class="menu-icon">
         Sales
     </a>
 
-    <a href="marketing.html" onclick="goPage('marketing.html')">
+    <a href="marketing.php" >
         <img src="../PICTURE/MARKETING LOGO.png" class="menu-icon">
         Marketing
     </a>
 
-    <a href="account.php" class="active" onclick="goPage('account.php')">
+    <a href="account.php" class="active" >
         <img src="../PICTURE/ACCOUNT LOGO.png" class="menu-icon">
         Account
 </a>
 
 </nav>
 
-    <div class="logout-bar">
-    <div class="logout-content">
-        <span class="logout-text">LOG OUT</span>
-    </div>
-    </div>
+    <a href="logout.php" class="logout-bar">
+        <div class="logout-content">
+            <span class="logout-text">LOG OUT</span>
+        </div>
+    </a>
     
     </aside>
 
@@ -244,11 +277,39 @@ $_SESSION['success'] = true;
             value="<?= htmlspecialchars($settings['footer_email'] ?? '') ?>"
         >
 
-    <h2>Email (Username)</h2>
-        <input type="email" />
+        <h2>Email (Username)</h2>
+        <input 
+            type="email" 
+            name="admin_email"
+            value="<?= htmlspecialchars($admin['email'] ?? '') ?>"
+            required
+        >
 
-    <h2>Password</h2>
-        <input type="password" />
+        <div class="pin-wrapper">
+        <h2>Password</h2>
+
+        <input 
+            type="password" 
+            id="adminPassword"
+            name="admin_password"
+            placeholder="Enter new password"
+        >
+        <span class="toggle-eye" onclick="toggleInput('adminPassword','eyeOpenAdmin','eyeClosedAdmin')">
+
+        <!-- OPEN EYE -->
+        <svg id="eyeOpenAdmin" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="#c94a7c" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+            <circle cx="12" cy="12" r="3"/>
+        </svg>
+
+        <!-- CLOSED EYE -->
+        <svg id="eyeClosedAdmin" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="#c94a7c" stroke-width="2" viewBox="0 0 24 24" style="display:none;">
+            <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19C5 19 1 12 1 12a21.77 21.77 0 0 1 5.06-6.94"/>
+            <path d="M1 1l22 22"/>
+        </svg>
+
+        </span>
+    </div>
     
     <h2>PIN For Withdrawal</h2>
         <div class="pin-wrapper">
@@ -260,46 +321,47 @@ $_SESSION['success'] = true;
                 maxlength="4"
                 placeholder="PIN for Withdrawal"
             >
-        <span class="toggle-eye" onclick="toggleWithdrawPIN()">
+        <span class="toggle-eye" onclick="toggleInput('pinWithdraw','eyeOpenWithdraw','eyeClosedWithdraw')">
 
-  <!--  OPEN EYE -->
-  <svg id="eyeOpenWithdraw" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="#c94a7c" stroke-width="2" viewBox="0 0 24 24">
-    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
-    <circle cx="12" cy="12" r="3"/>
-  </svg>
+        <!--  OPEN EYE -->
+        <svg id="eyeOpenWithdraw" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="#c94a7c" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+            <circle cx="12" cy="12" r="3"/>
+        </svg>
 
-  <!-- CLOSED EYE -->
-  <svg id="eyeClosedWithdraw" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="#c94a7c" stroke-width="2" viewBox="0 0 24 24" style="display:none;">
-    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19C5 19 1 12 1 12a21.77 21.77 0 0 1 5.06-6.94"/>
-    <path d="M1 1l22 22"/>
-  </svg>
+        <!-- CLOSED EYE -->
+        <svg id="eyeClosedWithdraw" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="#c94a7c" stroke-width="2" viewBox="0 0 24 24" style="display:none;">
+            <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19C5 19 1 12 1 12a21.77 21.77 0 0 1 5.06-6.94"/>
+            <path d="M1 1l22 22"/>
+        </svg>
 
-</span>
-</div>
+        </span>
+    </div>
 
-<h2>PIN For Action(Cancel Order, Delete Product, Update)</h2>
+    <h2>PIN For Action(Cancel Order, Delete Product, Update)</h2>
     <div class="pin-wrapper">
         <input 
             type="password" 
             id="pinAction" 
             name="pin_action"
-            value="<?= htmlspecialchars($oldPinInput) ?>" 
+            value="<?= htmlspecialchars($settings['pin_action'] ?? '') ?>"
             maxlength="4"
             placeholder="Enter PIN"
         >
-    <span class="toggle-eye" onclick="togglePIN()">
+    <span class="toggle-eye" onclick="toggleInput('pinAction','eyeOpen','eyeClosed')">
+
     <!-- OPEN EYE -->
     <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="#c94a7c" stroke-width="2" viewBox="0 0 24 24">
-      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
-      <circle cx="12" cy="12" r="3"/>
+        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+        <circle cx="12" cy="12" r="3"/>
     </svg>
 
     <!-- CLOSED EYE -->
     <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="#c94a7c" stroke-width="2" viewBox="0 0 24 24" style="display:none;">
-      <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19C5 19 1 12 1 12a21.77 21.77 0 0 1 5.06-6.94"/>
-      <path d="M1 1l22 22"/>
+        <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19C5 19 1 12 1 12a21.77 21.77 0 0 1 5.06-6.94"/>
+        <path d="M1 1l22 22"/>
     </svg>
-  </span>
+    </span>
 </div>
         
 <button class="update" type="button" onclick="showPIN()">Update</button>
@@ -308,7 +370,7 @@ $_SESSION['success'] = true;
 <div id="pinSection" style="display:none; margin-top:15px;">
     <input type="password" id="confirmPIN" name="confirmPIN" maxlength="4" placeholder="Enter Current PIN">
     <button type="button" onclick="submitWithPIN()">Confirm PIN</button>
-  <p id="pinMessage"></p>
+    <p id="pinMessage"></p>
 
 </div>
 
@@ -331,11 +393,6 @@ $_SESSION['success'] = true;
 </div>
 
 <script src="../JS/account.js"></script>
-
-<div class="chat-float">
-  <img src="../PICTURE/message.png" alt="Chat">
-  <span class="chat-badge">1</span>
-</div>
 
 </body>
 </html>

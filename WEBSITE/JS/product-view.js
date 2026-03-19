@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedColor = null;
   let selectedSize = null;
 
-  const priceEl = document.querySelector(".price");
+  const priceEl = document.querySelector(".price-box");
   const qtyInput = document.getElementById("qtyInput");
   const availableQtyEl = document.getElementById("availableQty");
 
@@ -150,10 +150,24 @@ document.addEventListener("DOMContentLoaded", () => {
       v.size === selectedSize
     );
 
-    if (!match) return;
+  if (!match) return;
+  if(hasPromo){
 
-    priceEl.innerHTML = "₱ " + parseFloat(match.price).toFixed(2);
+  priceEl.innerHTML = `
+  <span class="sale-price">
+    ₱ ${parseFloat(match.price).toFixed(2)}
+  </span>
+  `;
 
+}else{
+
+priceEl.innerHTML = `
+<span class="normal-price">
+₱ ${parseFloat(match.price).toFixed(2)}
+</span>
+`;
+
+}
     qtyInput.max = match.qty;
     availableQtyEl.innerText = match.qty + " available";
 
@@ -283,3 +297,20 @@ window.location.href = "checkout.php";
   updateSizeAvailability();
 
 });
+
+// SHOW POPUP ON LOAD
+window.addEventListener("load", function () {
+  setTimeout(() => {
+    document.getElementById("tryOnModal").style.display = "flex";
+  }, 800); // delay for smooth effect
+});
+
+// CLOSE MODAL
+function closeTryOn() {
+  document.getElementById("tryOnModal").style.display = "none";
+}
+
+// REDIRECT TO TRY-ON PAGE
+function goToTryOn() {
+  window.location.href = "try-on.php";
+}

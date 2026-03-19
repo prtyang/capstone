@@ -1,36 +1,38 @@
-<?php include "../../config/db.php";
+<?php
+session_start();
+include "../../config/db.php";
+
+// PROTECT PAGE
+if(!isset($_SESSION['admin'])){
+    header("Location: login.php");
+    exit();
+}
+
 // COUNT ORDERS
 $toShipCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Ship'")->fetch_assoc()['total'];
 $shippingCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='Shipping'")->fetch_assoc()['total'];
 $toProcessCount = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='To Process'")->fetch_assoc()['total'];
 ?>
 <?php
-$allCount = $conn->query("
-  SELECT COUNT(*) as total 
-  FROM orders 
-  WHERE status='To Ship'
+$toShipCount = $conn->query("
+  SELECT COUNT(*) as total FROM orders WHERE status='To Ship'
 ")->fetch_assoc()['total'];
 
-$toProcessCount = $conn->query("
-  SELECT COUNT(*) as total 
-  FROM orders 
-  WHERE status='Arrange Shipment'
+$shippingCount = $conn->query("
+  SELECT COUNT(*) as total FROM orders WHERE status='Shipped'
 ")->fetch_assoc()['total'];
 
 $processCount = $conn->query("
-  SELECT COUNT(*) as total 
-  FROM orders 
-  WHERE status='Shipped'
+  SELECT COUNT(*) as total FROM orders WHERE status='Shipping'
 ")->fetch_assoc()['total'];
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Order Dashboard</title>
-  <link rel="stylesheet" href="../CSS/to-ship-completed.css">
-
+  <link rel="stylesheet" href="../CSS/to-ship-process.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
@@ -44,7 +46,7 @@ $processCount = $conn->query("
   </div>
 
   <nav class="menu">
-    <a href="dashboard.html">
+    <a href="dashboard.php">
       <img src="../PICTURE/home logo.png" class="menu-icon">
       Dashboard
     </a>
@@ -59,12 +61,12 @@ $processCount = $conn->query("
       Order
     </a>
 
-    <a href="sales.html">
+    <a href="sales.php">
       <img src="../PICTURE/SALES LOGO.png" class="menu-icon">
       Sales
     </a>
 
-    <a href="marketing.html">
+    <a href="marketing.php">
       <img src="../PICTURE/MARKETING LOGO.png" class="menu-icon">
       Marketing
     </a>
@@ -75,56 +77,49 @@ $processCount = $conn->query("
     </a>
   </nav>
 
-  <div class="logout-bar">
-    <div class="logout-content">
-      <span class="logout-text">LOG OUT</span>
-    </div>
-  </div>
+    <a href="logout.php" class="logout-bar">
+        <div class="logout-content">
+            <span class="logout-text">LOG OUT</span>
+        </div>
+    </a>
+    
 </aside>
 
 <!-- MAIN -->
 <main class="main">
 
+
 <!-- Tabs -->
 <div class="tabs">
   <a href="order.php">All</a>
 
-  <a href="order-to-ship.php" class="active">
-    To Ship <small><?= $toShipCount ?></small>
+  <a href="order-to-ship.php" class="active" >
+    To Ship <?= $processCount + $toShipCount ?></small>
   </a>
 
-  <a href="order-shipping.php">
+  <a href="order-shipping.php" >
     Shipping <small><?= $shippingCount ?></small>
   </a>
-  
+
   <a href="order-completed.php">Completed</a>
   <a href="order-cancel.php">Cancel</a>
-  <a href="order-return/refund.php">Return/Refund</a>
+  <a href="return-refund.php">Return/Refund</a>
 </div>
 
-<!-- Search -->
-<div class="top-bar">
-  <input type="text" class="search-input" placeholder="Order Id Search...">
+<div class="top-bar"></div>
 
-  <div class="date-range">
-    <span class="label">Calendar</span>
-    <input type="text" id="calendarRange" placeholder="Select date range">
-  </div>
-
-  <button class="export">EXPORT</button>
-</div>
-
+<!-- Table Header -->
 <div class="mini-tabs">
   <a href="order-to-ship.php" class="tab">
-    All <?= $toShipCount ?>
+    All <?= $processCount + $toShipCount ?>
   </a>
 
-  <a href="to-ship-process.php" class="tab ">
-    To Process <?= $processCount ?>
+  <a href="to-ship-process.php" class="tab">
+    To process <?= $toShipCount ?>
   </a>
-  
-  <a href="to-ship-completed.php" class="tab  active">
-    Process <?= $shippingCount ?>
+
+  <a href="to-ship-completed.php" class="tab active">
+    Process <?= $processCount ?>
   </a>
 </div>
 
@@ -137,10 +132,9 @@ $processCount = $conn->query("
 </div>
 
 <?php
-// GET ONLY COMPLETED (SHIPPED)
 $orders = $conn->query("
   SELECT * FROM orders 
-  WHERE status = 'Shipped'
+  WHERE status = 'Shipping'
   ORDER BY id DESC
 ");
 
@@ -152,7 +146,6 @@ while ($order = $orders->fetch_assoc()):
   <!-- TOP -->
   <div class="order-top">
     <div class="buyer">
-      <img src="../PICTURE/default-profile.png">
       <span><?= $order['first_name'] ?> <?= $order['last_name'] ?></span>
     </div>
 
@@ -168,59 +161,65 @@ $items = $conn->query("SELECT * FROM order_items WHERE order_id = '".$order['id'
 $total = 0;
 $rows = [];
 
-while ($item = $items->fetch_assoc()) {
-  $rows[] = $item;
-  $total += $item['price'] * $item['qty'];
+if ($items && $items->num_rows > 0) {
+  while ($item = $items->fetch_assoc()) {
+    $rows[] = $item;
+    $total += $item['price'] * $item['qty'];
+  }
 }
 ?>
 
-<?php foreach ($rows as $index => $item): ?>
+<?php if (count($rows) > 0): ?>
+  <?php foreach ($rows as $index => $item): ?>
 
-<div class="order-row">
+  <div class="order-row">
 
-  <!-- PRODUCT -->
-  <div class="product">
-    <div class="img">
-      <img src="../../uploads/<?= $item['image'] ?>" 
-        style="width:100%; height:100%; object-fit:cover;">
+    <!-- PRODUCT -->
+    <div class="product">
+      <div class="img">
+        <?php if (!empty($item['image'])): ?>
+          <img src="../../uploads/<?= $item['image'] ?>" 
+              style="width:100%; height:100%; object-fit:cover;">
+        <?php endif; ?>
+      </div>
+
+      <div>
+        <strong><?= $item['product_name'] ?></strong>
+        <span>Color: <?= $item['color'] ?? '-' ?></span>
+        <span>Size: <?= $item['size'] ?? '-' ?></span>
+        <span>₱<?= $item['price'] ?></span>
+      </div>
     </div>
 
-    <div>
-      <strong><?= $item['product_name'] ?></strong>
-      <span>Color: <?= $item['color'] ?></span>
-      <span>Size: <?= $item['size'] ?></span>
-      <span>₱<?= $item['price'] ?></span>
+    <!-- QTY -->
+    <div class="qty center">
+      x<?= $item['qty'] ?>
     </div>
+
+    <?php if ($index === 0): ?>
+
+      <div class="summary-total">₱<?= $total ?></div>
+
+      <div class="summary-status">
+        <?= $order['status'] ?>
+      </div>
+
+      <div class="summary-action">
+        <a href="#" onclick="pickupOrder(<?= $order['id'] ?>)">
+          Pick-up / Drop
+        </a>
+      </div>
+
+    <?php else: ?>
+      <div></div>
+      <div></div>
+      <div></div>
+    <?php endif; ?>
+
   </div>
 
-  <!-- QTY -->
-  <div class="qty center">
-    x<?= $item['qty'] ?>
-  </div>
-
-  <?php if ($index === 0): ?>
-
-    <div class="summary-total">₱<?= $total ?></div>
-
-    <div class="summary-status">
-      Shipped
-    </div>
-
-    <div class="summary-action">
-      <a href="order-details.php?id=<?= $order['id'] ?>">
-        Check Details
-      </a>
-    </div>
-
-  <?php else: ?>
-    <div></div>
-    <div></div>
-    <div></div>
-  <?php endif; ?>
-
-</div>
-
-<?php endforeach; ?>
+  <?php endforeach; ?>
+<?php endif; ?>
 
 </div>
 
@@ -229,6 +228,7 @@ while ($item = $items->fetch_assoc()) {
 </main>
 </div>
 
+<script src="../JS/to-ship-process.js"></script>
 
 </body>
 </html>

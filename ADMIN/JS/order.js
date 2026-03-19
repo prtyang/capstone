@@ -54,7 +54,9 @@ function shipOrder(id) {
     alert("Error updating order");
   });
 }
+
 function pickupOrder(id) {
+
   if (!confirm("Are you sure rider picked this order?")) return;
 
   fetch("update-order-status.php", {
@@ -64,22 +66,23 @@ function pickupOrder(id) {
     },
     body: JSON.stringify({
       id: id,
-      process_stage: "Completed"
+      status: "Shipped"
     })
   })
   .then(res => res.json())
   .then(res => {
     if (res.success) {
-      alert("Moved to Completed ");
+      alert("Order marked as Shipped");
       location.reload();
     }
   });
 }
 
 function shipOrder(id) {
-  if (!confirm("Are you sure you want to arrange this?")) return;
 
-  fetch("update-status.php", {
+  if (!confirm("Are you sure you want to arrange shipment?")) return;
+
+  fetch("update-order-status.php", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -91,55 +94,106 @@ function shipOrder(id) {
   })
   .then(res => res.json())
   .then(res => {
-    alert("Order updated!");
-    location.reload();
+    if (res.success) {
+      alert("Order is now Shipping");
+      location.reload();
+    } else {
+      alert("Failed to update order");
+    }
   });
 }
 
-function pickupOrder(id) {
-  if (!confirm("Mark as picked up by rider?")) return;
 
-  fetch("update-status.php", {
+function completeOrder(id) {
+
+  if (!confirm("Mark this order as completed?")) return;
+
+  fetch("update-order-status.php", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
       id: id,
-      status: "Shipped"
-    })
-  })
-  .then(res => res.json())
-  .then(() => {
-    alert("Order marked as Shipped ");
-    location.reload();
-  });
-}
-
-function completeOrder(id) {
-  if (!confirm("Mark this order as completed?")) return;
-
-  fetch("update-status.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      order_id: id,
-      status: "Completed" //
+      status: "Completed"
     })
   })
   .then(res => res.json())
   .then(res => {
     if (res.success) {
-      alert("Order Completed ");
+      alert("Order Completed");
       location.reload();
     } else {
       alert("Failed to update");
     }
-  })
-  .catch(err => {
-    console.error(err);
-    alert("Error occurred");
   });
 }
+
+function openReturnDetails(order) {
+
+  document.getElementById("returnDetailsModal").style.display = "flex";
+
+  // MESSAGE
+  document.getElementById("returnMessage").innerText =
+    "Reason: " + (order.refund_message || "No message");
+
+  // IMAGES
+  const container = document.getElementById("returnImages");
+  container.innerHTML = "";
+
+  if (order.refund_images) {
+    try {
+      const files = JSON.parse(order.refund_images);
+
+      files.forEach(file => {
+        let el;
+
+        if (file.match(/\.(mp4|webm|ogg)$/i)) {
+          el = document.createElement("video");
+          el.controls = true;
+        } else {
+          el = document.createElement("img");
+        }
+
+        el.src = "../../uploads/" + file;
+        container.appendChild(el);
+      });
+
+    } catch (e) {
+      console.error("Invalid JSON", e);
+    }
+  }
+}
+
+function closeReturnDetails() {
+  document.getElementById("returnDetailsModal").style.display = "none";
+}
+
+//
+document.querySelector(".export").addEventListener("click", () => {
+  const range = document.getElementById("calendarRange").value;
+
+  if (!range) {
+    alert("Please select a date");
+    return;
+  }
+
+  let dates = range.split(" to ");
+  let start = dates[0];
+  let end = dates[1] || dates[0];
+
+  window.location.href = `export_orders.php?start=${start}&end=${end}`;
+});
+
+//
+let timeout;
+
+document.querySelector(".search-input").addEventListener("input", function(){
+  clearTimeout(timeout);
+
+  timeout = setTimeout(() => {
+    this.closest("form").submit();
+  }, 500);
+});
+
+

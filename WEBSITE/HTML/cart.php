@@ -28,7 +28,6 @@ while ($row = $res->fetch_assoc()) {
     <div class="icons">
       <a href="wishlist.php" class="icon"><img src="../PICTURE/wishlist.png"></a>
       <a href="cart.php" class="icon"><img src="../PICTURE/cart.png"></a>
-      <a href="Customer-service.php" class="icon"><img src="../PICTURE/Customer-services.png"></a>
       <a href="profile.php" class="icon"><img src="../PICTURE/profile.jpg"></a>
     </div>
 

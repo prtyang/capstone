@@ -71,7 +71,7 @@ checkoutItems.forEach(item => {
 });
 
   /* =============================
-          PRICE COMPUTATION
+      PRICE COMPUTATION
   ============================== */
   const itemCountEl = document.getElementById("itemCount");
   const subtotalEl = document.getElementById("subtotal");
@@ -83,6 +83,7 @@ checkoutItems.forEach(item => {
 }, 0);
   let baseDelivery = 45;
   let expressExtra = 0;
+  let voucherID = null;
   let discount = 0;
 
   function updateTotal() {
@@ -90,7 +91,13 @@ checkoutItems.forEach(item => {
 
   subtotalEl.innerText = "₱" + subtotal;
   deliveryEl.innerText = "₱" + deliveryTotal;
-  totalEl.innerText = "₱" + (subtotal + deliveryTotal - discount);
+  let finalTotal = subtotal + deliveryTotal - discount;
+
+if(finalTotal < 0){
+  finalTotal = 0;
+}
+
+totalEl.innerText = "₱" + finalTotal;
 
   itemCountEl.innerText = totalItems === 1 
     ? "1 item" 
@@ -99,6 +106,71 @@ checkoutItems.forEach(item => {
 
   updateTotal();
 
+  /* =============================
+        APPLY VOUCHER
+============================= */
+
+const applyBtn = document.getElementById("applyVoucher");
+const couponInput = document.getElementById("couponInput");
+const discountDisplay = document.getElementById("discount");
+
+if (applyBtn) {
+
+  applyBtn.addEventListener("click", () => {
+
+    const code = couponInput.value.trim();
+
+    if(code === ""){
+      alert("Enter voucher code");
+      return;
+    }
+
+    fetch("../../config/apply_voucher.php", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/x-www-form-urlencoded"
+      },
+      body:`code=${code}`
+    })
+
+.then(res => res.json())
+.then(data => {
+
+  if(data.status === "valid"){
+
+    discount = parseFloat(data.discount);
+    voucherID = data.voucher_id;
+
+    if(discountDisplay){
+      discountDisplay.innerText = "₱" + discount;
+    }
+
+    updateTotal();
+
+    alert("Voucher applied!");
+
+  }
+
+  else if(data.status === "expired"){
+    alert("Voucher limit reached");
+  }
+
+  else if(data.status === "already_used"){
+    alert("You already used this voucher");
+  }
+
+  else if(data.status === "login_required"){
+    alert("Please login to use voucher");
+  }
+
+  else{
+    alert("Invalid voucher code");
+  }
+
+});
+});
+}
+  
   /* =============================
         DELIVERY METHOD
   ============================== */
@@ -127,21 +199,30 @@ checkoutItems.forEach(item => {
   /* =============================
         SAVE CONTACT INFO
   ============================== */
-  const firstName = document.querySelector("input[placeholder='First Name']");
-  const lastName = document.querySelector("input[placeholder='Last Name']");
-  const email = document.querySelector("input[type='email']");
+  const firstName = document.getElementById("firstNameInput");
+  const lastName = document.getElementById("lastNameInput");
+  const email = document.getElementById("checkoutEmail");
   const phone = document.getElementById("phoneInput");
   const contactCheck = document.querySelectorAll(".checkbox input")[0];
 
-  const savedUser = JSON.parse(localStorage.getItem("userInfo"));
 
-  if (savedUser) {
-    firstName.value = savedUser.firstName || "";
-    lastName.value = savedUser.lastName || "";
-    email.value = savedUser.email || "";
-    phone.value = savedUser.phone || "";
-    contactCheck.checked = true;
-  }
+/* =============================
+  LOAD PROFILE INFO
+============================= */
+
+const savedProfile = JSON.parse(localStorage.getItem("profile"));
+const savedUser = JSON.parse(localStorage.getItem("userInfo"));
+
+if (savedProfile) {
+  firstName.value = savedProfile.name || "";
+  email.value = savedProfile.email || "";
+}
+
+if (savedUser) {
+  lastName.value = savedUser.lastName || "";
+  phone.value = savedUser.phone || "";
+  contactCheck.checked = true;
+}
 
   function saveUser() {
     if (!contactCheck.checked) return;
@@ -221,11 +302,14 @@ if (savedAddress) {
 }
 
   // LOAD PROVINCES
-  fetch("https://psgc.gitlab.io/api/provinces/")
-    .then(res => res.json())
-    .then(data => {
-      provinces = data;
-    });
+fetch("https://psgc.gitlab.io/api/provinces/")
+  .then(res => res.json())
+  .then(data => {
+    provinces = [
+      { name: "Metro Manila", code: "NCR" }, 
+      ...data
+    ];
+  });
 
   function showDropdown(list, items, input, callback) {
     list.innerHTML = "";
@@ -259,11 +343,20 @@ if (savedAddress) {
     brgyInput.value = "";
     brgyInput.disabled = true;
 
-    fetch(`https://psgc.gitlab.io/api/provinces/${p.code}/cities-municipalities/`)
-      .then(res => res.json())
-      .then(data => {
-        cities = data;
-      });
+    if (p.code === "NCR") {
+      fetch(`https://psgc.gitlab.io/api/regions/130000000/cities-municipalities/`)
+        .then(res => res.json())
+        .then(data => {
+          cities = data;
+        });
+    } else {
+      fetch(`https://psgc.gitlab.io/api/provinces/${p.code}/cities-municipalities/`)
+        .then(res => res.json())
+        .then(data => {
+          cities = data;
+        });
+    }
+
   });
 });
 
@@ -282,11 +375,19 @@ if (savedAddress) {
       brgyInput.value = "";
       brgyInput.disabled = true;
 
-      fetch(`https://psgc.gitlab.io/api/provinces/${p.code}/cities-municipalities/`)
-        .then(res => res.json())
-        .then(data => {
-          cities = data;
-        });
+      if (p.code === "NCR") {
+  fetch(`https://psgc.gitlab.io/api/regions/130000000/cities-municipalities/`)
+    .then(res => res.json())
+    .then(data => {
+      cities = data;
+    });
+} else {
+  fetch(`https://psgc.gitlab.io/api/provinces/${p.code}/cities-municipalities/`)
+    .then(res => res.json())
+    .then(data => {
+      cities = data;
+    });
+}
 
     });
   });
@@ -379,10 +480,20 @@ const payBtn = document.getElementById("payBtn");
 
 payBtn.addEventListener("click", () => {
 
+  //  CHECK LOGIN
+  if(!localStorage.getItem("userInfo")){
+    alert("Please login first before checkout");
+    window.location.href = "login.php";
+    return;
+  }
+
   if (!document.querySelector("input[name='payment']:checked")) {
     alert("Select payment method");
     return;
   }
+
+const deliveryFee = baseDelivery + expressExtra;
+const finalTotal = subtotal + deliveryFee - discount;
 
 const data = {
   firstName: firstName.value,
@@ -399,17 +510,21 @@ const data = {
   payment_method: document.querySelector("input[name='payment']:checked")?.parentElement.textContent.trim(),
   delivery_method: document.querySelector("input[name='delivery']:checked")?.parentElement.textContent.trim(),
 
-  total: subtotal + baseDelivery + expressExtra,
+  delivery_fee: deliveryFee,
+  coupon: discount,
+  coupon_code: couponInput.value.trim(),
 
-items: checkoutItems.map(item => ({
-  id: item.id, 
-  product_name: item.name,
-  price: Number(item.price),
-  qty: Number(item.qty),
-  size: item.size || '',
-  color: item.color || '',
-  image: item.image || ''
-}))
+  total: finalTotal,
+
+  items: checkoutItems.map(item => ({
+    id: item.id,
+    product_name: item.name,
+    price: Number(item.price),
+    qty: Number(item.qty),
+    size: item.size || '',
+    color: item.color || '',
+    image: item.image || ''
+  }))
 };
 
 console.log("FINAL DATA:", data);
@@ -422,9 +537,17 @@ fetch("place-order.php", {
   body: JSON.stringify(data)
 })
 
-.then(res => res.text()) 
+.then(res => res.json())
 
 .then(res => {
+
+  // ✅ ADD THIS HERE
+  if(res.status === "not_logged_in"){
+    alert("Please login first");
+    window.location.href = "login.php";
+    return;
+  }
+
   console.log("SERVER RESPONSE:", res);
   alert("Order sent!");
 

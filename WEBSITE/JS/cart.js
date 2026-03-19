@@ -7,6 +7,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!container) return;
 
+    // 🔥 CLEAN INVALID ITEMS (IMPORTANT)
+    cart = cart.filter(item => item && item.id);
+    localStorage.setItem("cart", JSON.stringify(cart));
+
     if (cart.length === 0) {
         container.innerHTML = "<p>Your cart is empty.</p>";
         grandTotalEl.innerText = "0.00";
@@ -21,16 +25,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
         cart.forEach((item, index) => {
 
+            if (!item) return; // safety
+
             const itemTotal = item.price * item.qty;
 
             container.innerHTML += `
                 <div class="cart-item" data-index="${index}">
                     
-            <input 
-                type="checkbox" 
-                class="select-item" 
-                data-item='${JSON.stringify(item)}'
-            >
+                    <input 
+                        type="checkbox" 
+                        class="select-item" 
+                        data-item='${JSON.stringify(item)}'
+                    >
 
                     <div class="product-image">
                         <img src="/CAPSTONE/uploads/${item.image}">
@@ -70,13 +76,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const checkoutBtn = document.getElementById("checkoutBtn");
 
-        if (cart.length === 0) {
-            checkoutBtn.disabled = true;
-            checkoutBtn.style.opacity = "0.5";
-        } else {
-            checkoutBtn.disabled = false;
-            checkoutBtn.style.opacity = "1";
-        }
+        checkoutBtn.disabled = cart.length === 0;
+        checkoutBtn.style.opacity = cart.length === 0 ? "0.5" : "1";
 
         attachEvents();
 
@@ -84,15 +85,18 @@ document.addEventListener("DOMContentLoaded", function () {
             checkbox.addEventListener("change", updateGrandTotal);
         });
 
+        // CLICK ITEM → VIEW PRODUCT
         document.querySelectorAll(".cart-item").forEach(item => {
             item.addEventListener("click", function(e) {
 
                 if (e.target.closest("button") || e.target.closest("input")) return;
 
                 const index = this.dataset.index;
-                const id = cart[index].id;
+                const selectedItem = cart[index];
 
-                window.location.href = "product-view.php?id=" + id + "&cartIndex=" + index;
+                if (!selectedItem) return;
+
+                window.location.href = "product-view.php?id=" + selectedItem.id + "&cartIndex=" + index;
 
             });
         });
@@ -100,18 +104,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function attachEvents() {
 
+        // ✅ DELETE ITEM
         document.querySelectorAll(".delete-item").forEach(btn => {
             btn.addEventListener("click", function () {
 
                 const index = this.closest(".cart-item").dataset.index;
-                cart.splice(index, 1);
+
+                if (cart[index]) {
+                    cart.splice(index, 1);
+                }
 
                 localStorage.setItem("cart", JSON.stringify(cart));
+
                 renderCart();
                 updateGrandTotal();
             });
         });
 
+        // ✅ UPDATE QTY
         document.querySelectorAll(".qty-input").forEach(input => {
 
             input.addEventListener("change", async function () {
@@ -120,6 +130,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 let newQty = parseInt(this.value);
 
                 const item = cart[index];
+                if (!item) return;
 
                 const res = await fetch("check-stock.php", {
                     method:"POST",
@@ -147,10 +158,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
 
-                if(cart[index])
+                if (cart[index]) {
                     cart[index].qty = newQty;
+                }
 
                 localStorage.setItem("cart", JSON.stringify(cart));
+
                 renderCart();
                 updateGrandTotal();
 
@@ -158,7 +171,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ✅ FIXED (NO selectedItems here)
+    // ✅ TOTAL CALCULATION
     function updateGrandTotal() {
 
         let total = 0;
@@ -185,23 +198,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const checkoutBtn = document.getElementById("checkoutBtn");
 
-        if (total <= 0) {
-            checkoutBtn.disabled = true;
-            checkoutBtn.style.opacity = "0.5";
-        } else {
-            checkoutBtn.disabled = false;
-            checkoutBtn.style.opacity = "1";
-        }
+        checkoutBtn.disabled = total <= 0;
+        checkoutBtn.style.opacity = total <= 0 ? "0.5" : "1";
     }
 
+    // ✅ CHECKOUT
     const checkoutBtn = document.getElementById("checkoutBtn");
 
     checkoutBtn.addEventListener("click", function (e) {
 
         let selectedItems = [];
+
         document.querySelectorAll(".select-item:checked").forEach(cb => {
 
-            const item = JSON.parse(cb.dataset.item); // 🔥 EXACT ITEM
+            const item = JSON.parse(cb.dataset.item);
 
             if (item) {
                 selectedItems.push(item);

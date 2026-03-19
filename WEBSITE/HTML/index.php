@@ -1,4 +1,5 @@
 <?php
+session_start();
 $conn = new mysqli("localhost", "root", "", "capstone");
 if ($conn->connect_error) {
     die("Database connection failed");
@@ -36,18 +37,21 @@ if ($result && $row = $result->fetch_assoc()) {
 
   <header class="header">
     <div class="logo-wrapper">
-      <a href="index.php" class="logo-wrapper">
         <img src="../PICTURE/logo.png" class="logo">
-      </a>
     </div>
 
     <!-- NAV -->
-    <nav class="nav">
-      <a href="index.php">HOME</a>
-      <a href="home.php">SHOP</a>
-      <a href="try-on.html">TRY-ON</a>
-      <a href="login.html">LOGIN</a>
-    </nav>
+<nav class="nav">
+  <a href="index.php">HOME</a>
+  <a href="home.php">SHOP</a>
+  <a href="try-on.html">TRY-ON</a>
+
+  <?php if(isset($_SESSION['user'])): ?>
+      <a href="logout.php">LOGOUT</a>
+  <?php else: ?>
+      <a href="login.php">LOGIN</a>
+  <?php endif; ?>
+</nav>
 
   </header>
 

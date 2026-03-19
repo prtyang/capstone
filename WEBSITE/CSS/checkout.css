@@ -227,6 +227,39 @@ input:focus {
   font-weight: 600;
 }
 
+/* READONLY FIELDS (profile auto-filled) */
+input[readonly] {
+  background-color: #f5f5f5;
+  color: #777;
+  cursor: not-allowed;
+  border: 1px solid #ddd;
+}
+
+/* optional focus style */
+input[readonly]:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Disabled payment methods */
+.disabled-payment {
+  opacity: 0.5;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.disabled-payment span {
+  color: #999;
+}
+
+.disabled-payment::after {
+  content: "Not Available";
+  position: absolute;
+  right: 10px;
+  font-size: 12px;
+  color: red;
+}
+
 .summary-line {
   display: flex;
   justify-content: space-between;
@@ -241,6 +274,41 @@ input:focus {
 /*  COUPON */
 #couponInput {
   margin: 12px 0;
+}
+
+/* APPLY VOUCHER BUTTON */
+#applyVoucher{
+background:#ff6fa5;
+color:white;
+border:none;
+padding:10px 22px;
+border-radius:30px;
+font-size:14px;
+font-weight:600;
+cursor:pointer;
+margin-top:8px;
+transition:all 0.3s ease;
+box-shadow:0 4px 10px rgba(255,111,165,0.25);
+}
+
+/* HOVER */
+#applyVoucher:hover{
+background:#ff4d94;
+transform:translateY(-1px);
+box-shadow:0 6px 14px rgba(255,111,165,0.35);
+}
+
+/* CLICK */
+#applyVoucher:active{
+transform:scale(0.96);
+box-shadow:0 2px 6px rgba(255,111,165,0.2);
+}
+
+/* DISABLED (after voucher applied) */
+#applyVoucher:disabled{
+background:#f4a6c3;
+cursor:not-allowed;
+box-shadow:none;
 }
 
 /* BUTTON */

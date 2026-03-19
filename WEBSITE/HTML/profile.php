@@ -107,7 +107,8 @@
 </div>
 <script src="../JS/profile.js"></script>
 
-<div id="reviewModal" class="modal">
+<!-- REVIEW MODAL -->
+<div id="reviewModal" class="review-modal">
   <div class="modal-content">
 
     <h2>Review</h2>
@@ -130,6 +131,91 @@
 </button>
   <button onclick="closeModal()">Cancel</button>
 </div>
+
+  </div>
+</div>
+<div id="policyModal" class="modal">
+  <div class="modal-content policy-box">
+
+    <span onclick="closePolicyModal()" class="close-btn">&times;</span>
+
+    <h3>Return & Refund Policy</h3>
+
+    <div class="policy-text">
+
+      <h4>Refund Method</h4>
+      <p>All approved refunds will be processed via GCash.</p>
+
+      <h4>Return Conditions</h4>
+
+      <p><strong>Underwear Items</strong></p>
+      <ul>
+        <li>Can only be returned if the parcel has NOT been opened.</li>
+        <li>Opened parcels are not eligible for return/refund.</li>
+      </ul>
+
+      <p><strong>All Other Items</strong></p>
+      <ul>
+        <li>Must be in good condition</li>
+        <li>Must not be heavily used or damaged</li>
+      </ul>
+
+      <h4>Return Process</h4>
+      <ol>
+        <li>Request Return/Refund</li>
+        <li>Fill up the form</li>
+        <li>Upload proof (image/video)</li>
+        <li>Wait for seller approval</li>
+      </ol>
+
+      <h4>Important</h4>
+      <p>
+        Refund will be sent to your GCash number.  
+        If your number is no longer active, you must provide your new 
+        GCash number in the reason/message section when submitting the request.
+      </p> </br>
+      <p>
+        If you have not received your refund after the status become completed,
+        you may follow up again or contact platform support.
+      </p> 
+
+    </div>
+
+    <button onclick="proceedToReturn()" class="policy-btn">
+      I Understand
+    </button>
+
+  </div>
+</div>
+
+<!-- RETURN / REFUND MODAL -->
+<div id="returnModal" class="return-modal">
+  <div class="modal-content">
+
+    <span class="close" onclick="closeReturnModal()">&times;</span>
+
+    <h2>Return / Refund</h2>
+
+    <input type="hidden" id="returnOrderId">
+
+    <p>Message</p>
+    <textarea id="returnMessage" placeholder="Enter your reason..."></textarea>
+
+    <p>Supporting Files</p>
+
+    <div class="upload-preview" style="display:flex; gap:10px; flex-wrap:wrap;">
+      <label class="upload-box" title="Upload image or video">
+        <input type="file" id="returnFiles" multiple hidden accept="image/*,video/*">
+        <span>+</span>
+      </label>
+
+      <div id="previewContainer"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="submit-btn" onclick="submitReturn()">Return</button>
+      <button onclick="closeReturnModal()">Cancel</button>
+    </div>
 
   </div>
 </div>

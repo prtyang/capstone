@@ -532,3 +532,275 @@ h3 {
     width: 100%;
   }
 }
+
+.refund-section {
+  margin-top: 20px;
+}
+
+.refund-message {
+  width: 100%;
+  height: 120px;
+  border: 2px solid #ff5c8a;
+  border-radius: 8px;
+  padding: 10px;
+  resize: none;
+  margin-top: 10px;
+}
+
+.refund-media {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.media-box {
+  width: 80px;
+  height: 80px;
+  background: #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.media-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.refund-actions {
+  margin-top: 20px;
+  text-align: right;
+}
+
+.approve-btn {
+  background: #e91e63;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* =========================
+   GLOBAL BUTTON STYLE
+========================= */
+button,
+.summary-action a {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.25s ease;
+  font-weight: 500;
+}
+
+/* =========================
+   CANCEL BUTTON (SOFT RED-PINK)
+========================= */
+.cancel-btn {
+  background: #ffe4e6;
+  color: #d6336c;
+}
+
+.cancel-btn:hover {
+  background: #ffc9d1;
+  transform: scale(1.05);
+}
+
+/* =========================
+   APPROVE REFUND (SOFT PEACH)
+========================= */
+.approve-btn {
+  background: #fff0f3;
+  color: #ff6b81;
+}
+
+.approve-btn:hover {
+  background: #ffd6dc;
+  transform: scale(1.05);
+}
+
+/* =========================
+   PROCESS REFUND (SOFT PINK BLUE)
+========================= */
+.refund-btn {
+  background: #fce7f3;
+  color: #db2777;
+}
+
+.refund-btn:hover {
+  background: #fbcfe8;
+  transform: scale(1.05);
+}
+
+
+/* =========================
+   RETURN DETAILS BUTTON
+========================= */
+.return-details-btn {
+  background: #fff1f2;
+  color: #e11d48;
+}
+
+.return-details-btn:hover {
+  background: #ffe4e6;
+  transform: scale(1.05);
+}
+
+/* =========================
+   DEFAULT ACTION BUTTON
+========================= */
+.summary-action a {
+  background: #fdf2f8;
+  color: #be185d;
+}
+
+.summary-action a:hover {
+  background: #fbcfe8;
+  transform: scale(1.05);
+}
+
+/* =========================
+   MODAL STYLE (SOFT PINK)
+========================= */
+.modal-content {
+  background: #fff0f5;
+  padding: 20px;
+  border-radius: 16px;
+  width: 350px;
+  box-shadow: 0 10px 25px rgba(255, 182, 193, 0.3);
+}
+
+/* =========================
+   IMAGE PREVIEW (CUTE GRID)
+========================= */
+.refund-images img,
+.refund-images video {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid #ffe4e6;
+  transition: 0.2s;
+}
+
+.refund-images img:hover,
+.refund-images video:hover {
+  transform: scale(1.08);
+  border-color: #ffb6c1;
+}
+
+/* =========================
+   PIN MODAL (SOFT STYLE)
+========================= */
+.pin-box {
+  background: #fff0f5;
+  padding: 20px;
+  border-radius: 16px;
+  width: 280px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(255, 182, 193, 0.3);
+}
+
+.pin-box input {
+  border: 1px solid #ffc0cb;
+  border-radius: 8px;
+}
+
+.pin-actions .confirm {
+  background: #fbcfe8;
+  color: #be185d;
+}
+
+.pin-actions .confirm:hover {
+  background: #f9a8d4;
+}
+
+.pin-actions .cancel {
+  background: #ffe4e6;
+  color: #9f1239;
+}
+
+.pin-actions .cancel:hover {
+  background: #fecdd3;
+}
+
+/* =========================
+   BUTTON BASE (CLEAN + BIGGER)
+========================= */
+button,
+.summary-action a {
+  padding: 10px 18px;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 10px rgba(255, 182, 193, 0.2);
+}
+
+
+/* =========================
+   BASE BUTTON STYLE
+========================= */
+button {
+  padding: 10px 18px;
+  border-radius: 25px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+
+/* =========================
+   CLICKABLE BUTTONS
+========================= */
+.cancel-btn,
+.approve-btn,
+.refund-btn {
+  background: #f10089;
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(255, 182, 193, 0.2);
+}
+
+/* HOVER ONLY FOR CLICKABLE */
+.cancel-btn:hover,
+.approve-btn:hover,
+.refund-btn:hover {
+  background: #da66a8;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 18px rgba(255, 105, 135, 0.3);
+}
+
+/* CLICK EFFECT */
+.cancel-btn:active,
+.approve-btn:active,
+.refund-btn:active {
+  transform: scale(0.95);
+}
+
+/* =========================
+   DISABLED BUTTONS
+========================= */
+.disabled-btn {
+  background: #fde2e4;
+  color: #9d174d;
+  cursor: not-allowed;
+  opacity: 0.7;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+/* REMOVE HOVER */
+.disabled-btn:hover {
+  transform: none;
+  box-shadow: none;
+  background: #fde2e4;
+}
+
+

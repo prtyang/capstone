@@ -37,7 +37,9 @@ while ($order = $query->fetch_assoc()) {
         "date" => $date,
         "status" => strtolower($order['status'] ?? 'orderplace'),
         "total" => $order['total'],
-        "items" => $items
+        "items" => $items,
+        "refund_message" => $order['refund_message'] ?? "",
+        "refund_images" => json_decode($order['refund_images'] ?? "[]", true)
     ];
 }
 
