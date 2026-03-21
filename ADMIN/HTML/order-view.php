@@ -272,18 +272,18 @@ if (
 
   <div class="refund-actions">
 
-    <?php if ($status === 'Request Return'): ?>
+    <?php if ($status === 'request return'): ?>
 
       <button onclick="approveRefund(<?= $order['id'] ?>)" class="approve-btn">
         Approve
       </button>
 
-    <?php elseif ($status === 'Waiting to Refund'): ?>
+    <?php elseif ($status === 'waiting to refund'): ?>
       <button onclick="processRefund(<?= $order['id'] ?>)" class="refund-btn">
         Refund
       </button>
 
-    <?php elseif ($status === 'Refunded'): ?>
+    <?php elseif ($status === 'refunded'): ?>
       <button class="done-btn" disabled>
         Refunded
       </button>

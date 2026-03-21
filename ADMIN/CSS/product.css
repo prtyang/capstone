@@ -198,8 +198,8 @@ body {
   border-radius: 999px;
   border: 1.5px solid #C94A7C;
 
-  background: #C94A7C;
-  color: #f8f8f8;
+  background: #ffdff0;
+  color: #000000;
 
   font-size: 14px;
   font-weight: 500;
@@ -219,7 +219,7 @@ body {
   border-radius: 999px;
   border: 1.5px solid #C94A7C;
 
-  background: #a60741;
+  background: #fd006e;
   color: #f0f0f0;
 
   font-size: 14px;
@@ -240,8 +240,8 @@ a {
 .add-btn:hover,
 .delete-all-btn:hover,
 .delete-btn:hover {
-  background: #C94A7C;
-  color: #fff;
+  background: #b8004d;
+  color: #ffffff;
 }
 
 .delete-btn {

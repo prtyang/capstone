@@ -13,36 +13,6 @@ function goBack() {
 
 let currentOrderId = null;
 
-function approveRefund(id, btn) {
-  if (!confirm("Approve this refund?")) return;
-
-  fetch("update-order-status.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      id: id,
-      status: "Waiting to Refund"
-    })
-  })
-  .then(res => res.json())
-  .then(res => {
-    if (res.success) {
-
-      // CHANGE BUTTON TO "REFUND NOW"
-      btn.innerText = "Refund Now";
-      btn.classList.remove("approve-btn");
-      btn.classList.add("refund-btn");
-
-      // change action
-      btn.onclick = function () {
-        processRefund(id, btn);
-      };
-
-    }
-  });
-}
 
 function openPinModal() {
   document.getElementById("pinModal").style.display = "flex";
@@ -72,7 +42,7 @@ function cancelOrder(orderId) {
 
         if (data.success) {
 
-            // 🔥 CHANGE BUTTON UI
+            // CHANGE BUTTON UI
             const btn = document.querySelector(".cancel-btn");
 
             btn.innerText = "Cancelled";

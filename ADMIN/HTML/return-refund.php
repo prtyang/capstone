@@ -138,7 +138,10 @@ $processCount = $conn->query("
 <?php
 $search = $_GET['search'] ?? '';
 
-$sql = "SELECT * FROM orders WHERE status = 'Completed'";
+$sql = "SELECT * FROM orders 
+        WHERE 
+        LOWER(TRIM(status)) LIKE '%return%' 
+        OR LOWER(TRIM(status)) LIKE '%refund%'";
 
 if(!empty($search)){
     $search = $conn->real_escape_string($search);

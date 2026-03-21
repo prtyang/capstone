@@ -116,13 +116,6 @@ function confirmDeleteWithPin() {
               if (row) row.remove();
             }
           });
-
-          if (data.blocked.length > 0) {
-            document.getElementById("pinError").innerText =
-              "Cannot delete: product has existing orders";
-          } else {
-            document.getElementById("pinError").innerText = "";
-          }
         }
 
         closePinModal();
@@ -135,6 +128,41 @@ function confirmDeleteWithPin() {
   });
 }
 
+/* =============================
+   DELETE BUTTON (SINGLE)
+============================= */
+document.addEventListener("click", function (e) {
+  if (e.target.classList.contains("single-delete")) {
+    
+    const id = e.target.dataset.id;
+
+    deleteIds = [id]; // store single ID
+    openPinModal();   // open modal
+
+  }
+});
+
+
+/* =============================
+   DELETE SELECTED
+============================= */
+document.getElementById("deleteSelectedBtn")?.addEventListener("click", () => {
+
+  const checked = document.querySelectorAll(".row-checkbox:checked");
+
+  if (checked.length === 0) {
+    alert("Please select at least one product");
+    return;
+  }
+
+  deleteIds = [];
+
+  checked.forEach(cb => {
+    deleteIds.push(cb.value);
+  });
+
+  openPinModal();
+});
 
 /* =============================
    RETURN MODAL
