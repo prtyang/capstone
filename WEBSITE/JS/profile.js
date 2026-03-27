@@ -97,40 +97,70 @@ function renderPreview(preview) {
 }
 
 // PASSWORD TOGGLE
-togglePassword.addEventListener("click", function () {
-  if (passwordInput.type === "password") {
-    passwordInput.type = "text";
-    this.classList.replace("fa-eye", "fa-eye-slash");
-  } else {
-    passwordInput.type = "password";
-    this.classList.replace("fa-eye-slash", "fa-eye");
-  }
-});
+if(togglePassword){
+  togglePassword.addEventListener("click", function () {
+    if (passwordInput.type === "password") {
+      passwordInput.type = "text";
+      this.classList.replace("fa-eye", "fa-eye-slash");
+    } else {
+      passwordInput.type = "password";
+      this.classList.replace("fa-eye-slash", "fa-eye");
+    }
+  });
+}
 
 //  SAVE / EDIT PROFILE
 saveBtn.addEventListener("click", function () {
 
   if (!isSaved) {
-    const profileData = {
-      name: name.value.trim(),
-      dob: dob.value,
-      gender: gender.value,
-      email: email.value,
-      username: username.value,
-      password: password.value,
-      image: profileImg.src || ""
-    };
 
-    localStorage.setItem("profile", JSON.stringify(profileData));
+    const formData = new FormData();
+    formData.append("name", document.getElementById("name").value);
+    formData.append("dob", document.getElementById("dob").value);
+    formData.append("gender", document.getElementById("gender").value);
+    formData.append("email", document.getElementById("email").value);
 
-    inputs.forEach(input => input.disabled = true);
+    fetch("../HTML/update-profile.php", {
+      method: "POST",
+      body: formData
+    })
+    .then(res => res.text())
+    .then(response => {
 
-    saveBtn.textContent = "Edit";
-    saveBtn.classList.add("saved");
+      console.log("SERVER RESPONSE:", response);
 
-    isSaved = true;
+
+    let res;
+
+      try {
+        res = JSON.parse(response);
+      } catch (e) {
+        console.warn("Invalid JSON:", response);
+      return;
+      }
+      if (res.success) {
+
+        inputs.forEach(input => input.disabled = true);
+
+        saveBtn.textContent = "Edit";
+        saveBtn.classList.add("saved");
+
+        isSaved = true;
+
+        alert("Profile saved!");
+
+      } else {
+        alert("Save failed: " + res.error);
+      }
+
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Fetch error");
+    });
 
   } else {
+
     inputs.forEach(input => input.disabled = false);
 
     saveBtn.textContent = "Save";
@@ -141,31 +171,58 @@ saveBtn.addEventListener("click", function () {
 
 });
 
-// LOAD PROFILE
-window.addEventListener("load", function () {
-  const saved = JSON.parse(localStorage.getItem("profile"));
+// LOAD PROFILE FROM DATABASE
+window.addEventListener("DOMContentLoaded", () => {
 
-  if (saved) {
-    name.value = saved.name || "";
-    dob.value = saved.dob || "";
-    gender.value = saved.gender || "";
-    email.value = saved.email || "";
-    username.value = saved.username || "";
-    password.value = saved.password || "";
+    fetch("../HTML/get-profile.php")
+    
+.then(res => res.text())
+.then(text => {
 
-    if (saved.image) {
-      profileImg.src = saved.image;
-      profileImg.style.display = "block";
-      placeholder.style.display = "none";
+    console.log("RAW RESPONSE:", text);
+
+    if (!text) {
+        console.error("Empty response from server");
+        return;
     }
 
-    inputs.forEach(input => input.disabled = true);
-    saveBtn.textContent = "Edit";
-    saveBtn.classList.add("saved");
-    isSaved = true;
-  }
+    let data;
+    try {
+        data = JSON.parse(text);
+    } catch (e) {
+        console.error("Invalid JSON:", text);
+        return;
+    }
 
-  loadOrders(); 
+    console.log("USER DATA:", data);
+
+    if (data.error) {
+        alert(data.error);
+        return;
+    }
+
+      document.getElementById("name").value = data.name || "";
+    if (data.dob && data.dob !== "0000-00-00") {
+      document.getElementById("dob").value = data.dob;
+    } else {
+      document.getElementById("dob").value = "";
+    }
+      document.getElementById("gender").value = data.gender || "";
+      document.getElementById("email").value = data.email || "";
+
+    if (data.profile_image) {
+      profileImg.src = "../" + data.profile_image;
+      profileImg.style.display = "block";
+      placeholder.style.display = "none";
+    } else {
+      // RESET IMAGE IF NONE IN DB
+      profileImg.src = "";
+      profileImg.style.display = "none";
+      placeholder.style.display = "block";
+    }
+
+  });
+
 });
 // PROFILE IMAGE UPLOAD (FIX)
 const fileInput = document.getElementById("fileInput");
@@ -197,7 +254,7 @@ if (fileInput) {
   try {
     res = JSON.parse(response);
   } catch (e) {
-    alert("❌ PHP ERROR — Check console (F12)");
+    alert(" PHP ERROR — Check console (F12)");
     return;
   }
 
@@ -211,8 +268,6 @@ if (fileInput) {
 
     let profile = JSON.parse(localStorage.getItem("profile")) || {};
     profile.image = newImage;
-
-    localStorage.setItem("profile", JSON.stringify(profile));
 
   } else {
     alert("Upload failed: " + res.error);
@@ -673,3 +728,21 @@ function submitReturn() {
   });
 }
 
+//
+window.addEventListener("DOMContentLoaded", () => {
+
+    fetch("../HTML/get-profile.php")
+    .then(res => res.json())
+    .then(data => {
+
+        console.log("USER DATA:", data);
+
+        document.getElementById("name").value = data.name || "";
+        document.getElementById("dob").value = data.dob || "";
+        document.getElementById("gender").value = data.gender || "";
+        document.getElementById("email").value = data.email || "";
+
+    })
+    .catch(err => console.error(err));
+
+});

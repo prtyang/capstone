@@ -255,3 +255,117 @@ body::after{
 .login-box button:active{
   transform: scale(0.97);
 }
+/* LOGIN BOX */
+.login-box {
+  position: relative;
+  z-index: 2;
+}
+
+/* FORGOT BOX */
+#forgotBox {
+  display: none;
+  width: 100%;
+  margin-top: 20px;
+}
+
+/* SHOW WHEN ACTIVE */
+#forgotBox.active {
+  display: block;
+}
+
+/* INPUT FIX */
+#forgotBox .input-box input {
+  color: #333;
+}
+
+/* BUTTON */
+#forgotBox button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ff4d88, #c94a7c);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* BACK */
+#forgotBox p {
+  text-align: center;
+  margin-top: 15px;
+  color: #c94a7c;
+  cursor: pointer;
+}
+
+/* FORGOT PASSWORD LINK */
+.forgot-link {
+  text-align: center;
+  margin-top: 10px;
+  color: #c94a7c;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+/* RESET BOX */
+.forgot-box {
+  display: none;
+  margin-top: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+.forgot-box h2 {
+  color: #c94a7c;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* BUTTON STYLE */
+.btn-primary {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ff4d88, #c94a7c);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-primary:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* BACK LINK */
+.back-link {
+  text-align: center;
+  margin-top: 15px;
+  color: #c94a7c;
+  cursor: pointer;
+}
+
+/* ANIMATION */
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(10px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+.password-box {
+  position: relative;
+}
+
+.toggle-eye {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}

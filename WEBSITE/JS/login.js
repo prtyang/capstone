@@ -1,59 +1,23 @@
-const formTitle = document.getElementById("formTitle");
-const formBtn = document.getElementById("formBtn");
-const emailField = document.getElementById("emailField");
-const toggleText = document.getElementById("toggleText");
-
-let isLogin = true;
-
-function setupToggle() {
-  document.getElementById("switchMode").addEventListener("click", () => {
-    isLogin = !isLogin;
-
-    if(isLogin){
-      formTitle.textContent = "LOGIN";
-      formBtn.textContent = "Login";
-      emailField.style.display = "none";
-      toggleText.innerHTML = `Don't have an account? <span id="switchMode">Register</span>`;
-    } else {
-      formTitle.textContent = "REGISTER";
-      formBtn.textContent = "Register";
-      emailField.style.display = "block";
-      toggleText.innerHTML = `Already have an account? <span id="switchMode">Login</span>`;
-    }
-
-    setupToggle(); // re-bind click
-  });
-}
-
 const goRegister = document.getElementById("goRegister");
 const goLogin = document.getElementById("goLogin");
 
 const loginForm = document.querySelector(".login");
 const registerForm = document.querySelector(".register");
 
-const leftPanel = document.querySelector(".panel .left");
-const rightPanel = document.querySelector(".panel .right");
-
+let otpVerified = false;
 // 👉 SWITCH TO REGISTER
 goRegister.addEventListener("click", () => {
   loginForm.style.display = "none";
   registerForm.style.display = "block";
-
-  // panel text
-  leftPanel.style.opacity = "1";
-  rightPanel.style.opacity = "0";
 });
 
 // 👉 SWITCH TO LOGIN
 goLogin.addEventListener("click", () => {
   loginForm.style.display = "block";
   registerForm.style.display = "none";
-
-  // panel text
-  leftPanel.style.opacity = "0";
-  rightPanel.style.opacity = "1";
 });
 
+//OPEN MODAL OTP
 document.querySelectorAll(".togglePassword").forEach(toggle => {
   toggle.addEventListener("click", () => {
     const input = document.getElementById(toggle.dataset.target);
@@ -67,3 +31,99 @@ document.querySelectorAll(".togglePassword").forEach(toggle => {
     }
   });
 });
+
+// SWITCH PANEL TO FORGOT PASSWORD
+document.addEventListener("DOMContentLoaded", () => {
+  const forgotBtn = document.getElementById("forgotBtn");
+
+  if (forgotBtn) {
+    forgotBtn.addEventListener("click", () => {
+      document.getElementById("defaultPanel").style.display = "none";
+      document.getElementById("forgotPanel").style.display = "block";
+    });
+  }
+});
+
+// BACK TO LOGIN PANEL
+function backToLogin(){
+  document.getElementById("defaultPanel").style.display = "block";
+  document.getElementById("forgotPanel").style.display = "none";
+}
+
+// SEND OTP
+function sendOTP(){
+  const email = document.getElementById("resetEmail").value;
+
+  fetch("../HTML/send_otp.php", {
+    method: "POST",
+    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+    body: "email=" + email
+  })
+  .then(res => res.text())
+  .then(data => {
+  console.log("SERVER:", data);
+    alert(data);
+    document.getElementById("otpBox").style.display = "block";
+  });
+}
+
+// VERIFY OTP
+function verifyOTP(){
+  const email = document.getElementById("resetEmail").value;
+  const otp = document.getElementById("otp").value;
+
+  fetch("../HTML/verify_otp.php", {
+    method: "POST",
+    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+    body: `email=${email}&otp=${otp}`
+  })
+  .then(res => res.text())
+  .then(data => {
+  if(data.trim() === "success"){
+    alert("OTP Verified!");
+    otpVerified = true; // IMPORTANT
+    document.getElementById("newPassBox").style.display = "block";
+  } else {
+      alert("Invalid OTP");
+    }
+  });
+}
+
+// RESET PASSWORD
+function resetPassword(){
+  if(!otpVerified){
+    alert("Please verify OTP first");
+    return;
+  }
+
+  const email = document.getElementById("resetEmail").value;
+  const otp = document.getElementById("otp").value;
+  const password = document.getElementById("newPassword").value;
+
+  fetch("../HTML/reset_password.php", {
+    method: "POST",
+    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+    body: `email=${email}&otp=${otp}&password=${password}`
+  })
+  .then(res => res.text())
+  .then(data => {
+  alert(data);
+
+  if(data.includes("Password updated")){
+    // reset UI
+    document.getElementById("newPassBox").style.display = "none";
+    document.getElementById("otpBox").style.display = "none";
+    document.getElementById("forgotPanel").style.display = "none";
+    document.getElementById("defaultPanel").style.display = "block";
+
+    // clear inputs
+    document.getElementById("resetEmail").value = "";
+    document.getElementById("otp").value = "";
+    document.getElementById("newPassword").value = "";
+
+    // OPTIONAL: auto switch to login form
+    loginForm.style.display = "block";
+    registerForm.style.display = "none";
+  }
+});
+}

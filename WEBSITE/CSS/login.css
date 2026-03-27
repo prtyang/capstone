@@ -278,20 +278,24 @@ span{
 .panel-content h2{
   margin-bottom:5px;
   letter-spacing:1px;
+  color: #cd0052;
 }
 
 .panel-content p{
   line-height:1.6;
   font-size:14px;
+  color: #cd0052;
 }
 
 /* default = LOGIN */
 .panel .left{
   opacity:0;
+  color: #cd0052;
 }
 
 .panel .right{
   opacity:1;
+  color: #cd0052;
 }
 
 /* show login by default */
@@ -315,4 +319,173 @@ span{
 
 .background-wave::after{
   animation: floatWave 10s ease-in-out infinite;
+}
+
+/* LOGIN BUTTON */
+.form-container.login .btn {
+  display: block;
+  margin: 20px auto 10px auto; 
+  margin-left: 10px;
+}
+
+/* FORGOT PASSWORD */
+.form-container.login .forgot {
+  text-align: center;
+  margin-bottom: 10px;
+  margin-right: 100px;
+}
+
+/* SIGNUP TEXT */
+.form-container.login .signup-text {
+  text-align: center;
+  margin-right: 100px;
+}
+
+#forgotPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* EMAIL + BUTTON INLINE */
+#forgotPanel input[type="email"] {
+  width: 60%;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* FIX INPUT CONTAINER */
+#forgotPanel input,
+#forgotPanel button {
+  position: relative;
+}
+
+/* WRAP FIRST INPUT + BUTTON */
+#forgotPanel input[type="email"] + button {
+  position: relative;
+  top: -2px;
+}
+
+#forgotPanel {
+  text-align: center;
+}
+
+#forgotPanel input[type="email"] {
+  width: 60%;
+}
+
+#forgotPanel button {
+  display: inline-block;
+  height: 38px;
+  padding: 0 14px;
+
+  border-radius: 6px;
+  border: 1px solid #ddd;
+
+  background: #fff;
+  color: #555;
+  font-size: 13px;
+  font-weight: 500;
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  vertical-align: middle;
+}
+
+/* HOVER */
+#forgotPanel button:hover {
+  border-color: #e91e63;
+  color: #e91e63;
+  background: #fff5f8;
+}
+
+/* CLICK */
+#forgotPanel button:active {
+  transform: scale(0.96);
+}
+
+#forgotPanel button {
+  border: none;
+  background: #e91e63;
+  color: white;
+}
+
+#forgotPanel button:hover {
+  background: #c2185b;
+}
+
+
+/* OTP + NEW PASSWORD INPUT */
+#forgotPanel input[type="text"],
+#forgotPanel input[type="password"] {
+  width: 70%;
+  padding: 12px 14px;
+  margin: 12px 0;
+
+  border: none;
+  border-bottom: 2px solid rgba(0,0,0,0.15);
+
+  background: rgba(255,255,255,0.3);
+  border-radius: 8px 8px 0 0;
+
+  color: #333;
+  font-size: 14px;
+
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+/* PLACEHOLDER */
+#forgotPanel input::placeholder {
+  color: rgba(0,0,0,0.4);
+}
+
+/* FOCUS EFFECT */
+#forgotPanel input:focus {
+  border-bottom: 2px solid #e91e63;
+  background: rgba(255,255,255,0.6);
+
+  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.15);
+}
+
+/* VERIFY + UPDATE BUTTON */
+#forgotPanel #otpBox button,
+#forgotPanel #newPassBox button {
+  margin-top: 12px;
+  padding: 10px 18px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #e91e63;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
+}
+
+.forgot,
+#goLogin,
+#goRegister,
+#forgotBtn,
+.signup-text span,
+#forgotPanel p {
+  cursor: pointer;
+}
+
+/* HOVER */
+#forgotPanel #otpBox button:hover,
+#forgotPanel #newPassBox button:hover {
+  background: #c2185b;
+}
+
+/* CLICK */
+#forgotPanel #otpBox button:active,
+#forgotPanel #newPassBox button:active {
+  transform: scale(0.97);
 }

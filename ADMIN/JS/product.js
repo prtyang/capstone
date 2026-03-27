@@ -2,41 +2,55 @@ let deleteIds = []; // store IDs to delete
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* =============================
-     DISPLAY ORDERS (WITH BUTTON)
-  ============================= */
-  const ordersContainer = document.getElementById("ordersContainer");
+});
+/* =============================
+   FILTER + SEARCH
+============================= */
+document.addEventListener("DOMContentLoaded", () => {
 
-  const orders = [
-    { id: 101, status: "Completed" },
-    { id: 102, status: "Shipping" }
-  ];
+  const searchInput = document.getElementById("searchInput");
+  const statusFilter = document.getElementById("statusFilter");
+  const stockFilter = document.getElementById("stockFilter");
 
-  orders.forEach(order => {
-    const card = document.createElement("div");
-    card.classList.add("order-card");
+  const rows = document.querySelectorAll(".product-row");
 
-    card.innerHTML = `
-      <p><strong>Order #${order.id}</strong></p>
-      <p>Status: ${order.status}</p>
-    `;
+  function filterProducts() {
+    const searchValue = searchInput.value.toLowerCase();
+    const statusValue = statusFilter.value;
+    const stockValue = stockFilter.value;
 
-    if (order.status === "Completed") {
-      const btn = document.createElement("button");
-      btn.textContent = "Return / Refund";
-      btn.classList.add("return-btn");
+    rows.forEach(row => {
+      const text = row.innerText.toLowerCase();
+      const status = row.dataset.status;
+      const stock = row.dataset.stock;
 
-      btn.onclick = () => openReturnModal(order.id);
+      let show = true;
 
-      card.appendChild(btn);
-    }
+      // SEARCH
+      if (!text.includes(searchValue)) {
+        show = false;
+      }
 
-    ordersContainer.appendChild(card);
-  });
+      // STATUS FILTER
+      if (statusValue !== "all" && status !== statusValue) {
+        show = false;
+      }
 
-}); // ✅ ONLY ONE closing
+      // STOCK FILTER
+      if (stockValue !== "all" && stock !== stockValue) {
+        show = false;
+      }
 
+      row.style.display = show ? "grid" : "none";
+    });
+  }
 
+  // EVENTS
+  searchInput.addEventListener("input", filterProducts);
+  statusFilter.addEventListener("change", filterProducts);
+  stockFilter.addEventListener("change", filterProducts);
+
+});
 /* =============================
    STATUS TOGGLE (OUTSIDE)
 ============================= */
