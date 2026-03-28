@@ -211,7 +211,7 @@ window.addEventListener("DOMContentLoaded", () => {
       document.getElementById("email").value = data.email || "";
 
     if (data.profile_image) {
-      profileImg.src = "../" + data.profile_image;
+      profileImg.src = "/CAPSTONE/" + data.profile_image;
       profileImg.style.display = "block";
       placeholder.style.display = "none";
     } else {
@@ -260,7 +260,7 @@ if (fileInput) {
 
   if (res.success) {
 
-    const newImage = "../" + res.path;
+    const newImage = "/CAPSTONE/" + res.path;
 
     profileImg.src = newImage;
     profileImg.style.display = "block";

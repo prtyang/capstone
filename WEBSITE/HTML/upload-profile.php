@@ -1,22 +1,35 @@
 <?php
+session_start();
 include "../../config/db.php";
 header("Content-Type: application/json");
 
-if (isset($_FILES['image']) && isset($_POST['email'])) {
+// ✅ CHECK LOGIN
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(["success" => false, "error" => "Not logged in"]);
+    exit();
+}
+
+if (isset($_FILES['image'])) {
 
     $file = $_FILES['image'];
-    $email = $_POST['email'];
 
     $filename = time() . "_" . basename($file['name']);
     $target = "../../uploads/profile/" . $filename;
 
+    // ✅ CREATE FOLDER IF NOT EXIST
+    if (!file_exists("../../uploads/profile/")) {
+        mkdir("../../uploads/profile/", 0777, true);
+    }
+
     if (move_uploaded_file($file['tmp_name'], $target)) {
 
-        // 🔥 IMPORTANT: SAVE PATH TO DATABASE
         $path = "uploads/profile/" . $filename;
 
-        $stmt = $conn->prepare("UPDATE users SET profile_image=? WHERE email=?");
-        $stmt->bind_param("ss", $path, $email);
+        // ✅ USE USER ID (NOT EMAIL)
+        $id = $_SESSION['user_id'];
+
+        $stmt = $conn->prepare("UPDATE users SET profile_image=? WHERE id=?");
+        $stmt->bind_param("si", $path, $id);
 
         if ($stmt->execute()) {
             echo json_encode([
@@ -40,6 +53,7 @@ if (isset($_FILES['image']) && isset($_POST['email'])) {
 } else {
     echo json_encode([
         "success" => false,
-        "error" => "No file or email"
+        "error" => "No file uploaded"
     ]);
 }
+?>
